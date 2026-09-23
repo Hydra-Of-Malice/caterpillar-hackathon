@@ -3,7 +3,9 @@
  * page — the operator must not have to be on the right screen to learn that a machine needs them.
  *
  * It polls `GET /tc/op/notifications` every few seconds and shows the newest notification with
- * `alarm = true` and no `acknowledged_at`. Accessibility: `role="alert"` + `aria-live="assertive"`,
+ * `alarm = true` and no `acknowledged_at`. A `supervisor_alert` arrives down the same feed but is a
+ * message from a person rather than a machine incident, so it is split out here and handed to
+ * `SupervisorAlert`, which covers the screen — one poll, two presentations. Accessibility: `role="alert"` + `aria-live="assertive"`,
  * an icon and words (never colour alone), and the sound is optional and mutable — never the only
  * channel. Acknowledging posts to the API; the banner does not clear itself locally on a failure.
  */
@@ -17,6 +19,7 @@ import { useAuth } from '../auth';
 import { fmtMetres } from '../time';
 import type { Notification } from '../types';
 import { GmtTime } from './GmtTime';
+import { SupervisorAlert } from './SupervisorAlert';
 
 const ALARM_HEIGHT_VAR = '--tc-alarm-h';
 
@@ -75,7 +78,8 @@ export function AlarmBanner() {
     return () => clearInterval(id);
   }, [user, load]);
 
-  const active = items[0] ?? null;
+  const supervisorAlert = items.find((n) => n.kind === 'supervisor_alert') ?? null;
+  const active = items.find((n) => n.kind !== 'supervisor_alert') ?? null;
 
   // Publish the banner height so sticky page headers can sit below it.
   useEffect(() => {
@@ -88,7 +92,7 @@ export function AlarmBanner() {
     };
   }, [active, active?.notification_id]);
 
-  useDangerTone(!!active && !muted);
+  useDangerTone(!!active && !muted && !supervisorAlert);
 
   const acknowledge = async () => {
     if (!active) return;
@@ -105,12 +109,25 @@ export function AlarmBanner() {
     }
   };
 
-  if (!user || !active) return null;
+  const alertOverlay = user && supervisorAlert ? (
+    <SupervisorAlert
+      key={supervisorAlert.notification_id}
+      alert={supervisorAlert}
+      onAcknowledged={() => {
+        setItems((prev) => prev.filter((n) => n.notification_id !== supervisorAlert.notification_id));
+        void load();
+      }}
+    />
+  ) : null;
+
+  if (!user || !active) return alertOverlay;
 
   const inc = active.incident;
   const remaining = items.length - 1;
 
   return (
+    <>
+      {alertOverlay}
     <div
       ref={barRef}
       role="alert"
@@ -175,5 +192,6 @@ export function AlarmBanner() {
         </div>
       </div>
     </div>
+    </>
   );
 }

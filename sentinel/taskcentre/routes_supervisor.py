@@ -87,6 +87,12 @@ class ReviewIn(BaseModel):
     message_to_operator: str | None = None
 
 
+class AlertIn(BaseModel):
+    """What to put in front of the operator. Everything optional; the flag supplies the defaults."""
+    message: str | None = Field(default=None, max_length=400)
+    comment: str = ""
+
+
 class ExceptionIn(BaseModel):
     comment: str = ""
 
@@ -505,6 +511,66 @@ def review_decide(ticket_id: str, body: ReviewIn, s: Session = Depends(get_sessi
     decisions = _decisions_for(s, [ticket.ticket_id])[ticket.ticket_id]
     return {"ticket": _ticket_dict(s, ticket, decisions), "decision": body.decision,
             "message_sent": message_sent, "penalty_applied": False}
+
+
+#: How long the operator's device sounds the alert. The screen stays until they switch it off; only
+#: the noise is time-boxed, because an alarm nobody can silence is one people learn to ignore.
+ALERT_SECONDS = 30
+
+#: Said to the operator when the supervisor adds nothing of their own. Deliberately an instruction
+#: and a reason, not an accusation: the flag is an observation, and the operator may well have an
+#: explanation the detector could not see.
+DEFAULT_ALERT_MESSAGE = ("Your supervisor needs you back on the job. If something is stopping you, "
+                         "say so in the chat or tap Waiting so the time is recorded properly.")
+
+
+@router.post("/review/{ticket_id}/alert")
+def review_alert(ticket_id: str, body: AlertIn, s: Session = Depends(get_session),
+                 user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """Sound an alert on the operator's own device about this flag.
+
+    This is the supervisor acting on a flag rather than filing it, so the ticket is marked
+    ``confirmed`` and the decision is appended as ``alerted`` - the history then says who rang whom,
+    when, and with what words. The flag's evidence is never rewritten.
+
+    The operator gets one notification with ``alarm`` set, which their app renders full-screen with
+    sound for :data:`ALERT_SECONDS` and keeps on screen until they acknowledge it. It carries the
+    flag's own title so they can see what this is about, not just that somebody is unhappy.
+
+    Nothing here touches a machine: this is a message to a person.
+    """
+    now = time.time()
+    ticket = s.get(TicketRow, ticket_id)
+    if ticket is None:
+        raise HTTPException(404, f"ticket {ticket_id!r} not found")
+    if user.role != "admin" and ticket.owner_user_id != user.user_id:
+        raise HTTPException(403, "this flag belongs to another reviewer")
+    if not ticket.subject_user_id:
+        raise HTTPException(400, "this flag has no subject operator to alert")
+    operator = _team_operator(s, user, ticket.subject_user_id)
+
+    message = (body.message or "").strip() or DEFAULT_ALERT_MESSAGE
+    note = notify(s, operator.user_id, kind="supervisor_alert", severity="warning", alarm=True,
+                  title=f"{user.name} needs your attention", body=message,
+                  link="/tc/op", ticket_id=ticket.ticket_id)
+    s.add(ReviewDecisionRow(ticket_id=ticket.ticket_id, reviewer_id=user.user_id,
+                            reviewer_role=user.role, decision="alerted", comment=body.comment, ts=now,
+                            data={"previous_status": ticket.status, "operator_id": operator.user_id,
+                                  "notification_id": note.notification_id, "message": message,
+                                  "alert_seconds": ALERT_SECONDS, "penalty_applied": False}))
+    ticket.status = "confirmed"
+    s.flush()
+    decisions = _decisions_for(s, [ticket.ticket_id])[ticket.ticket_id]
+    return {"ticket": _ticket_dict(s, ticket, decisions),
+            "operator": user_public(operator),
+            "notification_id": note.notification_id,
+            "message": message,
+            "alert_seconds": ALERT_SECONDS,
+            "penalty_applied": False,
+            "controls_machinery": False,
+            "note": ("The operator's device shows this full-screen and sounds for "
+                     f"{ALERT_SECONDS} s. It is a message to a person; it does not touch the machine."),
+            "sent_at": now, "sent_at_gmt": gmt_iso(now)}
 
 
 # ---------------------------------------------------------------- cameras

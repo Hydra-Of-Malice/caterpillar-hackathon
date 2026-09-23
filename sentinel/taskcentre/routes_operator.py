@@ -489,8 +489,14 @@ def get_today(operator_id: str | None = Query(default=None, description="admin/s
         NotificationRow.user_id == target.user_id, NotificationRow.acknowledged_at.is_(None)).count()
     alarm = _active_alarm(s, target.user_id)
 
+    # Who to message. The operator's app needs the supervisor's id to open the chat thread at all,
+    # and their name to label it; without this the operator can see messages sent to them but has no
+    # way to start a thread, which reads as "no supervisor assigned".
+    supervisor = s.get(UserRow, target.supervisor_id) if target.supervisor_id else None
+
     out: dict[str, Any] = {
         "operator": user_public(target),
+        "supervisor": user_public(supervisor) if supervisor is not None else None,
         "viewer": {"user_id": user.user_id, "role": user.role, "self": target.user_id == user.user_id},
         "tasks": payloads,
         "empty": not payloads,

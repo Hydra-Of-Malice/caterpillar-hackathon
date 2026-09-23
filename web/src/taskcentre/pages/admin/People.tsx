@@ -19,7 +19,7 @@ function read(p: PersonRow) {
     role: p.role ?? p.user?.role ?? 'operator',
     username: p.username ?? p.user?.username ?? '',
     machine: p.machine_id ?? p.user?.machine_id ?? null,
-    supervisor: p.supervisor_name ?? p.supervisor_id ?? p.user?.supervisor_id ?? null,
+    supervisor: p.supervisor?.name ?? p.supervisor_name ?? p.supervisor_id ?? p.user?.supervisor_id ?? null,
     geofence: p.geofence_status ?? p.location?.geofence_status ?? 'unverified',
     ts: p.last_seen_ts ?? p.location?.ts ?? null,
     gmt: p.last_seen_gmt ?? p.location?.ts_gmt ?? null,

@@ -8,11 +8,13 @@
  * Severity still carries a word and a shape as well as a colour, so it survives being printed, being
  * looked at in sunlight, and being read by somebody who cannot separate red from green.
  */
-import { Link } from 'react-router-dom';
-import { ticketSubject } from '../../api';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { errorText, sup, ticketSubject } from '../../api';
 import { GmtTime, SimulatedChip, kindLabel } from '../../components';
 import type { Severity, Ticket } from '../../types';
-import { Button, Icon } from '../../../components/ui';
+import { Button, Icon, toast } from '../../../components/ui';
+import { useWarningChime } from '../../../lib/audio';
 import { cx } from './common';
 
 /** Colour is never the only cue: each severity also has its own icon and its own word. */
@@ -59,19 +61,134 @@ export function worstFlag(tickets: Ticket[]): { label: string; icon: string; dot
   return first ? (SEV[first.severity ?? 'low'] ?? SEV.low) : null;
 }
 
+/**
+ * The newest flag, put in front of the supervisor with the three things they can do about it.
+ *
+ * **Alert** rings the operator's own device. **Review** opens the full queue, with the evidence and
+ * the decision history, for anything that deserves a proper look. **Decline** dismisses it, which is
+ * a real and expected answer — the detector saw a machine standing still, and standing still has
+ * plenty of good reasons a camera cannot see.
+ *
+ * Alerting is the loud one, so it asks once before it acts and says exactly what will happen. None
+ * of these three touch a machine or apply a penalty.
+ */
+function NewFlagPrompt({ ticket, who, onDone }: { ticket: Ticket; who?: string; onDone: () => void }) {
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState<'alert' | 'decline' | null>(null);
+  const sev = SEV[ticket.severity ?? 'low'] ?? SEV.low;
+  const name = who ?? 'this operator';
+
+  const alertOperator = async () => {
+    setBusy('alert');
+    try {
+      const r = await sup.alertOperator(ticket.ticket_id);
+      toast(`${r.operator?.name ?? name} has been alerted — sounding for ${r.alert_seconds ?? 30} s`, 'ok');
+      onDone();
+    } catch (e) {
+      toast(`Could not alert ${name}: ${errorText(e)}`, 'error');
+      setBusy(null);
+    }
+  };
+
+  const decline = async () => {
+    setBusy('decline');
+    try {
+      await sup.decide(ticket.ticket_id, { decision: 'dismissed', comment: 'Dismissed from the dashboard.' });
+      toast('Flag dismissed — it stays in the history, marked dismissed', 'ok');
+      onDone();
+    } catch (e) {
+      toast(`Could not dismiss: ${errorText(e)}`, 'error');
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="border-b-2 border-cat bg-surface-container-high px-5 py-4">
+      <div className="flex items-start gap-2.5">
+        <Icon name={sev.icon} size={22} className={cx('mt-0.5 shrink-0', sev.text)} title={sev.label} />
+        <div className="min-w-0 flex-1">
+          <p className="font-body text-label-md uppercase tracking-wide text-cat-text">Needs your decision</p>
+          <p className="mt-0.5 text-body-md font-semibold text-on-surface">{ticket.title}</p>
+          <p className="text-body-sm text-on-surface-muted">
+            {kindLabel(ticket.kind)}
+            {who ? ` · ${who}` : ''} · <GmtTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="smart" />
+          </p>
+          {ticket.detail && <p className="mt-1.5 text-body-sm text-on-surface-variant">{ticket.detail}</p>}
+        </div>
+      </div>
+
+      {confirming ? (
+        <div className="mt-3 border border-outline-variant px-3 py-2.5">
+          <p className="text-body-sm text-on-surface">
+            Sound an alert on {name}&rsquo;s device? It covers their screen and rings for 30 seconds. It does not
+            control the machine and applies no penalty.
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Button size="sm" variant="primary" icon="campaign" disabled={busy !== null} onClick={() => void alertOperator()}>
+              {busy === 'alert' ? 'Sending…' : `Yes, alert ${name}`}
+            </Button>
+            <Button size="sm" disabled={busy !== null} onClick={() => setConfirming(false)}>
+              Back
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button size="sm" variant="primary" icon="campaign" disabled={busy !== null} onClick={() => setConfirming(true)}>
+            Alert {who ? who.split(' ')[0] : 'operator'}
+          </Button>
+          <Button size="sm" icon="rule" disabled={busy !== null} onClick={() => navigate('review')}>
+            Review
+          </Button>
+          <Button size="sm" icon="close" disabled={busy !== null} onClick={() => void decline()}>
+            {busy === 'decline' ? 'Dismissing…' : 'Decline'}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FlagsPanel({
   tickets,
   nameOf,
   blocked,
   embedded = false,
+  onChanged,
 }: {
   tickets: Ticket[];
   nameOf: (id?: string | null) => string;
   blocked?: React.ReactNode;
   /** Inside the mobile drawer, which already supplies the frame and the title. */
   embedded?: boolean;
+  /** Called after a decision, so the caller can refetch. */
+  onChanged?: () => void;
 }) {
   const open = openFlags(tickets);
+  const newest = [...open].sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0] ?? null;
+
+  // Flags the supervisor has acted on in this session. The list is polled, so a ticket keeps coming
+  // back for a few seconds after a decision; without this the prompt would reappear over its own
+  // success toast.
+  const [handled, setHandled] = useState<Set<string>>(() => new Set());
+  const prompt = newest && !handled.has(newest.ticket_id) ? newest : null;
+
+  // Chime once when a flag arrives that was not there before — never on the first load, where every
+  // flag is new and a supervisor opening the page would be greeted by a noise about old news.
+  const seen = useRef<Set<string> | null>(null);
+  const [chimeKey, setChimeKey] = useState<string | null>(null);
+  useEffect(() => {
+    const ids = new Set(open.map((t) => t.ticket_id));
+    if (seen.current === null) {
+      seen.current = ids;
+      return;
+    }
+    const fresh = open.find((t) => !seen.current?.has(t.ticket_id));
+    seen.current = ids;
+    if (fresh) setChimeKey(fresh.ticket_id);
+  }, [open]);
+  useWarningChime(chimeKey);
   const counts = ORDER.map((s) => ({ s, n: open.filter((t) => t.severity === s).length })).filter((c) => c.n > 0);
 
   return (
@@ -98,6 +215,17 @@ export function FlagsPanel({
         </div>
       ) : (
         <>
+          {prompt && (
+            <NewFlagPrompt
+              ticket={prompt}
+              who={subjectOf(prompt, nameOf)}
+              onDone={() => {
+                setHandled((prev) => new Set(prev).add(prompt.ticket_id));
+                onChanged?.();
+              }}
+            />
+          )}
+
           {counts.length > 0 && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 border-b border-outline px-5 py-2.5">
               {counts.map(({ s, n }) => {

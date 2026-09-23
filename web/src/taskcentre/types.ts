@@ -524,6 +524,8 @@ export interface PersonRow {
   role?: Role;
   site_id?: string;
   supervisor_id?: string | null;
+  /** `/tc/admin/people` nests the supervisor here; `supervisor_name` is the older flat shape. */
+  supervisor?: User | null;
   supervisor_name?: string | null;
   machine_id?: string | null;
   active?: boolean;
@@ -580,6 +582,19 @@ export interface SupOperatorDetail {
   punches?: Punch[];
   tickets?: Ticket[];
   messages?: ChatMessage[];
+}
+
+/** `POST /tc/sup/review/{id}/alert` — what the supervisor sent and how long it will sound. */
+export interface AlertResult {
+  ticket?: Ticket;
+  operator?: User;
+  notification_id?: string;
+  message?: string;
+  alert_seconds?: number;
+  controls_machinery?: boolean;
+  note?: string;
+  sent_at?: number;
+  sent_at_gmt?: string | null;
 }
 
 export interface SupDashboard {
@@ -659,6 +674,8 @@ export interface OpWaiting {
 
 // ---------------------------------------------------------------- operator responses
 export interface OpToday {
+  /** What `/tc/op/today` actually names the person; `user` is the older shape. Read both. */
+  operator?: User;
   user?: User;
   ts?: number;
   ts_gmt?: string | null;
@@ -671,6 +688,7 @@ export interface OpToday {
   location?: LocationReport | null;
   counts?: TaskCounts;
   unread_messages?: number;
+  /** The person this operator messages. `null` only when nobody is assigned. */
   supervisor?: User | null;
   active_alarm?: Notification | null;
   notifications?: Notification[];

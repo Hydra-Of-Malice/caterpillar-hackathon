@@ -13,6 +13,15 @@ ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(ROOT / ".env")   # local, gitignored; never commit secrets here
 CONFIG_DIR = ROOT / "config"
 DATA_DIR = ROOT / "data"
+
+#: The built web app. When present the cloud API serves it, so the whole demo is one origin and one
+#: tunnel — which is what makes it reachable from a phone with geolocation working (HTTPS).
+WEB_DIST = Path(os.getenv("SENTINEL_WEB_DIST", str(ROOT / "web" / "dist")))
+
+#: Browser origins allowed to call the API cross-origin. Same-origin serving needs none of these;
+#: they are for running the Vite dev server against this API. Comma-separated; "*" allows any.
+CORS_ORIGINS = [o.strip() for o in os.getenv(
+    "SENTINEL_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if o.strip()]
 MODELS_DIR = ROOT / "models"
 CORPUS_DIR = ROOT / "corpus"
 

@@ -10,138 +10,18 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { authApi, errorText, opApi, requestPosition } from '../../api';
 import { GEO_TIMEOUT_MS, POLL, PRESENCE_NOTE } from '../../constants';
 import { GeofenceBadge, GmtTime, TcEmpty, TcError, TcLoading } from '../../components';
-import { Button, Chip, Icon, ProgressBar, cx } from '../../../components/ui';
+import { Button, Icon, cx } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
 import { fmtGmtDate, nowTs } from '../../time';
 import type { OpToday, Punch, TcTask } from '../../types';
 import { ChatPanel } from './Chat';
 import { FlagResponsePanel } from './FlagResponse';
 import { NotificationsPanel } from './Notifications';
-import { TaskTimer, useTaskClock } from './TaskTimer';
+import { useTaskClock } from './TaskTimer';
 import { Note, OfflineNote, OpPage, Stat, TOUCH, TOUCH_BIG, useOnline } from './common';
-import { GEOFENCE_TEXT, NO_FIX_NOTE, STATUS_LABEL, checklistChip, sortTasks, statusChip, taskProgress, useTaskStart } from './model';
+import { GEOFENCE_TEXT, NO_FIX_NOTE, sortTasks, useTaskStart } from './model';
+import { TaskRow } from './TaskRow';
 import { WaitingControl } from './Waiting';
-
-function TaskCardLink({ task, now, prominent = false }: { task: TcTask; now: number; prominent?: boolean }) {
-  const p = taskProgress(task);
-  const chip = statusChip(task.status);
-  const cl = checklistChip(task.checklist);
-  const open = task.status === 'pending' || task.status === 'ongoing';
-  const late = open && (task.overdue ?? now > task.expected_finish_ts);
-  return (
-    <Link
-      to={`/tc/op/task/${task.task_id}`}
-      className={cx(
-        'panel block p-4 transition-colors hover:bg-surface-container-high',
-        TOUCH_BIG,
-        prominent && 'border-l-4 border-l-cat',
-        task.status === 'completed' && 'opacity-70',
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <h3 className={cx('min-w-0 font-display text-on-surface', prominent ? 'text-headline-md' : 'text-headline-sm')}>{task.title}</h3>
-        <Icon name="chevron_right" size={28} className="shrink-0 text-on-surface-muted" />
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Chip icon={chip.icon} tone={chip.tone}>
-          {STATUS_LABEL[task.status] ?? task.status}
-        </Chip>
-        {late && (
-          <Chip icon="warning" tone="orange">
-            Past finish time
-          </Chip>
-        )}
-        {task.priority === 'urgent' && (
-          <Chip icon="priority_high" tone="red">
-            Urgent
-          </Chip>
-        )}
-      </div>
-
-      <dl className="mt-3 space-y-1 text-body-lg text-on-surface-variant">
-        <div className="flex items-center gap-2">
-          <Icon name="location_on" size={22} className="text-on-surface-muted" />
-          <dt className="sr-only">Where</dt>
-          <dd>{task.location || 'Location not given'}</dd>
-        </div>
-        <div className="flex items-center gap-2">
-          <Icon name="precision_manufacturing" size={22} className="text-on-surface-muted" />
-          <dt className="sr-only">Machine</dt>
-          <dd>{task.machine_id ?? 'No machine assigned'}</dd>
-        </div>
-        <div className="flex items-center gap-2">
-          <Icon name="schedule" size={22} className="text-on-surface-muted" />
-          <dt className="sr-only">Finish by</dt>
-          <dd>
-            Finish by <GmtTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} />
-          </dd>
-        </div>
-      </dl>
-
-      <TaskTimer task={task} />
-
-      {p.total > 0 && (
-        <div className="mt-3">
-          <div className="flex items-center justify-between font-display text-label-md uppercase text-on-surface-muted">
-            <span>Checkpoints</span>
-            <span className="tnum text-on-surface">
-              {p.done}/{p.total}
-            </span>
-          </div>
-          <ProgressBar pct={(p.done / p.total) * 100} tone={p.done === p.total ? 'green' : 'yellow'} className="mt-1" />
-        </div>
-      )}
-
-      {task.status !== 'completed' && task.status !== 'cancelled' && (
-        <div className="mt-3 flex items-center gap-2 border-t border-outline pt-3 text-body-md text-on-surface-variant">
-          <Icon name={cl.icon} size={22} className="text-on-surface-muted" />
-          <span>{cl.text}</span>
-        </div>
-      )}
-    </Link>
-  );
-}
-
-/**
- * A task card plus its Start task action.
- *
- * The button is a sibling of the card link, never inside it: a control nested in a link cannot be
- * operated reliably by keyboard or screen reader.
- */
-function TaskCard({
-  task,
-  now,
-  prominent = false,
-  onStart,
-  busy = false,
-}: {
-  task: TcTask;
-  now: number;
-  prominent?: boolean;
-  onStart?: (task: TcTask) => void;
-  busy?: boolean;
-}) {
-  const done = task.checklist?.completed === true;
-  const blocked = task.checklist?.blocked === true;
-  if (task.status !== 'pending' || !onStart) return <TaskCardLink task={task} now={now} prominent={prominent} />;
-  return (
-    <div className="space-y-2">
-      <TaskCardLink task={task} now={now} prominent={prominent} />
-      <Button
-        variant={blocked ? 'secondary' : 'primary'}
-        size="lg"
-        icon={blocked ? 'block' : done ? 'play_arrow' : 'fact_check'}
-        block
-        className={cx('h-16', TOUCH_BIG)}
-        disabled={busy}
-        onClick={() => onStart(task)}
-      >
-        {busy ? 'Starting…' : blocked ? 'Pre-start check blocked' : done ? 'Start task' : 'Start task — pre-start check'}
-      </Button>
-    </div>
-  );
-}
 
 /**
  * Start Work punch. The browser is asked for a position; if it refuses or times out the punch is
@@ -272,8 +152,10 @@ export default function Today() {
   const ongoingId = today?.ongoing_task?.task_id;
   const ongoing = tasks.find((t) => (ongoingId ? t.task_id === ongoingId : t.status === 'ongoing'));
   const rest = tasks.filter((t) => t !== ongoing);
+  const ordered = ongoing ? [ongoing, ...rest] : rest;
+  const numberOf = (task: TcTask) => ordered.indexOf(task) + 1;
   const unread = today?.unread_messages ?? 0;
-  const supervisorId = today?.supervisor?.user_id ?? today?.user?.supervisor_id;
+  const supervisorId = today?.supervisor?.user_id ?? today?.operator?.supervisor_id ?? today?.user?.supervisor_id;
 
   return (
     <OpPage
@@ -290,7 +172,7 @@ export default function Today() {
       {view === 'alerts' && <NotificationsPanel />}
 
       {view === 'messages' && today && (
-        <ChatPanel supervisorId={supervisorId} supervisorName={today.supervisor?.name} meId={today.user?.user_id ?? ''} />
+        <ChatPanel supervisorId={supervisorId} supervisorName={today.supervisor?.name} meId={today.operator?.user_id ?? today.user?.user_id ?? ''} />
       )}
 
       {!view && today && (
@@ -337,17 +219,32 @@ export default function Today() {
               {ongoing && (
                 <section aria-label="Task in progress" className="space-y-2">
                   <h2 className="font-display text-label-lg uppercase text-on-surface-muted">Doing now</h2>
-                  <TaskCard task={ongoing} now={now} prominent onStart={(t) => void start.start(t)} busy={start.busy} />
+                  <ul className="space-y-2">
+                    <TaskRow
+                      task={ongoing}
+                      index={numberOf(ongoing)}
+                      now={now}
+                      onStart={(t) => void start.start(t)}
+                      busy={start.busy}
+                    />
+                  </ul>
                 </section>
               )}
               {rest.length > 0 && (
                 <section aria-label="Other tasks today" className="space-y-2">
                   <h2 className="font-display text-label-lg uppercase text-on-surface-muted">{ongoing ? 'Also today' : 'Today'}</h2>
-                  <div className="space-y-3">
+                  <ul className="space-y-2">
                     {rest.map((t) => (
-                      <TaskCard key={t.task_id} task={t} now={now} onStart={(task) => void start.start(task)} busy={start.busy} />
+                      <TaskRow
+                        key={t.task_id}
+                        task={t}
+                        index={numberOf(t)}
+                        now={now}
+                        onStart={(task) => void start.start(task)}
+                        busy={start.busy}
+                      />
                     ))}
-                  </div>
+                  </ul>
                 </section>
               )}
             </>

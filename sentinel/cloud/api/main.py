@@ -1,6 +1,8 @@
 """CAT Sentinel Cloud API (port 8100): `uvicorn sentinel.cloud.api.main:app --port 8100`.
 
-All routes live under /api/v1. CORS allows the Vite dev server (localhost:5173). Auth is MOCK:
+All routes live under /api/v1. When ``web/dist`` is built it is also served from here, so the
+demo can run from a single origin (see ``sentinel.cloud.api.spa``). CORS allows the Vite dev server
+by default and is overridable with ``SENTINEL_CORS_ORIGINS``. Auth is MOCK:
 the `X-Role` header (operator|trainee|instructor|supervisor|ml_service; operator when absent)
 guards competency sign-off, content approval, escalation resolution and individual drill-downs.
 In DEMO_MODE the app seeds deterministic SIMULATED fixtures at startup so every view has data.
@@ -17,6 +19,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from sentinel.cloud.api import routes_competency, routes_ops, routes_training
+from sentinel.cloud.api.spa import mount_spa
 from sentinel.cloud.competency.catalog import get_catalog
 from sentinel.cloud.demo import seed_demo
 from sentinel.cloud.rag.answer import Copilot
@@ -81,7 +84,7 @@ def create_app(db: Database | None = None, *, copilot: Copilot | None = None, se
     app.state.db = db
     app.state.db_factory = db_factory
     app.state.copilot = copilot
-    app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS,
                        allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
     health = APIRouter(tags=["health"])
@@ -95,6 +98,7 @@ def create_app(db: Database | None = None, *, copilot: Copilot | None = None, se
         app.include_router(router, prefix=API_PREFIX)
     for module_name in OPTIONAL_ROUTERS:
         _include_optional(app, module_name)
+    mount_spa(app, config.WEB_DIST)   # last: its catch-all must not shadow a router
     return app
 
 

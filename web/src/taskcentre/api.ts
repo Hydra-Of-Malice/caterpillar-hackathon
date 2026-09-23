@@ -12,6 +12,7 @@
 import { ALARM_MUTE_KEY, GEO_TIMEOUT_MS, REQUEST_TIMEOUT_MS, ROLE_KEY, TOKEN_KEY } from './constants';
 import type {
   AdminOverview,
+  AlertResult,
   Camera,
   ChatMessage,
   ChatThread,
@@ -353,6 +354,11 @@ export const supApi = {
   review: async (): Promise<Ticket[]> => asList<Ticket>(await request('GET', '/sup/review'), 'tickets', 'items'),
 
   decide: (ticketId: string, body: DecisionBody): Promise<Ticket> => request<Ticket>('POST', `/sup/review/${enc(ticketId)}`, body),
+
+  /** Sound an alert on the operator's own device about this flag. Marks the ticket confirmed. */
+  alertOperator: (ticketId: string, message?: string): Promise<AlertResult> =>
+    request<AlertResult>('POST', `/sup/review/${enc(ticketId)}/alert`,
+      message && message.trim() ? { message: message.trim() } : {}),
 
   cameras: async (): Promise<Camera[]> => asList<Camera>(await request('GET', '/sup/cameras'), 'cameras', 'items'),
 
