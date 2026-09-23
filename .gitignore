@@ -11,3 +11,4 @@ web/dist-debug/
 *.log
 data/edge_state.json
 .env
+web/.vite/
