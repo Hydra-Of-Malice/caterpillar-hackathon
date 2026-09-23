@@ -42,32 +42,51 @@ function subjectOf(t: Ticket, nameOf: (id?: string | null) => string): string | 
   return looked === 'Unknown' || looked === id ? undefined : looked;
 }
 
+/**
+ * The open flags, worst first. Exported so the mobile trigger can say how many are waiting and how
+ * bad the worst one is without opening the drawer — a button that only says "Flags" gives a
+ * supervisor no reason to press it.
+ */
+export function openFlags(tickets: Ticket[]): Ticket[] {
+  return [...tickets]
+    .filter((t) => t.status === 'open')
+    .sort((a, b) => rank(a.severity) - rank(b.severity) || (b.created_at ?? 0) - (a.created_at ?? 0));
+}
+
+/** The label and tone for the worst open flag, for that trigger. */
+export function worstFlag(tickets: Ticket[]): { label: string; icon: string; dot: string; text: string } | null {
+  const first = openFlags(tickets)[0];
+  return first ? (SEV[first.severity ?? 'low'] ?? SEV.low) : null;
+}
+
 export function FlagsPanel({
   tickets,
   nameOf,
   blocked,
+  embedded = false,
 }: {
   tickets: Ticket[];
   nameOf: (id?: string | null) => string;
   blocked?: React.ReactNode;
+  /** Inside the mobile drawer, which already supplies the frame and the title. */
+  embedded?: boolean;
 }) {
-  const open = [...tickets]
-    .filter((t) => t.status === 'open')
-    .sort((a, b) => rank(a.severity) - rank(b.severity) || (b.created_at ?? 0) - (a.created_at ?? 0));
+  const open = openFlags(tickets);
   const counts = ORDER.map((s) => ({ s, n: open.filter((t) => t.severity === s).length })).filter((c) => c.n > 0);
 
   return (
-    <section className="panel flex h-full min-h-[320px] flex-col">
-      {/* header */}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-outline px-5 py-4">
-        <div>
-          <h2 className="font-body text-body-lg font-bold text-on-surface">Flags for review</h2>
-          <p className="text-body-sm text-on-surface-muted">Raised by the detectors, location and task times. You decide.</p>
+    <section className={cx('flex flex-col', embedded ? 'h-full -mx-6 -my-4' : 'panel h-full min-h-[320px]')}>
+      {!embedded && (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-outline px-5 py-4">
+          <div>
+            <h2 className="font-body text-body-lg font-bold text-on-surface">Flags for review</h2>
+            <p className="text-body-sm text-on-surface-muted">Raised by the detectors, location and task times. You decide.</p>
+          </div>
+          <span className={cx('tnum text-headline-sm font-bold', open.length > 0 ? 'text-on-surface' : 'text-on-surface-muted')}>
+            {open.length}
+          </span>
         </div>
-        <span className={cx('tnum text-headline-sm font-bold', open.length > 0 ? 'text-on-surface' : 'text-on-surface-muted')}>
-          {open.length}
-        </span>
-      </div>
+      )}
 
       {blocked ? (
         <div className="p-5">{blocked}</div>

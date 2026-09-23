@@ -74,7 +74,7 @@ export function TeamChart({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div className="h-[260px] min-w-0 flex-1">
+      <div className="h-[260px] w-full min-w-0 sm:flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={rows} margin={{ top: 16, right: 8, bottom: 4, left: -18 }} barCategoryGap="28%">
             <CartesianGrid vertical={false} />

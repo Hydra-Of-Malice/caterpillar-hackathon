@@ -130,11 +130,18 @@ export function LocationLine({
   now,
   fallbackStatus,
   stale,
+  compact = false,
 }: {
   location?: LocationReport | null;
   now: number;
   fallbackStatus?: string | null;
   stale?: boolean;
+  /**
+   * Drop the exact GMT fix, the accuracy and the distance, keeping the geofence status and how old
+   * the fix is. For a row in a table: the status and the age are what decide whether to trust it,
+   * and the numbers behind them are one click away on the operator's own page.
+   */
+  compact?: boolean;
 }) {
   if (!location) {
     return (
@@ -148,11 +155,15 @@ export function LocationLine({
     <div className="space-y-1">
       <GeofenceBadge status={location.geofence_status ?? fallbackStatus} distanceM={location.distance_m} accuracyM={location.accuracy_m} />
       <div className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
-        <GmtTime ts={location.ts} gmt={location.ts_gmt} mode="smart" />
+        {compact ? (
+          <GmtTime ts={location.ts} gmt={location.ts_gmt} mode="time" />
+        ) : (
+          <GmtTime ts={location.ts} gmt={location.ts_gmt} mode="smart" />
+        )}
         <StaleBadge ts={location.ts} now={now} thresholdS={STALE.location_s} label="position" showFresh={false} />
         {stale === true && location.stale !== true && <Chip tone="orange" icon="history">Stale</Chip>}
-        {typeof location.accuracy_m === 'number' && <span className="tnum">±{Math.round(location.accuracy_m)} m</span>}
-        {typeof location.distance_m === 'number' && <span className="tnum">{fmtMetres(location.distance_m)} from centre</span>}
+        {!compact && typeof location.accuracy_m === 'number' && <span className="tnum">±{Math.round(location.accuracy_m)} m</span>}
+        {!compact && typeof location.distance_m === 'number' && <span className="tnum">{fmtMetres(location.distance_m)} from centre</span>}
       </div>
     </div>
   );

@@ -21,28 +21,16 @@ import { GmtTime } from '../../components';
 import { POLL, PRESENCE_NOTE } from '../../constants';
 import { nowTs } from '../../time';
 import type { SupOperatorRow } from '../../types';
-import { Button, PageTitle } from '../../../components/ui';
+import { Button, Drawer, Icon, PageTitle, cx } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
 import { AddOperator } from './AddOperator';
 import { TeamEfficiencyTable } from './Efficiency';
-import { FlagsPanel } from './FlagsPanel';
+import { FlagsPanel, openFlags, worstFlag } from './FlagsPanel';
 import { OperatorTable } from './OperatorTable';
 import { TaskCreate } from './TaskCreate';
 import { TaskEdit } from './TaskEdit';
 import { TeamChart, chartRows } from './TeamChart';
-import {
-  BUCKET,
-  BUCKETS,
-  Card,
-  Caveat,
-  EmptyState,
-  Stat,
-  bucketCounts,
-  exclusiveBucket,
-  gate,
-  operatorName,
-  type Bucket,
-} from './common';
+import { BUCKET, Card, Caveat, EmptyState, exclusiveBucket, gate, operatorName, type Bucket } from './common';
 import { TaskTable } from './TaskTable';
 
 export default function Dashboard() {
@@ -51,6 +39,7 @@ export default function Dashboard() {
   const [addOpen, setAddOpen] = useState(false);
   const [taskFor, setTaskFor] = useState<SupOperatorRow | null>(null);
   const [editFor, setEditFor] = useState<SupOperatorRow | null>(null);
+  const [flagsOpen, setFlagsOpen] = useState(false);
 
   const team = useResource(() => sup.operators(), [], POLL.supervisor);
   const dash = useResource(() => sup.dashboard(), [], POLL.supervisor);
@@ -58,7 +47,6 @@ export default function Dashboard() {
 
   const operators = team.data ?? [];
   const tasks = useMemo(() => dash.data?.tasks ?? [], [dash.data]);
-  const counts = useMemo(() => bucketCounts(dash.data?.counts, tasks, now), [dash.data, tasks, now]);
   const rows = useMemo(() => chartRows(operators, tasks, now), [operators, tasks, now]);
 
   // The chart stacks each task once, so the reveal below it must use the same reading — otherwise
@@ -69,6 +57,10 @@ export default function Dashboard() {
     const row = operators.find((o) => o.user_id === id);
     return row ? operatorName(row) : (id ?? 'Unknown');
   };
+
+  const reviewBlocked = gate(review, 'The review queue', 'Loading review queue');
+  const waiting = openFlags(review.data ?? []);
+  const worst = worstFlag(review.data ?? []);
 
   const refreshAll = () => {
     team.reload();
@@ -87,20 +79,23 @@ export default function Dashboard() {
         }
       />
 
-      {/* ------------------------------------------------ four numbers, clickable */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {BUCKETS.map((b) => (
-          <Stat
-            key={b}
-            label={BUCKET[b].label}
-            value={counts[b]}
-            sub={BUCKET[b].hint}
-            tone={b === 'overdue' && counts[b] > 0 ? 'red' : b === 'completed' ? 'green' : b === 'ongoing' ? 'blue' : 'neutral'}
-            active={bucket === b}
-            onClick={() => setBucket((cur) => (cur === b ? null : b))}
-          />
-        ))}
-      </div>
+      <button
+        type="button"
+        onClick={() => setFlagsOpen(true)}
+        className="panel flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-container-high xl:hidden"
+      >
+        <Icon name={worst?.icon ?? 'check_circle'} size={22} className={cx('shrink-0', worst?.text ?? 'text-success-text')} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-body-md font-semibold text-on-surface">Flags for review</span>
+          <span className="block text-body-sm text-on-surface-muted">
+            {waiting.length === 0
+              ? 'Nothing waiting for you.'
+              : `${waiting.length} waiting · worst is ${worst?.label.toLowerCase()}`}
+          </span>
+        </span>
+        <span className="tnum text-headline-sm font-bold text-on-surface">{waiting.length}</span>
+        <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-muted" />
+      </button>
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
         {/* -------------------------------------------- left column: work */}
@@ -118,12 +113,6 @@ export default function Dashboard() {
               ) : (
                 <>
                   <TeamChart rows={rows} bucket={bucket} onBucket={setBucket} />
-                  <p className="mt-2 text-body-sm text-on-surface-muted">
-                    Each task is counted once, so a bar&rsquo;s height is the number of tasks that operator has today. A task past
-                    its expected finish is shown as overdue rather than as ongoing or pending. The four numbers above count
-                    overdue separately, so an overdue task is counted there twice on purpose.
-                  </p>
-
                   {bucket && (
                     <div className="mt-5 border-t border-outline pt-4">
                       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -169,9 +158,9 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* -------------------------------------------- right column: flags */}
-        <div className="min-w-0 xl:sticky xl:top-[92px]">
-          <FlagsPanel tickets={review.data ?? []} nameOf={nameOf} blocked={gate(review, 'The review queue', 'Loading review queue')} />
+        {/* -------------------------------------------- right column: flags (drawer below xl) */}
+        <div className="hidden min-w-0 xl:sticky xl:top-[92px] xl:block">
+          <FlagsPanel tickets={review.data ?? []} nameOf={nameOf} blocked={reviewBlocked} />
         </div>
       </div>
 
@@ -194,6 +183,20 @@ export default function Dashboard() {
       <Caveat icon="location_on">
         {PRESENCE_NOTE} A fix worse than the geofence accuracy limit is shown as unverified, never as outside.
       </Caveat>
+
+      <Drawer
+        open={flagsOpen}
+        onClose={() => setFlagsOpen(false)}
+        width="w-[440px]"
+        title={
+          <div>
+            <h2 className="font-body text-body-lg font-bold text-on-surface">Flags for review</h2>
+            <p className="text-body-sm text-on-surface-muted">Raised by the detectors, location and task times. You decide.</p>
+          </div>
+        }
+      >
+        <FlagsPanel tickets={review.data ?? []} nameOf={nameOf} blocked={reviewBlocked} embedded />
+      </Drawer>
 
       <AddOperator open={addOpen} onClose={() => setAddOpen(false)} onAdded={refreshAll} />
       <TaskCreate
