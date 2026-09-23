@@ -1,0 +1,66 @@
+id: MOD-BLIND-ZONE
+version: "1.3"
+status: approved
+title: Blind-Zone Awareness & Spotters
+duration_min: 4
+format: scenario_quiz
+machine_types: [EX-20t, WL]
+competency_ids: [C05, C12]
+summary: Where you cannot see from the seat, what to do when the person-in-zone alert sounds, and how to work with a spotter.
+change_summary: "Added degraded-proximity guidance (SOP-EX-02 v1.3 §3.3)."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Blind zones are mostly behind the machine and on the side away from the cab; learn them for your machine.
+    citation: {doc_id: SOP-EX-02, section: "2.1", version: "1.3"}
+  - id: KP2
+    text: Walk around the machine before you start it and after any time you leave the cab.
+    citation: {doc_id: SOP-EX-02, section: "2.3", version: "1.3"}
+  - id: KP3
+    text: When the person-in-zone alert sounds, stop all machine motion immediately — swing, travel and attachment.
+    citation: {doc_id: SOP-EX-02, section: "3.1", version: "1.3"}
+  - id: KP4
+    text: Resume only after the person has been accounted for and is clear of the working area.
+    citation: {doc_id: SOP-EX-02, section: "3.2", version: "1.3"}
+  - id: KP5
+    text: If you lose sight of the spotter, stop all motion and do not move until you can see them again.
+    citation: {doc_id: SOP-EX-02, section: "4.3", version: "1.3"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: The person-in-zone alert sounds while you are swinging. What do you do?
+      options:
+        - Finish the swing, then stop
+        - Stop all machine motion immediately
+        - Sound the horn and continue slowly
+        - Swing away from the alert side
+      answer: 1
+      explanation: Stop all motion immediately — swing, travel and attachment.
+      citation: {doc_id: SOP-EX-02, section: "3.1", version: "1.3"}
+    - id: Q2
+      prompt: You lose sight of your spotter while reversing. What next?
+      options:
+        - Keep reversing slowly
+        - Stop all motion and wait until you can see the spotter again
+        - Use the mirrors and continue
+        - Sound the horn three times and continue
+      answer: 1
+      explanation: Stop and do not move until you can see the spotter again.
+      citation: {doc_id: SOP-EX-02, section: "4.3", version: "1.3"}
+    - id: Q3
+      prompt: The proximity system shows DEGRADED. What changes?
+      options:
+        - Nothing, carry on as normal
+        - Work with extra caution and use a spotter where people may be near
+        - Switch the system off to clear the warning
+        - Work faster to finish before people arrive
+      answer: 1
+      explanation: The system supports your checks; when it is degraded, add caution and a spotter.
+      citation: {doc_id: SOP-EX-02, section: "3.3", version: "1.3"}
+expert_demo:
+  type: video_placeholder
+  title: "Scenario — spot the person in the blind zone (placeholder video)"
+  url: null
+  note: "Placeholder scenario media."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.3", date: "2026-08-12"}

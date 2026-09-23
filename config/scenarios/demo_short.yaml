@@ -1,0 +1,44 @@
+# SIMULATED — 6-minute live demo (wall clock at --speed 1). Ravi on EX-07 in T-1, truck already positioned.
+# Cue list (offsets in simulated seconds from start). The two long idles carry `speed: 10`, so sim.run
+# plays them at 10× (5.5 simulated minutes ≈ 33 s each): about 6 min wall clock in total.
+#   0:20  seatbelt_open + short tram          Beat 2  T-CRIT FASTEN SEATBELT
+#   1:00  fast_swing ×1.6                     Beat 3  T1 advisory
+#   1:35  fast_swing ×1.8                     Beat 3  repeat → T2 (ack)
+#   2:10  person_warning (~5.5 m, left)       Beat 3  proximity warning
+#   2:30  person_rear (~2.5 m, rear)          Beat 3  T-CRIT PERSON IN ZONE
+#   3:05  truck_wait 330 s  (10×)             Beat 4  idle suppressed: waiting_for_truck
+#   9:20  idle 330 s, truck parked (10×)      Beat 4  excessive idle fires
+#  15:05  hyd_fault 50 s + DTC                Beat 4  MACHINE attribution
+# More can be injected live via sim/control ({"inject": kind}) or POST /demo/inject.
+version: "scn-1.0"
+name: demo_short
+description: "6-minute compressed live demo: seatbelt, fast swing ×2, person warning/inner, truck wait, idle, hydraulic fault."
+simulated: true
+site_id: north-quarry
+machines:
+  EX-07: {machine_type: EX-20t, model: "Cat 320 (simulated)", smu_h: 6414.1, fuel_l: 391530.0, prox_fitted: true}
+shifts:
+  - shift_id: SH-20260923-OP1042
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.1
+    start: "2026-09-23T07:10:00+05:30"
+    conditions: {ambient_c: 31.0}
+    # Ravi keeps the near-truck swing under the 35 deg/s rule except in the scripted fast_swing lapses, so
+    # rule events match the gt-labelled count (remove to see the raw novice habit: ~60 % of cycles).
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+    schedule:
+      - {kind: warmup, minutes: 0.25, zone: TL-1}
+      - {kind: task, minutes: 16.0, task_id: T-1, task_type: truck_loading, zone: TL-1, material: clay_gravel,
+         truck_gap_s: 30, passes_per_truck: 5, truck_present: true}
+      - {kind: cooldown, minutes: 0.25, zone: TL-1}
+    cues:
+      - {at_s: 20, kind: seatbelt_open, params: {duration_s: 22, travel: true, travel_s: 8}, label: "Beat 2 seatbelt"}
+      - {at_s: 60, kind: fast_swing, params: {m: 1.6}, label: "Beat 3 fast swing (T1)"}
+      - {at_s: 95, kind: fast_swing, params: {m: 1.8}, label: "Beat 3 repeat (T2)"}
+      - {at_s: 130, kind: person_warning, label: "Beat 3 person warning zone"}
+      - {at_s: 150, kind: person_rear, label: "Beat 3 person in zone (T-CRIT)"}
+      - {at_s: 185, kind: truck_wait, params: {duration_s: 330}, speed: 10, label: "Beat 4 waiting for truck (suppressed)"}
+      - {at_s: 560, kind: idle, params: {duration_s: 330, high_rpm: true}, speed: 10, label: "Beat 4 excessive idle"}
+      - {at_s: 905, kind: hyd_fault, params: {duration_s: 50, dtc_delay_s: 5}, label: "Beat 4 machine fault"}

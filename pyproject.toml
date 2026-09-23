@@ -1,0 +1,20 @@
+[project]
+name = "cat-sentinel"
+version = "0.1.0"
+description = "CAT Sentinel — Safety-First Operator Copilot (Caterpillar Smart Operator Assistant hackathon prototype)"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi", "uvicorn[standard]", "pydantic>=2", "paho-mqtt>=2", "sqlalchemy>=2",
+  "numpy", "pandas", "scikit-learn", "lightgbm", "scipy", "statsmodels", "pyyaml",
+  "httpx", "rank-bm25", "anthropic", "pyarrow", "amqtt", "websockets",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "hypothesis"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+include = ["sentinel*"]

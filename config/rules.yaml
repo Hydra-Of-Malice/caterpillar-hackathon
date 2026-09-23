@@ -1,0 +1,132 @@
+# CAT Sentinel — deterministic critical safety ADVISORY rules (agent B, sentinel/safety).
+#
+# Scope / non-claim: this is a supplementary warning layer that mirrors OEM interlocks and
+# certified detection systems. It is NOT an ISO 19014 safety function nor an ISO 21815-1
+# collision-avoidance system and never replaces them (docs/sections/14-critical-risks.md #2).
+#
+# Timing is measured on sample.ts (simulated time), never the wall clock.
+#   debounce_s    raise only after the condition has held continuously this long (switch-bounce filter)
+#   clear_hold_s  once raised the activation is LATCHED (announced once, no re-chime); it clears only
+#                 after the clear condition has held continuously this long (hysteresis, 07 HYS-1)
+# Every text (what / why / do) is <= 12 words after placeholder substitution (tests enforce this).
+# Evidence of every SafetyAlertMsg carries a tier hint ("tier") for the alert manager.
+
+rule_version: "rules-0.1.0"
+
+# "Active" machine, shared by R-SEAT-01 / R-PROX-WARN / R-LOCK-01 (07 IMM-2: not travel only).
+# Active = park brake released OR travel > travel_kmh_gt OR |swing| > swing_dps_abs_gt
+#          OR (hydraulics unlocked AND any |joystick channel| > joystick_abs_gt).
+# A non-finite motion signal counts as active (never assume the safe state).
+activity:
+  travel_kmh_gt: 0.5
+  swing_dps_abs_gt: 3.0
+  joystick_abs_gt: 0.1
+  joystick_channels: [joy_swing, joy_boom, joy_stick, joy_bucket, travel_cmd]
+  reason_text:                      # used by the {active_reason} placeholder
+    park_brake_released: "park brake released"
+    travel: "travelling"
+    swing: "swinging"
+    controls: "controls in use"
+    signal_invalid: "motion signal invalid"
+
+health:
+  telemetry_stale_s: 2.0            # no sample for longer than this -> telemetry/seatbelt/proximity "stale"
+
+rules:
+  R-SEAT-01:
+    tier: T_CRIT
+    category: immediate_critical
+    attribution: operator
+    event_type: seatbelt_unfastened_moving
+    sensor: seatbelt                # frozen (latched state held) while the seatbelt sensor is faulty
+    debounce_s: 0.5
+    clear_hold_s: 0.5               # clears when fastened, or machine inactive with park brake on
+    texts:
+      what: "FASTEN SEATBELT — MACHINE ACTIVE"
+      why: "Seatbelt open while {active_reason}"
+      do: "Stop and fasten your seatbelt"
+
+  R-PROX-CRIT:
+    tier: T_CRIT
+    category: immediate_critical
+    attribution: environment
+    event_type: person_in_danger_zone
+    sensor: proximity
+    danger_m: 4.0                   # inclusive: distance <= 4.0 m is inside the danger zone
+    debounce_s: 0.2                 # sensor-validation filter (07: <= 200 ms allowed for T-CRIT)
+    clear_hold_s: 2.0               # zone must be empty >= 2 s (07 HYS-1)
+    texts:
+      what: "STOP — PERSON IN DANGER ZONE ({sector})"
+      why: "Person {distance_m} m away, inside {danger_m} m zone"
+      do: "Stop all motion until the person is clear"
+
+  R-PROX-WARN:
+    tier: T2
+    category: dangerous_condition
+    attribution: environment
+    event_type: person_in_warning_zone
+    sensor: proximity
+    warn_min_m: 4.0                 # exclusive (4.0 m itself is the danger zone)
+    warn_max_m: 8.0                 # inclusive
+    requires_active: true
+    inhibited_by: [R-PROX-CRIT]     # no new warning onset while the danger-zone alert is latched
+    debounce_s: 0.5
+    clear_hold_s: 2.0
+    texts:
+      what: "PERSON NEAR MACHINE ({sector})"
+      why: "Person {distance_m} m away while machine active"
+      do: "Slow down and keep the person in view"
+
+  R-SPEED-01:
+    tier: T2
+    category: dangerous_condition
+    attribution: operator
+    event_type: travel_overspeed
+    default_limit_kmh: 8.0
+    zone_limits_kmh:                # zone-name prefix -> limit; TL-* = truck-loading zones
+      "TL-": 5.0
+    clear_margin_kmh: 0.5           # clears only at <= limit - margin (hysteresis band)
+    debounce_s: 1.0
+    clear_hold_s: 1.0
+    texts:
+      what: "SLOW DOWN — TRAVEL SPEED"
+      why: "Travel {travel_kmh} km/h, site limit {limit_kmh} km/h here"
+      do: "Reduce travel speed below the limit"
+
+  R-LOCK-01:
+    tier: T2
+    category: procedural
+    attribution: operator
+    event_type: hydraulics_unlocked_unattended
+    sensor: seatbelt
+    # seatbelt open AND hydraulics unlocked AND engine on AND machine not active (stationary)
+    debounce_s: 5.0
+    clear_hold_s: 1.0
+    texts:
+      what: "LOWER HYDRAULIC LOCKOUT LEVER"
+      why: "Seatbelt open, engine on, hydraulics unlocked"
+      do: "Lock hydraulics before leaving the seat"
+
+  R-SENSOR-01:
+    tier: T2
+    category: dangerous_condition
+    attribution: machine
+    event_type: safety_sensor_fault
+    debounce_s: 0.0                 # detectors below carry their own timing
+    proximity:                      # only evaluated when prox_fitted
+      channels: [prox_person_m, prox_truck_m]
+      invalid_s: 2.0                # NaN / inf / negative for longer than this -> fault
+      stuck_s: 2.0                  # bit-identical non-null value for longer than this -> fault
+      clear_hold_s: 2.0
+      texts:
+        what: "PROXIMITY SENSOR FAULT — PROTECTION DEGRADED"
+        why: "Proximity reading {fault} for over {limit_s} s"
+        do: "Work with extra care and report to maintenance"
+    seatbelt:
+      flap_window_s: 5.0
+      flap_max_transitions: 6       # more than this many switch changes in the window -> fault
+      clear_hold_s: 0.0             # clears once the switch was stable for a full window
+      texts:
+        what: "SEATBELT SENSOR FAULT — CHECK BELT"
+        why: "Seatbelt switch changed {transitions} times in {window_s} s"
+        do: "Fasten belt and report switch to maintenance"

@@ -1,0 +1,48 @@
+# SIMULATED — Ravi Kumar (OP-1042), today's shift on EX-07, 06:00–14:30 local (+05:30).
+# novice_improving at skill 0.1. Scripted events (gt-labelled):
+#   ~12 min  seatbelt_open while working + a short tram (C1)
+#   5 ×      fast_swing near the truck in T-1 (U1)   -> with Shift 0's 2 events: 7 events across 2 shifts
+#   34 min   truck_wait 6.5 min (negative control: idle while no truck is present)
+#   102 min  excessive idle 8 min with the truck parked (not truck-related, U7)
+# Natural truck waits come from Poisson truck arrivals (mean gap 110 s).
+version: "scn-1.0"
+name: ravi_shift1
+description: "Ravi, Shift 1 (today): novice_improving skill 0.1 — T-1 truck loading, T-2 trench, T-3 stockpile."
+simulated: true
+site_id: north-quarry
+machines:
+  EX-07: {machine_type: EX-20t, model: "Cat 320 (simulated)", smu_h: 6412.0, fuel_l: 391500.0, prox_fitted: true}
+shifts:
+  - shift_id: SH-20260923-OP1042
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.1
+    start: "2026-09-23T06:00:00+05:30"
+    low_prob_events: false
+    # Ravi keeps the near-truck swing under the 35 deg/s rule except in the scripted fast_swing lapses, so
+    # rule events match the gt-labelled count (remove to see the raw novice habit: ~60 % of cycles).
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+    conditions: {ambient_c: 31.0, rain_from: "13:00", rain_cycle_mult: 1.05}
+    schedule:
+      - {kind: warmup, minutes: 6, zone: PARK-1}
+      - {kind: travel, minutes: 2, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 142, task_id: T-1, task_type: truck_loading, zone: TL-1, material: clay_gravel,
+         truck_gap_s: 110, passes_per_truck: 6}
+      - {kind: break, minutes: 30, zone: TL-1}
+      - {kind: travel, minutes: 5, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 165, task_id: T-2, task_type: trenching, zone: TR-4, material: clay}
+      - {kind: break, minutes: 30, zone: TR-4}
+      - {kind: task, minutes: 85, task_id: T-2, task_type: trenching, zone: TR-4, material: clay}
+      - {kind: travel, minutes: 3, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 40, task_id: T-3, task_type: stockpile, zone: SP-1, material: clay_gravel}
+      - {kind: cooldown, minutes: 2, zone: SP-1}
+    cues:
+      - {at_min: 12, kind: seatbelt_open, params: {duration_s: 40, travel: true, travel_s: 10}, label: "seatbelt open while moving"}
+      - {at_min: 22, kind: fast_swing, params: {m: 1.6}}
+      - {at_min: 34, kind: truck_wait, params: {duration_s: 390}, label: "long truck wait (negative control)"}
+      - {at_min: 45, kind: fast_swing, params: {m: 1.8}}
+      - {at_min: 67, kind: fast_swing, params: {m: 1.5}}
+      - {at_min: 88, kind: fast_swing, params: {m: 2.0}}
+      - {at_min: 102, kind: idle, params: {duration_s: 480, high_rpm: true}, label: "excessive idle, truck parked"}
+      - {at_min: 121, kind: fast_swing, params: {m: 1.7}}

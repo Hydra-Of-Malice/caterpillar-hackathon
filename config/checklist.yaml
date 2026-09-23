@@ -1,0 +1,27 @@
+# CAT Sentinel — pre-shift checklist (agent E; Stitch screen 3). Versioned.
+# 14 items in 4 groups. A FAIL on a critical item blocks shift start (HTTP 409) and opens an incident.
+# N/A never blocks. live_signal names a value the edge shows beside the item (from live telemetry).
+
+version: "checklist-1.0.0"
+
+groups:
+  - {id: walk_around, label: "WALK-AROUND"}
+  - {id: cab_controls, label: "CAB & CONTROLS"}
+  - {id: safety_systems, label: "SAFETY SYSTEMS"}
+  - {id: site_conditions, label: "SITE CONDITIONS"}
+
+items:
+  - {id: WA-01, group: walk_around, label: "Tracks & rollers", hint: "No damage, debris or loose track", critical: false}
+  - {id: WA-02, group: walk_around, label: "Hoses & fittings (no leaks)", hint: "Check boom, stick and swing area", critical: true}
+  - {id: WA-03, group: walk_around, label: "Bucket, teeth & pins", hint: "Pins secured, no missing teeth", critical: true}
+  - {id: WA-04, group: walk_around, label: "Mirrors & cameras clean", hint: "Clean and adjusted for all sides", critical: true}
+  - {id: WA-05, group: walk_around, label: "Lights", hint: "Work lights and beacon working", critical: false}
+  - {id: WA-06, group: walk_around, label: "Fire extinguisher present", hint: "Charged and in its bracket", critical: true}
+  - {id: CC-01, group: cab_controls, label: "Seatbelt latches and retracts", hint: "Buckle, pull and release", critical: true}
+  - {id: CC-02, group: cab_controls, label: "Horn works", hint: "Sound the horn once", critical: true}
+  - {id: CC-03, group: cab_controls, label: "Travel alarm works", hint: "Alarm sounds when travelling", critical: true}
+  - {id: CC-04, group: cab_controls, label: "Hydraulic lockout lever works", hint: "Lever down locks all controls", critical: true}
+  - {id: SS-01, group: safety_systems, label: "Seatbelt sensor reads FASTENED", hint: "Buckle up and check the live value", critical: true, live_signal: seatbelt}
+  - {id: SS-02, group: safety_systems, label: "Proximity sensing self-test", hint: "ACTIVE, or N/A if not fitted", critical: false, live_signal: proximity}
+  - {id: SS-03, group: safety_systems, label: "CAT Sentinel protection self-test", hint: "Safety rules heartbeat received", critical: true, live_signal: protection}
+  - {id: SC-01, group: site_conditions, label: "Ground conditions & overhead hazards reviewed", hint: "Toolbox talk done with the spotter", critical: true}

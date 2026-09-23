@@ -1,0 +1,59 @@
+id: MOD-SEATBELT-CAB
+version: "2.0"
+status: approved
+title: Seatbelt, Cab Entry & Safe Park
+duration_min: 2
+format: micro_lesson
+machine_types: [EX-20t, WL]
+competency_ids: [C02, C03]
+summary: Three points of contact, the seatbelt at all times while operating, and the safe-park steps before leaving the seat.
+change_summary: "Rewritten for SOP-GEN-01 v2.0 (safe-park section)."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Use three points of contact when climbing into or out of the cab, facing the machine.
+    citation: {doc_id: SOP-GEN-01, section: "2.1", version: "2.0"}
+  - id: KP2
+    text: Fasten the seatbelt before starting the engine and wear it at all times while operating.
+    citation: {doc_id: SOP-GEN-01, section: "3.1", version: "2.0"}
+  - id: KP3
+    text: If the seatbelt alert appears while moving, stop all motion and fasten the seatbelt.
+    citation: {doc_id: SOP-GEN-01, section: "3.3", version: "2.0"}
+  - id: KP4
+    text: Before leaving the seat, lower the attachment to the ground and engage the hydraulic lockout.
+    citation: {doc_id: SOP-GEN-01, section: "4.2", version: "2.0"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: How many points of contact do you keep when climbing into the cab?
+      options: [One, Two, Three, "None if you are quick"]
+      answer: 2
+      explanation: Three points of contact — two hands and one foot, or two feet and one hand.
+      citation: {doc_id: SOP-GEN-01, section: "2.1", version: "2.0"}
+    - id: Q2
+      prompt: When do you fasten the seatbelt?
+      options:
+        - Only when travelling
+        - Before starting the engine, and wear it at all times while operating
+        - Only on slopes
+        - When the supervisor is nearby
+      answer: 1
+      explanation: Fasten it before starting the engine and wear it at all times while operating.
+      citation: {doc_id: SOP-GEN-01, section: "3.1", version: "2.0"}
+    - id: Q3
+      prompt: What must you do before unfastening the seatbelt to leave the seat?
+      options:
+        - Leave the controls live so you can restart quickly
+        - Engage the hydraulic lockout after lowering the attachment
+        - Raise the bucket so it is out of the way
+        - Nothing, if the engine is at idle
+      answer: 1
+      explanation: With the lockout engaged, bumped controls cannot move the machine or attachment.
+      citation: {doc_id: SOP-GEN-01, section: "4.2", version: "2.0"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — cab entry and safe park (placeholder video)"
+  url: null
+  note: "Placeholder video."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "2.0", date: "2026-08-12"}

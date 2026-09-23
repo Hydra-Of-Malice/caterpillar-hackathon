@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"series-green":"#1AC69E","surface-container-lowest":"#0e0e0e","surface-bright":"#262626","inverse-on-surface":"#313030","surface-container-low":"#141414","outline-variant":"#565656","on-error":"#FFFFFF","provenance-ml":"#1AC69E","primary":"#ffeec6","tertiary-fixed":"#67fbd0","error-container":"#FFDAD6","surface-container":"#201f1f","success":"#197527","on-secondary-container":"#481d00","surface-dim":"#131313","on-secondary-fixed":"#321200","notice":"#0067B8","on-primary-container":"#6f5800","on-surface-variant":"#d1c5ab","primary-fixed":"#ffe08a","on-tertiary":"#00382a","surface-container-highest":"#303030","escalation":"#8F24D1","background":"#131313","secondary":"#ffb68c","caution":"#F3C206","on-primary":"#3d2f00","surface":"#0E0E0E","on-surface":"#FFFFFF","surface-variant":"#353534","on-tertiary-fixed-variant":"#00513f","surface-container-high":"#2a2a2a","notice-dark":"#4DB1FF","inverse-surface":"#e5e2e1","secondary-fixed-dim":"#ffb68c","on-tertiary-container":"#006751","on-error-container":"#ffdad6","provenance-mock":"#909090","on-secondary-fixed-variant":"#753400","on-primary-fixed":"#241a00","series-purple":"#6852BE","series-orange":"#FB5A00","error":"#C52320","secondary-container":"#e76e03","series-blue":"#0066FF","on-background":"#e5e2e1","surface-tint":"#f1c100","tertiary-fixed-dim":"#44deb4","tertiary":"#b2ffe3","primary-fixed-dim":"#f1c100","on-primary-fixed-variant":"#574400","warning":"#E56C00","secondary-fixed":"#ffdbc9","on-secondary":"#522300","outline":"#3A3A3A","on-tertiary-fixed":"#002118","provenance-sim":"#6852BE","tertiary-container":"#55ebc1","primary-container":"#FFE672","inverse-primary":"#745b00"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","space-sm":"0.5rem","space-xl":"2rem","space-md":"1rem","margin":"1.5rem","margin-cab":"1rem","gutter-sm":"0.75rem","gutter":"1rem","gutter-lg":"1.5rem","space-lg":"1.5rem"},"fontFamily":{"label-sm":["Barlow Condensed"],"label-lg":["Barlow Condensed"],"body-lg":["Noto Sans"],"headline-xl":["Barlow Condensed"],"headline-sm":["Barlow Condensed"],"label-md":["Barlow Condensed"],"headline-lg":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"body-sm":["Noto Sans"],"body-md":["Noto Sans"]},"fontSize":{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"700"}],"label-lg":["18px",{"lineHeight":"22px","letterSpacing":"0.05em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0.01em","fontWeight":"700"}],"label-md":["15px",{"lineHeight":"18px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 flex flex-col"><div class="w-full h-1 bg-primary-container shrink-0"></div><div class="h-18 h-[72px] bg-black border-b border-outline px-space-md flex items-center justify-between select-none"><div class="flex items-center gap-space-md overflow-hidden"><div class="flex items-center gap-space-xs shrink-0"><div class="w-4 h-4 bg-primary-container shrink-0"></div><span class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface">CAT SENTINEL</span></div><div class="h-6 w-px bg-outline shrink-0"></div><div class="flex items-center gap-space-xs overflow-x-auto whitespace-nowrap"><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">UNIT:</span><span class="font-label-sm text-label-sm uppercase text-on-surface">EX-07 (Cat 320)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">OP:</span><span class="font-label-sm text-label-sm uppercase text-on-surface">Ravi Kumar (OP-1042)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="material-symbols-outlined text-[16px] text-primary-container">schedule</span><span class="font-label-sm text-label-sm uppercase text-on-surface">06:42</span><span class="font-label-sm text-label-sm text-on-surface-variant">· 1h 52m</span></div><div class="flex items-center gap-1.5 bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="w-2 h-2 rounded-full bg-success"></span><span class="font-label-sm text-label-sm uppercase text-on-surface">SEATBELT</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-series-green border border-series-green px-1">PROTECTION ACTIVE</span></div><div class="hidden xl:flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">EDGE: ONLINE · CLOUD: OK</span></div></div></div><div class="flex items-center gap-space-md shrink-0"><div class="bg-provenance-sim px-space-sm py-1 border border-provenance-sim text-on-surface font-label-sm text-label-sm uppercase tracking-wider">DEMO: SIMULATED TELEMETRY</div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-[76px] bottom-0 w-24 bg-surface-container z-40 border-r border-outline flex flex-col justify-between py-space-sm"><nav class="flex flex-col gap-1 w-full" data-active-classes="bg-surface-container-highest text-primary-container border-l-4 border-primary-container"><a aria-current="page" class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 transition-colors bg-surface-container-highest text-primary-container border-l-4 border-primary-container" data-path="operate" href="#"><span class="material-symbols-outlined text-[26px]">speed</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">OPERATE</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="checklist" href="#"><span class="material-symbols-outlined text-[26px]">fact_check</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">CHECKLIST</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="incident-log" href="#"><span class="material-symbols-outlined text-[26px]">warning</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">LOG</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="training" href="#"><span class="material-symbols-outlined text-[26px]">school</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">TRAINING</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="shift-review" href="#"><span class="material-symbols-outlined text-[26px]">timeline</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">REVIEW</span></a></nav><div class="px-2"><div class="bg-surface-container-low p-1.5 border border-outline text-center"><div class="font-label-sm text-label-sm text-on-surface-variant uppercase">CAB V2.4</div></div></div></aside><div class="pl-24"><main class="w-full min-h-[calc(100vh-80px)] pt-[76px] pb-[88px] px-space-md bg-surface"><div class="flex flex-col w-full gap-gutter">
+<!-- TOP STATUS / SHIFT TIMELINE STRIP -->
+<div class="w-full bg-surface-container p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-2.5 h-8 bg-primary-container shrink-0"></div>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">PRIMARY DISPATCH TIMELINE</div>
+<div class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Tuesday 23 Sep · Shift 06:00–14:30</div>
+</div>
+</div>
+<!-- Shift Progress Metric -->
+<div class="flex flex-col min-w-[280px] max-w-md w-full md:w-auto">
+<div class="flex items-center justify-between font-label-sm text-label-sm uppercase mb-1">
+<span class="text-on-surface">Operating 1h 52m</span>
+<span class="text-primary-container font-bold">18% Elapsed · 8h 30m Plan</span>
+</div>
+<div class="w-full h-3 bg-surface-container-lowest relative overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 18%;"></div>
+<div class="absolute top-0 bottom-0 w-0.5 bg-on-surface" style="left: 18%;"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm mt-1">
+<span>06:00 T-START</span>
+<span>10:15 MID-POINT</span>
+<span>14:30 EOS</span>
+</div>
+</div>
+</div>
+<!-- MAIN OPERATOR CONTENT GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT PANEL: 2/3 WIDTH (TODAY'S TASKS) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]">assignment</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">TODAY'S TASKS</span>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-on-surface px-1.5 py-0.5 ml-1">3 ASSIGNED</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">BENCH CYCLE 02 · PIT B NORTH</div>
+</div>
+<!-- TASK CARD 1: IN PROGRESS -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-md relative overflow-hidden">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-primary-container"></div>
+<div class="flex flex-wrap items-center justify-between gap-space-sm pl-2">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 bg-primary-container text-on-primary font-headline-sm text-headline-sm flex items-center justify-center font-bold">1</div>
+<div>
+<div class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wide">Truck Loading, Bench 3</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase flex items-center gap-1.5">
+<span>ZONE: BENCH 3-EAST</span>
+<span>·</span>
+<span>VOL: 420 m³ TARGET</span>
+<span>·</span>
+<span>CAT 777F FLEET (3 UNITS)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-2 py-1 bg-surface-container-high text-primary-container font-bold">
+              ● IN PROGRESS
+            </span>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="flex flex-col gap-1 pl-2">
+<div class="flex justify-between items-baseline">
+<span class="font-label-md text-label-md uppercase text-on-surface">Work Output: 143 m³ <span class="text-on-surface-variant font-normal">of 420 m³</span></span>
+<span class="font-headline-sm text-headline-sm text-primary-container">34%</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-lowest">
+<div class="h-full bg-primary-container transition-all duration-300" style="width: 34%;"></div>
+</div>
+</div>
+<!-- ESTIMATE BLOCK (STATISTICAL RANGE) -->
+<div class="bg-surface-container-low p-space-sm pl-3 flex flex-col gap-space-xs">
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-on-surface font-bold">Est. finish 10:05</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(likely 09:35–10:50)</span>
+<button class="font-label-sm text-label-sm text-primary-container underline uppercase hover:text-on-surface transition-colors cursor-pointer" type="button">Why this estimate?</button>
+</div>
+<div class="flex items-center gap-1 bg-surface-container px-1.5 py-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-series-green"></span>
+<span class="font-label-sm text-label-sm uppercase text-series-green font-bold">ML PROVENANCE</span>
+</div>
+</div>
+<!-- Range Bar Visualization -->
+<div class="relative py-2.5">
+<!-- Full Shift Range Scale -->
+<div class="w-full h-1 bg-surface-container-highest relative">
+<!-- P10-P90 Track Window (09:35 to 10:50 over 09:00 - 11:30 scale) -->
+<div class="absolute top-0 bottom-0 bg-outline-variant" style="left: 23%; width: 50%;"></div>
+<!-- Now Indicator -->
+<div class="absolute -top-1.5 w-3 h-3 bg-series-blue rounded-full transform -translate-x-1/2 flex items-center justify-center" style="left: 12%;" title="Current Time: 06:42">
+<div class="w-1 h-1 bg-on-surface rounded-full"></div>
+</div>
+<!-- P50 Bold Indicator -->
+<div class="absolute -top-2 w-1.5 h-5 bg-primary-container transform -translate-x-1/2" style="left: 43%;" title="P50 Finish: 10:05"></div>
+</div>
+<!-- Track Labels -->
+<div class="relative w-full flex justify-between font-label-sm text-label-sm text-on-surface-variant uppercase mt-1">
+<span style="margin-left: 8%;">06:42 NOW</span>
+<span class="text-on-surface font-bold" style="margin-left: 2%;">P10 09:35</span>
+<span class="text-primary-container font-bold">P50 10:05</span>
+<span class="text-on-surface font-bold">P90 10:50</span>
+<span>11:30 MAX</span>
+</div>
+</div>
+</div>
+<!-- Atmospheric Advisory Chip -->
+<div class="flex items-center gap-space-sm pl-2">
+<div class="flex items-center gap-1.5 bg-surface-container-high px-space-sm py-1">
+<span class="material-symbols-outlined text-series-blue text-[18px]">cloud</span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface">Rain from 13:00 not affecting this task</span>
+</div>
+</div>
+</div>
+<!-- TASK CARD 2: QUEUED (WITH CAUTION ADVISORY) -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-md relative overflow-hidden opacity-95">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 bg-surface-container-highest text-on-surface-variant font-headline-sm text-headline-sm flex items-center justify-center font-bold">2</div>
+<div>
+<div class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wide">Trench Excavation T-4</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">
+                SPEC: 60 m × 1.5 m · DRAINAGE SECTOR C · EST. 2h 05m (1h 40m – 2h 50m)
+              </div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-2 py-1 bg-surface-container-low text-on-surface-variant">
+              QUEUED
+            </span>
+</div>
+</div>
+<!-- CAUTION AND MODULE INTERLOCK BANNER -->
+<div class="bg-surface-container-low p-space-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="bg-caution text-on-primary px-1.5 py-0.5 font-headline-sm text-headline-sm flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="font-label-sm text-label-sm uppercase text-caution font-bold">SAFETY ADVISORY · FIRST TRENCH ON SITE</div>
+<div class="font-body-sm text-body-sm text-on-surface">First trench on this site. Recommended: 4-min module "Trenching near edges".</div>
+</div>
+</div>
+<button class="h-11 min-h-[44px] bg-caution hover:bg-primary-container text-on-primary px-space-md font-headline-sm text-headline-sm uppercase flex items-center justify-center gap-1.5 shrink-0 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>START MODULE</span>
+</button>
+</div>
+<!-- Telemetry & Spotter Status -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-space-xs">
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1">
+<span class="font-label-sm text-label-sm uppercase text-provenance-mock font-bold">MOCK DATA</span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface">· Spotter assigned: YES (Unit S-12)</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">
+            TARGET COMMENCEMENT: 10:15
+          </div>
+</div>
+</div>
+<!-- TASK CARD 3: QUEUED (STOCKPILE TIDY) -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-sm opacity-80 hover:opacity-100 transition-opacity">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 bg-surface-container-highest text-on-surface-variant font-headline-sm text-headline-sm flex items-center justify-center font-bold">3</div>
+<div>
+<div class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wide">Stockpile Tidy</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">PAD 4-WEST · BATTER GRADE VERIFICATION</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-2 py-1 bg-surface-container-low text-on-surface-variant">
+              QUEUED
+            </span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase bg-surface-container-low px-space-sm py-1.5 mt-1">
+<span>DURATION ESTIMATE: 40 m (RANGE 30–55 m)</span>
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm uppercase text-series-green">ML</span>
+<span class="text-on-surface-variant">CONFIDENCE: 92%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL: 1/3 WIDTH (SYSTEM STATUS, SAFETY & CHECKS) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- GO TO OPERATE MASTER BUTTON (PRIMARY SAFETY ACTION) -->
+<button class="w-full h-16 min-h-[64px] bg-primary-container hover:bg-primary-fixed text-on-primary font-headline-lg text-headline-lg uppercase flex items-center justify-center gap-space-sm transition-colors cursor-pointer shadow-lg active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[32px] font-bold">play_arrow</span>
+<span>GO TO OPERATE</span>
+</button>
+<!-- (A) PRE-SHIFT CHECK CARD -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-series-green text-[20px]">check_circle</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">PRE-SHIFT CHECK</span>
+</div>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-high text-on-surface uppercase font-bold">RULE</span>
+</div>
+<div class="mt-1 flex items-baseline justify-between">
+<span class="font-headline-md text-headline-md text-series-green font-bold">14/14 PASSED</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">RECORDED 05:52</span>
+</div>
+<div class="w-full h-1 bg-series-green mt-1"></div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Hydraulics, braking, E-stops, and structural interlocks verified by operator OP-1042.
+        </div>
+</div>
+<!-- (B) BREAKS CARD -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-container text-[20px]">timer</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">OPERATOR FATIGUE TRACK</span>
+</div>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-high text-on-surface uppercase font-bold">RULE</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface">
+          Operating <span class="font-bold text-on-surface">1 h 52 m</span> continuously. Mandatory rest threshold at <span class="text-primary-container font-bold">2 h 00 m</span>.
+        </div>
+<!-- Fatigue Bar (112m / 120m) -->
+<div class="flex flex-col gap-1 mt-1">
+<div class="w-full h-2 bg-surface-container-lowest relative overflow-hidden">
+<div class="h-full bg-warning" style="width: 93%;"></div>
+</div>
+<div class="flex justify-between items-center font-label-sm text-label-sm text-on-surface-variant uppercase">
+<span>112 MIN RUNNING</span>
+<span class="text-warning font-bold">8 MIN TO BREAK ADVISORY</span>
+</div>
+</div>
+</div>
+<!-- (C) RECENT ALERTS CARD -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-error text-[20px]">notification_important</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">RECENT ALERTS</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">LAST 60 MIN</span>
+</div>
+<!-- Alert Items with ANSI Signals -->
+<div class="flex flex-col gap-space-xs mt-1">
+<!-- Alert 1 -->
+<div class="bg-surface-container-low p-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="bg-caution text-on-primary font-headline-sm text-headline-sm px-1 text-[13px] font-bold">CAUTION</span>
+<span class="font-label-sm text-label-sm text-on-surface font-bold">06:31</span>
+</div>
+<span class="font-label-sm text-label-sm text-series-green uppercase">ACKNOWLEDGED</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface leading-tight">
+              Swing speed excessive near Cat 777F haul truck quadrant.
+            </div>
+</div>
+<!-- Alert 2 -->
+<div class="bg-surface-container-low p-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="bg-error text-on-error font-headline-sm text-headline-sm px-1 text-[13px] font-bold">DANGER</span>
+<span class="font-label-sm text-label-sm text-on-surface font-bold">06:12</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">AUTO-CLEARED (4s)</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface leading-tight">
+              Seatbelt unfastened while hydraulic pilot control active.
+            </div>
+</div>
+</div>
+<div class="pt-1 flex justify-end">
+<button class="font-label-md text-label-md text-primary-container uppercase hover:text-on-surface flex items-center gap-1 cursor-pointer transition-colors" type="button">
+<span>VIEW COMPLETE LOG (19)</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- (D) AFTER THIS SHIFT CARD -->
+<div class="bg-surface-container p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-notice-dark text-[20px]">psychology</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">AFTER THIS SHIFT</span>
+</div>
+<span class="bg-notice-dark text-surface-container-lowest font-headline-sm text-headline-sm px-1.5 text-[12px] font-bold uppercase">NOTICE</span>
+</div>
+<div class="mt-1 font-body-sm text-body-sm text-on-surface">
+<span class="font-bold text-notice-dark">3 coaching tips</span> saved for your debrief review regarding smooth swing acceleration and fuel burn on Bench 3.
+        </div>
+<div class="mt-2 bg-surface-container-low p-2 flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">COACH: CAT SENTINEL CORE</span>
+<span class="font-label-sm text-label-sm text-series-green uppercase font-bold">READY AT 14:30</span>
+</div>
+</div>
+</div>
+</div>
+</div></main></div><footer class="fixed bottom-0 left-24 right-0 h-20 bg-surface-container border-t border-outline z-40 px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md w-full"><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-warning hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-warning">report_problem</span><span>LOG INCIDENT</span></button><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-primary-container hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-primary-container">coffee</span><span>TAKE BREAK</span></button><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-notice-dark hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-notice-dark">radio</span><span>CALL SUPERVISOR</span></button></div></footer></body></html>

@@ -1,0 +1,187 @@
+# CAT Sentinel — behaviour pipeline config (owner: agent C).
+# Windowed features, idle rule, procedural behaviour rules, Isolation Forest, fusion,
+# explanations and attribution (docs/sections/04-ml-approaches.md).
+# Every rule and threshold carries a version string. All thresholds are [PROPOSED] and
+# were chosen for SIMULATED telemetry; re-tune on real data.
+version: "fusion-0.1.0"
+
+# machine_id -> machine_type (fictional demo fleet, SIMULATED)
+machines:
+  EX-07: EX-20t
+  EX-09: EX-20t
+default_machine_type: EX-20t
+
+window:
+  length_s: 20.0
+  stride_s: 5.0
+  sample_hz: 10.0
+  max_gap_s: 2.0            # a longer gap in a machine's stream resets its buffer
+  min_coverage: 0.8         # a window needs >= 80 % of its nominal samples
+
+features:
+  version: "feat-0.1.0"
+  cmd_active: 0.10          # |command| above this counts as an active axis
+  cmd_deadband: 0.05        # |command| below this counts as "no command"
+  reversal_rate_deadband: 0.5   # command rate (1/s) below which a derivative sign change is ignored
+  harsh_reversal_delta: 1.4     # sign flip with |delta| > 1.4 ...
+  harsh_reversal_window_s: 0.3  # ... within 0.3 s (09 §4.4 HARSH_REVERSAL)
+  fast_reversal_delta: 0.8      # lever reversal burst: zig-zag legs of >= 0.8 ...
+  fast_reversal_leg_s: 0.5      # ... completed within 0.5 s (13 U2)
+  saturation: 0.9
+  near_truck_m: 5.0         # bucket_to_truck_m below this = "near truck" (F8)
+  approach_zone_m: 10.0     # final-approach zone for closing speed (F11)
+  approach_lag_s: 0.5       # closing speed differencing lag
+  ttc_min_closing_mps: 0.05
+  ttc_cap_s: 30.0
+  truck_distance_cap_m: 50.0
+  person_warning_m: 15.0    # outer (warning) zone; the inner zone is a T-CRIT safety rule
+  travel_moving_kmh: 0.5
+  reverse_cmd: -0.05
+  boom_raised_deg: 40.0
+  hyd_spike_bar_per_s: 800.0
+  hyd_relief_bar: 350.0
+  hyd_relief_frac: 0.95
+  hyd_no_cmd_pressure_bar: 120.0
+  hyd_no_cmd_min_s: 2.0     # pressure-without-command ratio needs >= 2 s of no-command time
+  hyd_cmd_lookback_s: 0.5
+  hyd_cmd_step: 0.15        # a spike is "commanded" if some axis moved >= this in the lookback
+  throttle_step_pct: 20.0
+  idle_travel_kmh: 0.2
+  idle_swing_dps: 1.0
+  brake_hard_kmh: 2.0
+  cycle:
+    swing_on_dps: 8.0       # hysteresis for swing-direction episodes (no ground truth used)
+    swing_off_dps: 3.0
+    min_episode_s: 0.5
+    min_cycle_s: 5.0
+    max_cycle_s: 90.0       # a longer gap between cycle starts is a pause, not a cycle
+    history: 5
+
+idle:
+  rule_id: excessive_idle
+  version: "idle-0.1.0"
+  t_idle_s: 300.0           # site-set T_idle (5 min default)
+  warmup_s: 600.0           # idle within 10 min of a shift's first sample is warm-up (gated)
+  max_dt_s: 1.0
+  tier: T1
+
+rules:
+  version: "behaviour-rules-0.2.0"
+  fast_swing_near_truck:
+    enabled: true
+    severity: T1
+    swing_dps: 35.0         # canonical: >35 °/s within 5 m of truck body, sustained 0.3 s (shared with sim + practice analyser)
+    near_truck_m: 5.0
+    min_duration_s: 0.3
+    cooldown_s: 10.0
+    signature: [swing_speed_near_truck, swing_speed_peak, swing_speed_p95, approach_speed_to_truck]
+  harsh_reversal_burst:
+    enabled: true
+    severity: T1
+    min_count: 6            # fast lever reversals (all axes) within one 20 s window
+    cooldown_s: 20.0
+    signature: [fast_reversals, harsh_reversals, joy_reversals, joy_jerk_rms, joy_jerk_swing, joy_jerk_boom, joy_jerk_stick, joy_jerk_bucket]
+  travel_with_bucket_raised:
+    enabled: true
+    severity: T1
+    boom_deg: 40.0
+    travel_kmh: 1.0
+    min_duration_s: 2.0
+    cooldown_s: 30.0
+    signature: [travel_implement_raised_frac, travel_speed_p95]
+
+fusion:
+  # r = max(S_proc, d*q) * m_E + bonus * 1[K >= k_min]   (04 §5.3)
+  # tau1/tau2 are nominal; a trained model's alert-budget thresholds replace them.
+  # S_proc is expressed in threshold units: T1-level = tau1, T2-level = tau2
+  # (with nominal tau this is {0, 2, 3} exactly as in 04 §5.3).
+  tau1: 2.0
+  tau2: 3.0
+  recurrence_bonus: 0.5
+  recurrence_k_min: 3
+  ml_cooldown_s: 20.0
+  exposure:
+    open: 0.5
+    zone: 1.0               # loading zone or travel lane
+    high: 1.5               # person in warning zone, truck within truck_close_m, or reversing
+    loading_zone_prefixes: ["TL"]
+    travel_lane_prefixes: ["LANE", "TR-"]
+    loading_task_types: [truck_loading]
+    truck_close_m: 2.5      # closer than the normal parked-truck position (~3 m in the simulator)
+  direction:
+    risk_mass_min: 0.5      # d = 1 if risk-direction features carry >= 50 % of deviation mass
+    z_excess: 1.0           # only |z| above 1 robust SD counts as deviation mass
+    z_clip: 10.0
+  gates:                    # task state -> features zeroed before d and explanations
+    waiting_for_truck: [idle_ratio, cycle_time_s, cycle_time_cv, payload_per_cycle_t]
+
+anomaly:
+  version_prefix: "if-0.1.0"
+  n_estimators: 100
+  max_samples: 256
+  random_state: 42
+  min_engine_on_frac: 0.5
+  min_context_windows: 2000   # context IF needs >= 2,000 windows ...
+  min_context_operators: 3    # ... from >= 3 operators ...
+  min_context_machines: 2     # ... and >= 2 machines (04 §8); else machine-type IF
+  min_ecdf_windows: 500       # context ECDF needs >= 500 calibration windows; else parent ECDF
+  budget_t1_per_h: 1.0        # false alerts per operating hour on clean data
+  budget_t2_per_h: 0.2
+  bootstrap_reps: 300
+  bootstrap_block_h: 0.5
+  tau_grid: {start: 1.0, stop: 8.0, step: 0.05}
+  split: {train: 0.6, calibration: 0.2, test: 0.2}
+
+attribution:
+  version: "attribution-0.1.0"
+  machine_cue_features: [hyd_spike_count, hyd_relief_frac, hyd_uncmd_spike_count, hyd_press_no_cmd_ratio]
+  uncommanded_spikes_min: 2
+  press_no_cmd_ratio_min: 0.3
+  dtc_event_types: [behaviour_anomaly, hyd_uncommanded_pressure, harsh_reversal_burst]
+  cross_operator_min: 2       # same machine-capable signature from >= 2 operators on one machine
+  environment_features: [person_near_frac, min_truck_m]
+  health_event:
+    type: hyd_uncommanded_pressure
+    version: "machine-health-0.1.0"
+    cooldown_s: 60.0
+
+# Default explanation baseline used when no trained model (or no model baseline for a
+# context) is available, so rules-only mode still explains events in feature units.
+# [PROPOSED] hand-set placeholders for EX-20t, scaled to SIMULATED work windows: [median, robust scale].
+# A trained model's per-context median/MAD baseline replaces these.
+default_baseline:
+  version: "baseline-default-0.2.0"
+  features:
+    joy_jerk_rms: [8.0, 5.0]
+    joy_jerk_swing: [6.0, 4.0]
+    joy_jerk_boom: [6.0, 4.0]
+    joy_jerk_stick: [5.0, 3.0]
+    joy_jerk_bucket: [4.0, 2.0]
+    joy_reversals: [29.0, 10.0]
+    harsh_reversals: [0.0, 0.5]
+    fast_reversals: [0.0, 1.0]
+    joy_saturation_frac: [0.08, 0.06]
+    multi_function_frac: [0.08, 0.06]
+    boom_swing_overlap: [0.25, 0.15]
+    swing_speed_p95: [30.0, 8.0]
+    swing_speed_peak: [50.0, 6.0]
+    swing_decel_peak: [65.0, 25.0]
+    travel_speed_p95: [0.0, 1.0]
+    reverse_travel_frac: [0.0, 0.2]
+    travel_implement_raised_frac: [0.0, 0.05]
+    throttle_var: [0.0, 300.0]
+    throttle_steps: [0.0, 1.0]
+    hyd_spike_count: [0.0, 0.5]
+    hyd_relief_frac: [0.0, 0.02]
+    hyd_uncmd_spike_count: [0.0, 0.3]
+    hyd_press_no_cmd_ratio: [0.0, 0.1]
+    brake_hard_count: [0.0, 0.3]
+    idle_ratio: [0.15, 0.15]
+    cycle_time_s: [28.0, 6.0]
+    cycle_time_cv: [0.23, 0.15]
+    payload_per_cycle_t: [1.65, 0.25]
+    swing_speed_near_truck: [20.0, 8.0]     # population-typical (expert-intermediate) near-truck swing
+    approach_speed_to_truck: [2.0, 2.0]
+    min_ttc_s: [15.0, 10.0]
+    min_truck_m: [3.5, 1.0]
+    person_near_frac: [0.0, 0.05]

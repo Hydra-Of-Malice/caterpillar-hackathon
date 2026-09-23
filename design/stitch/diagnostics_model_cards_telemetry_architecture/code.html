@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Noto+Sans:wght@400;700&amp;family=Roboto+Condensed:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container":"#201f1f","warning":"#E56C00","surface-container-lowest":"#080808","tertiary-container":"#55ebc1","tertiary-fixed":"#67fbd0","on-tertiary-fixed":"#002118","on-surface-variant":"#E1E1E1","surface-container-highest":"#303030","inverse-surface":"#e5e2e1","secondary-fixed-dim":"#ffb68c","on-background":"#e5e2e1","secondary":"#ffb68c","tertiary-fixed-dim":"#44deb4","primary":"#ffeec6","notice":"#0067B8","on-secondary-fixed-variant":"#753400","outline-variant":"#4e4632","surface":"#0E0E0E","surface-container-high":"#262626","provenance-ml":"#1AC69E","on-primary":"#000000","success":"#197527","surface-tint":"#f1c100","caution":"#F3C206","surface-container-low":"#1c1b1b","on-primary-fixed":"#241a00","secondary-fixed":"#ffdbc9","surface-bright":"#262626","on-surface":"#e5e2e1","on-primary-container":"#6f5800","surface-dim":"#131313","series-blue":"#0066FF","primary-container":"#FFE672","on-primary-fixed-variant":"#574400","on-secondary-fixed":"#321200","series-green":"#1AC69E","on-tertiary-fixed-variant":"#00513f","surface-variant":"#353534","escalation":"#8F24D1","error-container":"#FFDAD6","provenance-mock":"#909090","on-error":"#690005","tertiary":"#b2ffe3","on-secondary":"#522300","on-error-container":"#ffdad6","on-secondary-container":"#481d00","primary-fixed":"#ffe08a","inverse-on-surface":"#313030","secondary-container":"#e76e03","provenance-sim":"#6852BE","background":"#131313","series-purple":"#6852BE","error":"#C52320","on-tertiary":"#00382a","outline":"#3A3A3A","inverse-primary":"#745b00","series-orange":"#FB5A00","primary-fixed-dim":"#f1c100","on-tertiary-container":"#006751","notice-dark":"#4DB1FF"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-md":"1rem","gutter-lg":"1.5rem","space-xl":"2rem","gutter":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"1.5rem","gutter-sm":"0.75rem","space-lg":"1.5rem","margin-cab":"1rem"},"fontFamily":{"label-md":["Barlow Condensed"],"headline-xl":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"body-md":["Noto Sans"],"body-lg":["Noto Sans"],"label-sm":["Barlow Condensed"],"body-sm":["Noto Sans"],"headline-lg":["Barlow Condensed"],"label-lg":["Barlow Condensed"],"headline-sm":["Barlow Condensed"]},"fontSize":{"label-md":["15px",{"lineHeight":"18px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"700"}],"label-lg":["18px",{"lineHeight":"22px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0.01em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-on-primary border-b-4 border-caution"><div class="w-full px-margin flex items-center justify-between h-16"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm select-none"><div class="w-8 h-8 bg-caution flex items-center justify-center font-headline-md text-headline-md text-on-primary font-bold leading-none">C</div><span class="font-headline-md text-headline-md tracking-wider uppercase text-inverse-surface font-bold">CAT SENTINEL</span></div><nav class="flex items-center gap-gutter" data-active-classes="border-b-4 border-caution text-inverse-surface"><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="home" href="#">Home</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="training" href="#">Training</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="incidents" href="#">Incidents</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="tasks" href="#">Tasks</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="crew" href="#">Crew</a><a aria-current="page" class="h-16 flex items-center px-space-xs font-label-md uppercase transition-colors border-b-4 border-caution text-inverse-surface" data-path="diagnostics" href="#">Diagnostics</a></nav></div><div class="flex items-center gap-gutter"><div class="hidden xl:flex items-center px-space-sm py-1 bg-surface-container-high border border-provenance-sim text-provenance-sim font-label-sm text-label-sm tracking-widest uppercase bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(104,82,190,0.15)_6px,rgba(104,82,190,0.15)_12px)]"><span class="material-symbols-outlined text-[14px] mr-1">network_check</span>DEMO MODE: SIMULATED TELEMETRY</div><div class="flex items-center gap-space-sm pl-space-sm border-l border-outline"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md leading-tight text-inverse-surface">Ravi Kumar / Marcus Lee</div><div class="font-label-sm text-label-sm tracking-wider uppercase text-caution">Field Supervisor</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-64px)]"><div class="flex flex-col w-full">
+<div class="w-full px-margin py-space-lg flex flex-col gap-space-lg">
+<!-- Top System Architecture Ribbon -->
+<div class="bg-surface-container-high rounded p-space-md flex flex-wrap items-center justify-between gap-gutter shadow-md">
+<div class="flex items-center gap-space-md flex-wrap">
+<div class="flex items-center gap-space-xs">
+<span class="inline-block w-2.5 h-2.5 rounded-full bg-provenance-ml animate-pulse"></span>
+<span class="font-headline-md text-headline-md tracking-wider uppercase text-inverse-surface">SYSTEM DIAGNOSTICS &amp; AI RUNTIME</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 bg-surface-container text-on-surface-variant rounded">EDGE RUNTIME: ONNX v1.17</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 bg-surface-container text-caution rounded">BUILD 09.44.2025-RC2</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-md text-label-md">
+<span class="text-on-surface-variant uppercase">TARGET HARDWARE:</span>
+<span class="text-inverse-surface tracking-wider bg-surface px-2.5 py-1 rounded">NVIDIA JETSON ORIN + CAB ECU (CAN 2.0B)</span>
+</div>
+</div>
+<!-- ROW 1: KPI TILES (6 Live Metrics) -->
+<section class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm tracking-widest uppercase text-caution">STAGE 01 // CORE TELEMETRY BENCHMARKS</span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-provenance-sim">sync_alt</span>
+          PULSE: 500MS INTERVAL
+        </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-gutter">
+<!-- Tile 1: Rule Latency -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">RULE LATENCY</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-inverse-surface rounded">RULE</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-inverse-surface tracking-tight" id="rule-p50">1.8</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">MS P50</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              P99: <span class="text-inverse-surface" id="rule-p99">4.2 ms</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-primary-container h-full w-[28%] transition-all duration-500" id="rule-bar"></div>
+</div>
+</div>
+<!-- Tile 2: ML Alert Latency -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">ML ALERT LATENCY</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-provenance-ml rounded">ML</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-provenance-ml tracking-tight" id="ml-p50">42</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">MS P50</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              P99: <span class="text-inverse-surface" id="ml-p99">88 ms</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-provenance-ml h-full w-[48%] transition-all duration-500" id="ml-bar"></div>
+</div>
+</div>
+<!-- Tile 3: Alert Budget Rate -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">ALERTS / OP HOUR</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-caution rounded">SAFETY SLA</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-caution tracking-tight">0.8</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">/ HR</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              BUDGET: <span class="text-inverse-surface">≤ 1.0 / h</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-caution h-full w-[80%]"></div>
+</div>
+</div>
+<!-- Tile 4: Edge CPU Load -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">EDGE CPU LOAD</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-inverse-surface rounded">JETSON</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-inverse-surface tracking-tight" id="cpu-metric">14.2</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">%</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              RUN: <span class="text-inverse-surface">CAB ECU DUAL-CORE</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-series-green h-full w-[14.2%] transition-all duration-700" id="cpu-bar"></div>
+</div>
+</div>
+<!-- Tile 5: Telemetry Queue Depth -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">QUEUE DEPTH</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-success rounded">CLEAR</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-inverse-surface tracking-tight">0</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">MSGS</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              RING BUFFER: <span class="text-inverse-surface">NOMINAL</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-success h-full w-[4%]"></div>
+</div>
+</div>
+<!-- Tile 6: Last Cloud Sync -->
+<div class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">CLOUD SYNC</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-notice-dark rounded">UPSTREAM</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-notice-dark tracking-tight" id="sync-timer">2s</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">AGO</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+              EDGE: <span class="text-success">ONLINE</span> | CLOUD: <span class="text-success">OK</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-lowest h-1 rounded overflow-hidden">
+<div class="bg-notice-dark h-full w-[95%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Divider -->
+<div class="w-full h-1 bg-surface-container-high rounded"></div>
+<!-- ROW 2: DATA SOURCES & TELEMETRY INGEST -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between flex-wrap gap-gutter">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-inverse-surface uppercase tracking-wide">DATA SOURCES &amp; TELEMETRY INGEST</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 bg-surface-container-high text-inverse-surface rounded">5 SENSORS ACTIVE</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">BUS PROTOCOLS:</span>
+<span class="px-2 py-0.5 bg-surface-container text-inverse-surface rounded">SAE J1939</span>
+<span class="px-2 py-0.5 bg-surface-container text-inverse-surface rounded">GPIO HIGH-VOLT</span>
+<span class="px-2 py-0.5 bg-surface-container text-inverse-surface rounded">NMEA 0183</span>
+</div>
+</div>
+<!-- Ingest Table -->
+<div class="w-full overflow-x-auto bg-surface-container rounded shadow-md">
+<table class="w-full text-left min-w-[760px]">
+<thead class="bg-surface-container-highest text-on-surface-variant font-label-md text-label-md uppercase">
+<tr>
+<th class="px-space-md py-space-sm">Signal Channel</th>
+<th class="px-space-md py-space-sm">Architecture Tier</th>
+<th class="px-space-md py-space-sm">Hardware Source</th>
+<th class="px-space-md py-space-sm">Status</th>
+<th class="px-space-md py-space-sm">Sampling Rate</th>
+<th class="px-space-md py-space-sm text-right">Bus Latency</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-inverse-surface font-body-sm text-body-sm">
+<!-- Row 1 -->
+<tr class="bg-surface-container hover:bg-surface-container-high transition-colors">
+<td class="px-space-md py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-caution">speed</span>
+<div>
+<div class="font-label-lg text-label-lg uppercase text-inverse-surface leading-tight">Engine RPM &amp; Throttle</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">PRIMARY POWERTRAIN CONTROLLER</div>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-on-surface-variant">Tier A Telematics</td>
+<td class="px-space-md py-space-sm">
+<span class="font-label-md text-label-md uppercase px-2 py-0.5 bg-surface-container-lowest rounded text-caution">J1939 CAN PGN 61444</span>
+</td>
+<td class="px-space-md py-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-label-sm text-label-sm uppercase bg-success text-inverse-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-inverse-surface">50 Hz</td>
+<td class="px-space-md py-space-sm text-right font-label-md text-label-md uppercase text-provenance-ml">2 ms</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<td class="px-space-md py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-warning">airline_seat_recline_normal</span>
+<div>
+<div class="font-label-lg text-label-lg uppercase text-inverse-surface leading-tight">Seatbelt Switch Hall-effect</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">OPERATOR RESTRAINT HARNESS SENSOR</div>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-on-surface-variant">Tier B Safety Bus</td>
+<td class="px-space-md py-space-sm">
+<span class="font-label-md text-label-md uppercase px-2 py-0.5 bg-surface-container-lowest rounded text-inverse-surface">Direct GPIO Interlock</span>
+</td>
+<td class="px-space-md py-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-label-sm text-label-sm uppercase bg-success text-inverse-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-inverse-surface">20 Hz</td>
+<td class="px-space-md py-space-sm text-right font-label-md text-label-md uppercase text-provenance-ml">0 ms</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container hover:bg-surface-container-high transition-colors">
+<td class="px-space-md py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-notice-dark">radar</span>
+<div>
+<div class="font-label-lg text-label-lg uppercase text-inverse-surface leading-tight">Proximity FMCW Radar</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">COUNTERWEIGHT BLIND-SPOT EMITTER</div>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-on-surface-variant">Tier C Add-on</td>
+<td class="px-space-md py-space-sm">
+<span class="font-label-md text-label-md uppercase px-2 py-0.5 bg-surface-container-lowest rounded text-inverse-surface">77 GHz CAN array</span>
+</td>
+<td class="px-space-md py-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-label-sm text-label-sm uppercase bg-success text-inverse-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-inverse-surface">20 Hz</td>
+<td class="px-space-md py-space-sm text-right font-label-md text-label-md uppercase text-provenance-ml">4 ms</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<td class="px-space-md py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">screen_rotation</span>
+<div>
+<div class="font-label-lg text-label-lg uppercase text-inverse-surface leading-tight">Boom / Stick Slew IMU</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">HYDRAULIC WORKGROUP ATTITUDE SENSOR</div>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-on-surface-variant">Tier B Gyros</td>
+<td class="px-space-md py-space-sm">
+<span class="font-label-md text-label-md uppercase px-2 py-0.5 bg-surface-container-lowest rounded text-inverse-surface">6-axis Cab Telematics</span>
+</td>
+<td class="px-space-md py-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-label-sm text-label-sm uppercase bg-success text-inverse-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-inverse-surface">100 Hz</td>
+<td class="px-space-md py-space-sm text-right font-label-md text-label-md uppercase text-provenance-ml">1 ms</td>
+</tr>
+<!-- Row 5 -->
+<tr class="bg-surface-container hover:bg-surface-container-high transition-colors">
+<td class="px-space-md py-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-caution">satellite_alt</span>
+<div>
+<div class="font-label-lg text-label-lg uppercase text-inverse-surface leading-tight">GNSS RTK Positioning</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">CENTIMETER GEO-FENCE SATELLITE RIG</div>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-on-surface-variant">Tier A Telematics</td>
+<td class="px-space-md py-space-sm">
+<span class="font-label-md text-label-md uppercase px-2 py-0.5 bg-surface-container-lowest rounded text-inverse-surface">Dual-antenna rover</span>
+</td>
+<td class="px-space-md py-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-label-sm text-label-sm uppercase bg-success text-inverse-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+</td>
+<td class="px-space-md py-space-sm font-label-md text-label-md uppercase text-inverse-surface">10 Hz</td>
+<td class="px-space-md py-space-sm text-right font-label-md text-label-md uppercase text-warning">8 ms</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Visual Divider -->
+<div class="w-full h-1 bg-surface-container-high rounded"></div>
+<!-- ROW 3: MODEL CARDS -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between flex-wrap gap-gutter">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-inverse-surface uppercase tracking-wide">DEPLOYED EDGE MODEL CARDS</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 bg-surface-container-high text-provenance-ml rounded">VERIFIED AUDITABLE</span>
+</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">
+          EVALUATION SUITE: SYNTHETIC FAULT INJECTION (ANSI Z535 VALIDATED)
+        </div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+<!-- MODEL CARD 1: Isolation Forest -->
+<article class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md">
+<div>
+<!-- Header Bar -->
+<div class="flex items-start justify-between gap-space-sm pb-space-sm border-b-2 border-caution">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-provenance-sim rounded uppercase">SIMULATED DATA</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-inverse-surface rounded uppercase">v4.2 PROD</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg uppercase text-inverse-surface mt-1 leading-tight">
+                  Unusual Operation Detector
+                </h3>
+<p class="font-label-md text-label-md uppercase text-caution">Isolation Forest per Task Type</p>
+</div>
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[28px] text-caution">analytics</span>
+</div>
+</div>
+<!-- Parameters Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm my-space-md">
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">FEATURES</div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface">18 SIGNALS</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">THRESHOLD</div>
+<div class="font-headline-sm text-headline-sm text-caution">0.015 (CALIB)</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">PRECISION</div>
+<div class="font-headline-sm text-headline-sm text-provenance-ml">92.4%</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">RECALL</div>
+<div class="font-headline-sm text-headline-sm text-provenance-ml">89.1%</div>
+</div>
+</div>
+<!-- Performance Sparkline SVG -->
+<div class="bg-surface-container-lowest rounded p-space-sm mb-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm uppercase text-on-surface-variant mb-1">
+<span>Receiver Operating Characteristic (ROC-AUC: 0.941)</span>
+<span class="text-provenance-ml">CALIBRATION TOLERANCE OK</span>
+</div>
+<svg class="w-full h-16 text-provenance-ml overflow-visible" fill="none" viewbox="0 0 400 64">
+<path d="M 0 60 Q 30 55, 80 40 T 160 22 T 260 10 T 360 4 L 400 2" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M 0 60 L 400 2 L 400 64 L 0 64 Z" fill="currentColor" fill-opacity="0.08"></path>
+<line stroke="#565656" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="400" y1="64" y2="0"></line>
+<circle class="fill-caution" cx="160" cy="22" r="4"></circle>
+</svg>
+</div>
+<!-- Limitations Note -->
+<div class="p-space-sm bg-surface-container-high rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-warning text-[20px] shrink-0">warning</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+<strong class="text-inverse-surface font-label-md text-label-md uppercase">Operational Boundary Limit:</strong> Requires active task designation (Trenching, Mass Excavation, or Fine Grading). Model skips inference when vehicle is in transit mode.
+              </div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">EVAL ON INJECTED SENSOR CORRUPTIONS (SIMULATED)</span>
+<button class="h-10 px-space-md bg-surface-container-highest hover:bg-surface-bright text-inverse-surface font-label-md text-label-md uppercase rounded transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span> HYPERPARAMS
+            </button>
+</div>
+</article>
+<!-- MODEL CARD 2: LightGBM Quantile -->
+<article class="bg-surface-container rounded p-space-md flex flex-col justify-between shadow-md">
+<div>
+<!-- Header Bar -->
+<div class="flex items-start justify-between gap-space-sm pb-space-sm border-b-2 border-provenance-ml">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-tertiary-fixed-dim rounded uppercase">TELEMETRY REGRESSION</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-surface-container-highest text-inverse-surface rounded uppercase">v2.8 CONFORMAL</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg uppercase text-inverse-surface mt-1 leading-tight">
+                  Task Completion Time Estimator
+                </h3>
+<p class="font-label-md text-label-md uppercase text-provenance-ml">LightGBM Quantile + Conformal Inference</p>
+</div>
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[28px] text-provenance-ml">timelapse</span>
+</div>
+</div>
+<!-- Parameters Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm my-space-md">
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">COVERAGE</div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface">80% INTERVAL</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">QUANTILES</div>
+<div class="font-headline-sm text-headline-sm text-provenance-ml">P10 — P90</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">TOTAL FEATURES</div>
+<div class="font-headline-sm text-headline-sm text-caution">12 DYNAMIC</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">ERR MARGIN</div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface">± 4.6 MIN</div>
+</div>
+</div>
+<!-- Ingest Vectors Visualization -->
+<div class="bg-surface-container-lowest rounded p-space-sm mb-space-md">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-space-xs">Primary Conformal Predictors (Top 4 of 12)</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="p-1.5 bg-surface-container rounded flex items-center justify-between font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Material Hardness Index</span>
+<span class="text-inverse-surface">Weight: 31%</span>
+</div>
+<div class="p-1.5 bg-surface-container rounded flex items-center justify-between font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Atmospheric Ambient / Soil Wetness</span>
+<span class="text-inverse-surface">Weight: 24%</span>
+</div>
+<div class="p-1.5 bg-surface-container rounded flex items-center justify-between font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Historical Crew Shift Pace</span>
+<span class="text-inverse-surface">Weight: 22%</span>
+</div>
+<div class="p-1.5 bg-surface-container rounded flex items-center justify-between font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Mean Swing &amp; Dump Cycle Time</span>
+<span class="text-inverse-surface">Weight: 18%</span>
+</div>
+</div>
+</div>
+<!-- Limitations Note -->
+<div class="p-space-sm bg-surface-container-high rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-notice-dark text-[20px] shrink-0">info</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+<strong class="text-inverse-surface font-label-md text-label-md uppercase">Conformal Calibration:</strong> Empirically adjusts upper and lower bounds per job-site geo-spatial density. Self-corrects for ground gradient changes.
+              </div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">EVALUATED UNDER NON-STATIONARY CYCLE DRIFT</span>
+<button class="h-10 px-space-md bg-surface-container-highest hover:bg-surface-bright text-inverse-surface font-label-md text-label-md uppercase rounded transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span> QUANTILE MATRIX
+            </button>
+</div>
+</article>
+</div>
+</section>
+<!-- Visual Divider -->
+<div class="w-full h-1 bg-surface-container-high rounded"></div>
+<!-- ROW 4: API INSPECTOR & JSON STREAM -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between flex-wrap gap-gutter">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-inverse-surface uppercase tracking-wide">API INSPECTOR &amp; LIVE JSON STREAM</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 bg-surface-container-high text-caution rounded">CAN 2.0B / MQTT EMITTER</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm uppercase px-2 py-0.5 bg-success text-inverse-surface rounded">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> SCHEMA VALID: SENTINEL-MSG-v1.3
+          </span>
+<button class="h-9 px-space-sm bg-surface-container-highest hover:bg-surface-bright font-label-md text-label-md uppercase text-inverse-surface rounded flex items-center gap-1 transition-colors" id="stream-toggle-btn">
+<span class="material-symbols-outlined text-[16px]" id="stream-toggle-icon">pause</span>
+<span id="stream-toggle-text">PAUSE STREAM</span>
+</button>
+</div>
+</div>
+<!-- Collapsible Container -->
+<div class="bg-surface-container-lowest rounded shadow-xl overflow-hidden">
+<!-- Banner bar inside inspector -->
+<div class="px-space-md py-space-sm bg-surface-container-high flex items-center justify-between flex-wrap gap-gutter">
+<div class="flex items-center gap-space-md">
+<span class="font-label-md text-label-md uppercase text-inverse-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-caution text-[16px]">code</span>
+              PAYLOAD: /telemetry/cab/rig-042/live
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">MIME: application/json</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase">
+<span>BYTES: 642</span>
+<span class="text-outline-variant">|</span>
+<span class="text-provenance-ml">COMPRESSION: NONE</span>
+<span class="text-outline-variant">|</span>
+<button class="text-caution hover:underline flex items-center gap-0.5" id="collapse-code-btn">
+<span class="material-symbols-outlined text-[14px]">unfold_less</span> COLLAPSE
+            </button>
+</div>
+</div>
+<!-- Code Block -->
+<div class="p-space-md overflow-x-auto text-inverse-surface text-[13px] leading-relaxed transition-all" id="json-code-wrapper">
+<pre class="whitespace-pre"><span class="text-on-surface-variant">{</span>
+  <span class="text-caution">"header"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">{</span>
+    <span class="text-caution">"timestamp_utc"</span><span class="text-on-surface-variant">:</span> <span class="text-provenance-ml">"2025-10-24T14:32:08.412Z"</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"asset_id"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">"CAT-349E-L-042"</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"firmware_rev"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">"4.18.2-rt"</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"safety_mode"</span><span class="text-on-surface-variant">:</span> <span class="text-caution">"ANSI-Z535-COMPLIANT"</span>
+  <span class="text-on-surface-variant">},</span>
+  <span class="text-caution">"telemetry"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">{</span>
+    <span class="text-caution">"engine_rpm"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim" id="json-rpm">1842</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"throttle_pct"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim" id="json-throttle">68.4</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"seatbelt_engaged"</span><span class="text-on-surface-variant">:</span> <span class="text-success">true</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"fmcw_radar_distance_m"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim">14.85</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"imu_workgroup"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">{</span>
+      <span class="text-caution">"slew_deg_sec"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim" id="json-slew">4.12</span><span class="text-on-surface-variant">,</span>
+      <span class="text-caution">"boom_elevation_deg"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim">28.4</span><span class="text-on-surface-variant">,</span>
+      <span class="text-caution">"stick_reach_deg"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim">-12.1</span>
+    <span class="text-on-surface-variant">},</span>
+    <span class="text-caution">"gnss_rtk"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">{</span>
+      <span class="text-caution">"lat"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">36.142851</span><span class="text-on-surface-variant">,</span>
+      <span class="text-caution">"lon"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">-115.184920</span><span class="text-on-surface-variant">,</span>
+      <span class="text-caution">"fix_quality"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">"RTK_FIXED_4"</span>
+    <span class="text-on-surface-variant">}</span>
+  <span class="text-on-surface-variant">},</span>
+  <span class="text-caution">"inference_pipeline"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">{</span>
+    <span class="text-caution">"active_task"</span><span class="text-on-surface-variant">:</span> <span class="text-inverse-surface">"HEAVY_TRENCHING_TIER_2"</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"isolation_forest_anomaly_score"</span><span class="text-on-surface-variant">:</span> <span class="text-provenance-ml" id="json-anomaly">0.0084</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"anomaly_interlock_tripped"</span><span class="text-on-surface-variant">:</span> <span class="text-on-surface-variant">false</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"conformal_eta_p10_sec"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim">1420</span><span class="text-on-surface-variant">,</span>
+    <span class="text-caution">"conformal_eta_p90_sec"</span><span class="text-on-surface-variant">:</span> <span class="text-tertiary-fixed-dim">1690</span>
+  <span class="text-on-surface-variant">}</span>
+<span class="text-on-surface-variant">}</span></pre>
+</div>
+<!-- Footer Bar -->
+<div class="px-space-md py-space-xs bg-surface-container flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<div class="flex items-center gap-space-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-provenance-ml"></span>
+<span>CHECKSUM SHA256: 9e32fc93041...c82a</span>
+</div>
+<div>INCOMING PACKETS: 14,291 RX</div>
+</div>
+</div>
+</section>
+<!-- Visual Confirmation Action Row for Gloved In-Cab Use -->
+<div class="mt-space-sm flex flex-wrap items-center justify-between gap-gutter p-space-md bg-surface-container rounded shadow-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-caution text-[28px]">verified_user</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface uppercase leading-tight">DIAGNOSTIC TEST PASS CERTIFIED</div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">ALL RUNTIMES WITHIN RESTRAINT ENVELOPES</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="min-h-[48px] px-space-md bg-surface-container-highest hover:bg-surface-bright text-inverse-surface font-label-md text-label-md uppercase rounded transition-colors" type="button">
+          EXPORT AUDIT LOG (.CSV)
+        </button>
+<button class="min-h-[48px] px-space-lg bg-caution text-on-primary font-label-md text-label-md uppercase rounded hover:bg-primary-fixed-dim transition-colors font-bold" type="button">
+          RUN SELF-TEST BATCH
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    let isStreaming = true;
+    let syncSeconds = 2;
+
+    const streamBtn = document.getElementById('stream-toggle-btn');
+    const streamIcon = document.getElementById('stream-toggle-icon');
+    const streamText = document.getElementById('stream-toggle-text');
+
+    const collapseBtn = document.getElementById('collapse-code-btn');
+    const codeWrapper = document.getElementById('json-code-wrapper');
+
+    const ruleP50 = document.getElementById('rule-p50');
+    const ruleP99 = document.getElementById('rule-p99');
+    const ruleBar = document.getElementById('rule-bar');
+
+    const mlP50 = document.getElementById('ml-p50');
+    const mlP99 = document.getElementById('ml-p99');
+    const mlBar = document.getElementById('ml-bar');
+
+    const cpuMetric = document.getElementById('cpu-metric');
+    const cpuBar = document.getElementById('cpu-bar');
+    const syncTimer = document.getElementById('sync-timer');
+
+    const jsonRpm = document.getElementById('json-rpm');
+    const jsonThrottle = document.getElementById('json-throttle');
+    const jsonSlew = document.getElementById('json-slew');
+    const jsonAnomaly = document.getElementById('json-anomaly');
+
+    // Toggle Stream State
+    if (streamBtn) {
+      streamBtn.addEventListener('click', () => {
+        isStreaming = !isStreaming;
+        if (isStreaming) {
+          streamIcon.textContent = 'pause';
+          streamText.textContent = 'PAUSE STREAM';
+          streamBtn.classList.remove('bg-caution', 'text-on-primary');
+          streamBtn.classList.add('bg-surface-container-highest', 'text-inverse-surface');
+        } else {
+          streamIcon.textContent = 'play_arrow';
+          streamText.textContent = 'RESUME STREAM';
+          streamBtn.classList.add('bg-caution', 'text-on-primary');
+          streamBtn.classList.remove('bg-surface-container-highest', 'text-inverse-surface');
+        }
+      });
+    }
+
+    // Toggle Code Inspector Collapse
+    if (collapseBtn && codeWrapper) {
+      collapseBtn.addEventListener('click', () => {
+        if (codeWrapper.classList.contains('hidden')) {
+          codeWrapper.classList.remove('hidden');
+          collapseBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">unfold_less</span> COLLAPSE';
+        } else {
+          codeWrapper.classList.add('hidden');
+          collapseBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">unfold_more</span> EXPAND';
+        }
+      });
+    }
+
+    // Simulated Telemetry Jitter Loop
+    setInterval(() => {
+      if (!isStreaming) return;
+
+      // Jitter Rule Latency
+      const rP50 = (1.7 + Math.random() * 0.3).toFixed(1);
+      const rP99 = (4.0 + Math.random() * 0.4).toFixed(1);
+      if (ruleP50) ruleP50.textContent = rP50;
+      if (ruleP99) ruleP99.textContent = rP99 + ' ms';
+      if (ruleBar) ruleBar.style.width = (rP50 * 15) + '%';
+
+      // Jitter ML Latency
+      const mP50 = Math.floor(40 + Math.random() * 5);
+      const mP99 = Math.floor(86 + Math.random() * 5);
+      if (mlP50) mlP50.textContent = mP50;
+      if (mlP99) mlP99.textContent = mP99 + ' ms';
+      if (mlBar) mlBar.style.width = (mP50 * 1.1) + '%';
+
+      // Jitter CPU
+      const cpu = (13.8 + Math.random() * 1.2).toFixed(1);
+      if (cpuMetric) cpuMetric.textContent = cpu;
+      if (cpuBar) cpuBar.style.width = (cpu * 2) + '%';
+
+      // Jitter JSON values
+      if (jsonRpm) jsonRpm.textContent = Math.floor(1830 + Math.random() * 30);
+      if (jsonThrottle) jsonThrottle.textContent = (67.5 + Math.random() * 2.0).toFixed(1);
+      if (jsonSlew) jsonSlew.textContent = (3.9 + Math.random() * 0.5).toFixed(2);
+      if (jsonAnomaly) jsonAnomaly.textContent = (0.0075 + Math.random() * 0.002).toFixed(4);
+
+      // Cloud Sync Reset
+      syncSeconds = (syncSeconds % 3) + 1;
+      if (syncTimer) syncTimer.textContent = syncSeconds + 's';
+    }, 750);
+  })();
+</script></main><footer class="w-full bg-on-primary border-t border-outline py-space-md"><div class="w-full px-margin flex flex-col md:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Caterpillar Sentinel Operations Network</span><span class="text-outline">|</span><span class="font-label-sm text-label-sm uppercase text-caution">ANSI Z535 Compliant</span></div><div class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Caterpillar Inc. Heavy Equipment &amp; Fleet Dispatch Systems. All rights reserved.</div></div></footer></body></html>

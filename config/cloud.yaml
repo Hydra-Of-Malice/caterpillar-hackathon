@@ -1,0 +1,55 @@
+# CAT Sentinel cloud service settings (agent F). Every block is versioned.
+version: "cloud-0.1.0"
+
+rag:
+  version: "rag-0.1.0"
+  top_k: 5
+  rrf_k: 60                     # reciprocal rank fusion constant
+  min_cosine: 0.10              # TF-IDF cosine floor for a passage to count as "above threshold"
+  min_coverage: 0.55            # IDF-weighted share of question terms found in the passage
+  extractive_passages: 2
+  support_min_overlap: 0.5      # per-sentence lexical support vs the cited chunk(s)
+  refusal_message: "I couldn't find this in the approved documents. Ask your supervisor or instructor."
+  llm_refusal_phrase: "No approved source covers this."
+  # Free-text Q&A on these topics is extractive only (08 §8.5 safety-critical gate).
+  safety_critical_terms: [seatbelt, seat belt, belt, proximity, person in zone, people on foot, pedestrian,
+                          blind zone, blind spot, spotter, lockout, lock-out, lock out, lock lever,
+                          hydraulic lock, trench, excavation edge, cave-in, cave in]
+  llm:
+    max_tokens: 4096
+    timeout_s: 20
+    max_retries: 1
+    effort: low
+
+monitoring:
+  version: "mon-0.1.0"
+  alert_budget_per_h: {T1: 1.0, T2: 0.2}    # 13 M3: upper 95 % CI must stay within budget
+  psi:
+    bins: 5                     # few bins: PSI sampling noise grows with bins/n at demo sizes
+    moderate: 0.10
+    significant: 0.25
+    min_windows: 40             # per half (reference / current) and context
+    reference_fraction: 0.5     # earliest half of the windows is the reference
+
+supervisor:
+  version: "sup-0.1.0"
+  health_stale_s: 300
+  idle_fuel_lph: 3.0            # SAMPLE planning figure for a 20 t class excavator at idle (SIMULATED)
+  open_alert_states: [raised, escalated]
+
+bookings:
+  version: "mock-0.1.0"         # MOCK integration: no real LMS or calendar
+  days_ahead: 5
+  instructors:
+    - instructor_id: INS-01
+      name: Marcus Lee
+      specialties: [Excavator, Simulator]
+      formats: [simulator, on_machine]
+      location: "Simulator bay 2"
+      slot_hours_utc: [10, 13]
+    - instructor_id: INS-02
+      name: Dana Okafor         # fictional
+      specialties: [Excavator, Trenching, Site traffic]
+      formats: [on_machine, video]
+      location: "North quarry training pad"
+      slot_hours_utc: [8, 15]

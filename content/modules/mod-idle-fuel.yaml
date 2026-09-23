@@ -1,0 +1,63 @@
+id: MOD-IDLE-FUEL
+version: "1.0"
+status: approved
+title: Fuel-Efficient Idle Practice
+duration_min: 3
+format: micro_lesson
+machine_types: [EX-20t, WL]
+competency_ids: [C10, C14]
+summary: When idle is expected, when to shut down, and how warm-up and cool-down count as explained idle.
+change_summary: "First version."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Mark the task state "waiting for truck" while you wait; that idle is explained and not flagged.
+    citation: {doc_id: SOP-GEN-03, section: "2.2", version: "1.0"}
+  - id: KP2
+    text: Shut the engine down if you expect to wait longer than the site idle limit (SAMPLE limit 5 minutes), after the safe-park steps.
+    citation: {doc_id: SOP-GEN-03, section: "2.3", version: "1.0"}
+  - id: KP3
+    text: After heavy work, let the engine idle for a few minutes before shutdown (SAMPLE practice 3 to 5 minutes, or as the OMM specifies).
+    citation: {doc_id: SOP-GEN-03, section: "3.2", version: "1.0"}
+  - id: KP4
+    text: Set up the dig face and truck position for a short swing; it saves fuel and time on every cycle.
+    citation: {doc_id: SOP-GEN-03, section: "4.2", version: "1.0"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: You expect to wait 15 minutes for the next truck. What should you do?
+      options:
+        - Keep the engine idling so you are ready
+        - Complete the safe-park steps and shut the engine down
+        - Raise the engine speed to keep it warm
+        - Travel around the bench while you wait
+      answer: 1
+      explanation: Shut down when the wait is longer than the site idle limit, after the safe-park steps.
+      citation: {doc_id: SOP-GEN-03, section: "2.3", version: "1.0"}
+    - id: Q2
+      prompt: How do you make sure idle while waiting for a truck is recorded as explained?
+      options:
+        - Turn the app off
+        - Mark the task state "waiting for truck"
+        - Keep moving the bucket
+        - Nothing is needed
+      answer: 1
+      explanation: Marking "waiting for truck" records the idle as explained, so it is not flagged.
+      citation: {doc_id: SOP-GEN-03, section: "2.2", version: "1.0"}
+    - id: Q3
+      prompt: You have finished heavy digging and want to shut down. What does the SAMPLE site practice say?
+      options:
+        - Shut down immediately
+        - Idle for a few minutes (3 to 5 minutes, or as the OMM specifies) first
+        - Run at full throttle for a minute, then shut down
+        - Idle for at least 30 minutes
+      answer: 1
+      explanation: A short cool-down idle lets engine temperatures settle before shutdown.
+      citation: {doc_id: SOP-GEN-03, section: "3.2", version: "1.0"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — shutdown and cool-down routine (placeholder video)"
+  url: null
+  note: "Placeholder video."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.0", date: "2026-08-12"}

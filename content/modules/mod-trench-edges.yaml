@@ -1,0 +1,91 @@
+id: MOD-TRENCH-EDGES
+version: "1.1"
+status: approved
+title: Trenching Near Edges
+duration_min: 5
+format: micro_lesson
+machine_types: [EX-20t]
+competency_ids: [C07]
+summary: >-
+  Required before your first trench task on a site: inspection, edge setback, spoil placement,
+  approach speed and when to stop work.
+change_summary: "Added rain re-inspection point (SOP-EX-07 v1.1 §5.3)."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: A competent person inspects the excavation before work each shift, after rain and whenever conditions change.
+    citation: {doc_id: SOP-EX-07, section: "2.1", version: "1.1"}
+  - id: KP2
+    text: Keep the tracks behind the marked setback line; the machine's weight and vibration near the edge can collapse the trench wall.
+    citation: {doc_id: SOP-EX-07, section: "3.1", version: "1.1"}
+  - id: KP3
+    text: Place spoil at least 0.6 m (2 ft) back from the trench edge, or further if the competent person requires it.
+    citation: {doc_id: SOP-EX-07, section: "3.2", version: "1.1"}
+  - id: KP4
+    text: Approach the edge slowly in low travel speed and travel parallel to the trench where possible.
+    citation: {doc_id: SOP-EX-07, section: "3.3", version: "1.1"}
+  - id: KP5
+    text: Stop digging if anyone enters the trench or the swing radius, and resume only when they are clear.
+    citation: {doc_id: SOP-EX-07, section: "4.1", version: "1.1"}
+  - id: KP6
+    text: Cracks, bulging walls, seeping water or falling soil mean stop work, move away from the edge if safe, warn people and call the supervisor.
+    citation: {doc_id: SOP-EX-07, section: "5.2", version: "1.1"}
+quiz:
+  pass_mark: 0.8
+  questions:
+    - id: Q1
+      prompt: How far back from the trench edge must spoil be placed?
+      options:
+        - About 0.2 m
+        - At least 0.6 m (2 ft), or further if the competent person requires it
+        - Right at the edge so it can be pushed back in later
+        - It depends only on the operator's judgement
+      answer: 1
+      explanation: Spoil goes at least 0.6 m (2 ft) back from the edge, or further if required.
+      citation: {doc_id: SOP-EX-07, section: "3.2", version: "1.1"}
+    - id: Q2
+      prompt: Light rain started at 13:00. When can you work near the trench edge again?
+      options:
+        - Straight away, the rain was light
+        - After the competent person has re-inspected the trench
+        - After waiting ten minutes
+        - As soon as the ground looks dry
+      answer: 1
+      explanation: Rain weakens trench walls; wait for the competent person to re-inspect.
+      citation: {doc_id: SOP-EX-07, section: "5.3", version: "1.1"}
+    - id: Q3
+      prompt: While digging you notice cracks along the trench edge. What is your first action?
+      options:
+        - Keep digging carefully
+        - Stop work, move away from the edge if safe, warn people and call the supervisor
+        - Fill the cracks with spoil
+        - Speed up to finish the trench
+      answer: 1
+      explanation: Cracks are a sign of instability; stop work and follow the stop-work actions.
+      citation: {doc_id: SOP-EX-07, section: "5.2", version: "1.1"}
+    - id: Q4
+      prompt: How should you approach the trench edge with the machine?
+      options:
+        - In high travel speed, straight toward the edge
+        - Slowly in low travel speed, parallel to the trench where possible
+        - Swinging a loaded bucket toward the trench
+        - Reversing toward the edge
+      answer: 1
+      explanation: Approach slowly in low travel speed and travel parallel to the trench where possible.
+      citation: {doc_id: SOP-EX-07, section: "3.3", version: "1.1"}
+    - id: Q5
+      prompt: A worker steps into the trench within reach of the bucket. What do you do?
+      options:
+        - Continue digging slowly
+        - Stop digging until they are clear
+        - Sound the horn and continue
+        - Swing the bucket away and keep digging
+      answer: 1
+      explanation: No one may be in the trench within reach of the bucket while you dig.
+      citation: {doc_id: SOP-EX-07, section: "4.1", version: "1.1"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — trench start and edge setback (placeholder video)"
+  url: null
+  note: "Placeholder. Instructor practical observation is required for this safety-critical competency."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.1", date: "2026-08-12"}

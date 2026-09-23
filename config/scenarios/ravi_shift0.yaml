@@ -1,0 +1,34 @@
+# SIMULATED - Ravi Kumar (OP-1042), previous shift (Shift 0) on EX-07, 2026-09-22 06:00-14:30 (+05:30).
+# Seeded history for the competency loop: exactly 2 fast_swing-near-truck events (U1), nothing else scripted.
+version: "scn-1.0"
+name: ravi_shift0
+description: "Ravi, Shift 0 (yesterday): novice_improving skill 0.05, seeded with exactly 2 fast swings near the truck."
+simulated: true
+site_id: north-quarry
+machines:
+  EX-07: {machine_type: EX-20t, model: "Cat 320 (simulated)", smu_h: 6404.0, fuel_l: 391420.0, prox_fitted: true}
+shifts:
+  - shift_id: SH-20260922-OP1042
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.05
+    start: "2026-09-22T06:00:00+05:30"
+    low_prob_events: false
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+    conditions: {ambient_c: 30.0}
+    schedule:
+      - {kind: warmup, minutes: 6, zone: PARK-1}
+      - {kind: travel, minutes: 2, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 150, task_id: S0-T-1, task_type: truck_loading, zone: TL-1, material: clay_gravel,
+         truck_gap_s: 120, passes_per_truck: 6}
+      - {kind: break, minutes: 30, zone: TL-1}
+      - {kind: task, minutes: 120, task_id: S0-T-1, task_type: truck_loading, zone: TL-1, material: clay_gravel,
+         truck_gap_s: 120, passes_per_truck: 6}
+      - {kind: break, minutes: 30, zone: TL-1}
+      - {kind: travel, minutes: 5, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 165, task_id: S0-T-2, task_type: trenching, zone: TR-3, material: clay}
+      - {kind: cooldown, minutes: 2, zone: TR-3}
+    cues:
+      - {at_min: 58, kind: fast_swing, params: {m: 1.6}}
+      - {at_min: 214, kind: fast_swing, params: {m: 1.8}}

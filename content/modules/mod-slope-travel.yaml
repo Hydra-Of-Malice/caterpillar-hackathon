@@ -1,0 +1,63 @@
+id: MOD-SLOPE-TRAVEL
+version: "1.0"
+status: approved
+title: Slope Travel & Site Traffic
+duration_min: 3
+format: micro_lesson
+machine_types: [EX-20t]
+competency_ids: [C06, C11]
+summary: Travelling on slopes and uneven ground, attachment position, and site traffic rules.
+change_summary: "First version."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Travel straight up or straight down a slope; avoid travelling across it or turning on it.
+    citation: {doc_id: SOP-EX-05, section: "2.2", version: "1.0"}
+  - id: KP2
+    text: Carry the attachment low and close to the ground with the boom and stick pulled in.
+    citation: {doc_id: SOP-EX-05, section: "2.3", version: "1.0"}
+  - id: KP3
+    text: Do not swing the upper structure on a slope unless the task requires it and the ground has been checked.
+    citation: {doc_id: SOP-EX-05, section: "2.4", version: "1.0"}
+  - id: KP4
+    text: Follow the site traffic plan, marked routes and posted speed limits.
+    citation: {doc_id: SOP-EX-05, section: "3.1", version: "1.0"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: How should you travel on a slope?
+      options:
+        - Diagonally across it to reduce the grade
+        - Straight up or straight down, without turning on it
+        - Across it, turning halfway
+        - In high travel speed to get off it quickly
+      answer: 1
+      explanation: Travel straight up or down; crossing or turning on a slope raises the risk of sliding or tipping.
+      citation: {doc_id: SOP-EX-05, section: "2.2", version: "1.0"}
+    - id: Q2
+      prompt: Where should the bucket be while travelling?
+      options:
+        - Raised high for visibility
+        - Low and close to the ground, boom and stick pulled in
+        - Fully extended forward
+        - It does not matter
+      answer: 1
+      explanation: A raised attachment moves the centre of gravity up and makes the machine less stable.
+      citation: {doc_id: SOP-EX-05, section: "2.3", version: "1.0"}
+    - id: Q3
+      prompt: You are travelling through a congested area with people nearby. What speed?
+      options:
+        - The posted haul-road limit
+        - Walking pace or slower, and stop if anyone comes close
+        - As fast as the machine allows in low range
+        - Any speed if the horn is sounded
+      answer: 1
+      explanation: Travel at walking pace or slower near people.
+      citation: {doc_id: SOP-EX-05, section: "3.3", version: "1.0"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — ramp travel with attachment low (placeholder video)"
+  url: null
+  note: "Placeholder video."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.0", date: "2026-08-12"}

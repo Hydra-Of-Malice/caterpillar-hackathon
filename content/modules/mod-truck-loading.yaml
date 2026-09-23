@@ -1,0 +1,69 @@
+id: MOD-TRUCK-LOADING
+version: "1.2"
+status: approved
+title: Truck Loading Technique
+duration_min: 5
+format: micro_lesson
+machine_types: [EX-20t]
+competency_ids: [C04, C08, C09]
+summary: Setting up the truck position, placing and spreading the load, smooth control and when to stop loading.
+change_summary: "Aligned citations with SOP-EX-04 v1.2."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Set up so the truck stands on your side where you can see the whole body, with a short, shallow swing.
+    citation: {doc_id: SOP-EX-04, section: "2.2", version: "1.2"}
+  - id: KP2
+    text: Do not start loading until the truck has stopped and is in position.
+    citation: {doc_id: SOP-EX-04, section: "2.3", version: "1.2"}
+  - id: KP3
+    text: Dump smoothly and as low over the body as the side boards allow, starting at the front of the body.
+    citation: {doc_id: SOP-EX-04, section: "4.1", version: "1.2"}
+  - id: KP4
+    text: Spread the load evenly and do not overload the truck.
+    citation: {doc_id: SOP-EX-04, section: "4.2", version: "1.2"}
+  - id: KP5
+    text: Use smooth, combined movements; avoid sudden starts, stops and control reversals.
+    citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
+  - id: KP6
+    text: Stop loading immediately if a person on foot enters the loading zone or the swing radius.
+    citation: {doc_id: SOP-EX-04, section: "5.1", version: "1.2"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: Where should the truck stand for loading?
+      options:
+        - Behind the machine
+        - On the operator's side where you can see the whole truck body
+        - As far away as the reach allows
+        - Wherever the driver chooses
+      answer: 1
+      explanation: The truck stands where you can see the whole body, with a short, shallow swing.
+      citation: {doc_id: SOP-EX-04, section: "2.2", version: "1.2"}
+    - id: Q2
+      prompt: The truck is nearly full and one more pass would go over the load count. What do you do?
+      options:
+        - Add the pass anyway to save a trip
+        - Do not overload; follow the rated payload and the site load count
+        - Pack the load down with the bucket
+        - Ask the driver to drive slowly
+      answer: 1
+      explanation: Spread the load evenly and do not overload the truck.
+      citation: {doc_id: SOP-EX-04, section: "4.2", version: "1.2"}
+    - id: Q3
+      prompt: A person on foot walks into the loading zone. What do you do?
+      options:
+        - Keep loading but swing slowly
+        - Stop loading immediately and resume only when they are clear
+        - Sound the horn and keep loading
+        - Swing the bucket toward them to warn them
+      answer: 1
+      explanation: Stop loading immediately; resume only when the cause has been cleared.
+      citation: {doc_id: SOP-EX-04, section: "5.1", version: "1.2"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — four-pass truck load (placeholder video)"
+  url: null
+  note: "Placeholder. The validated expert envelope overlay is shown instead of raw expert control (05 §5.6)."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.2", date: "2026-08-12"}

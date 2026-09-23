@@ -1,0 +1,38 @@
+# SIMULATED - Ravi Kumar (OP-1042), Shift 2 after training, EX-07, 2026-09-24 06:00-14:30 (+05:30).
+# novice_improving at skill 0.6. The post-training gain is a generator INPUT: it validates the measurement
+# loop, not training efficacy. 3 fast swings in T-1, about half of Shift 1's per-cycle rate (Shift 1 has 5
+# over fewer, slower cycles). Natural truck waits only; no seatbelt or idle events.
+version: "scn-1.0"
+name: ravi_shift2
+description: "Ravi, Shift 2 (after training): novice_improving skill 0.6, about half the fast-swing rate of Shift 1."
+simulated: true
+site_id: north-quarry
+machines:
+  EX-07: {machine_type: EX-20t, model: "Cat 320 (simulated)", smu_h: 6420.5, fuel_l: 391640.0, prox_fitted: true}
+shifts:
+  - shift_id: SH-20260924-OP1042
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.6
+    start: "2026-09-24T06:00:00+05:30"
+    low_prob_events: false
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+    conditions: {ambient_c: 30.0}
+    schedule:
+      - {kind: warmup, minutes: 6, zone: PARK-1}
+      - {kind: travel, minutes: 2, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 142, task_id: S2-T-1, task_type: truck_loading, zone: TL-1, material: clay_gravel,
+         truck_gap_s: 110, passes_per_truck: 6}
+      - {kind: break, minutes: 30, zone: TL-1}
+      - {kind: travel, minutes: 5, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 165, task_id: S2-T-2, task_type: trenching, zone: TR-4, material: clay}
+      - {kind: break, minutes: 30, zone: TR-4}
+      - {kind: task, minutes: 85, task_id: S2-T-2, task_type: trenching, zone: TR-4, material: clay}
+      - {kind: travel, minutes: 3, zone: HAUL-RD, speed_kmh: 2.8}
+      - {kind: task, minutes: 40, task_id: S2-T-3, task_type: stockpile, zone: SP-1, material: clay_gravel}
+      - {kind: cooldown, minutes: 2, zone: SP-1}
+    cues:
+      - {at_min: 30, kind: fast_swing, params: {m: 1.5}}
+      - {at_min: 75, kind: fast_swing, params: {m: 1.6}}
+      - {at_min: 125, kind: fast_swing, params: {m: 1.5}}

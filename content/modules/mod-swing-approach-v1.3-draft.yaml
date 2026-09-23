@@ -1,0 +1,88 @@
+id: MOD-SWING-APPROACH
+version: "1.3"
+status: in_review
+title: Approach & Swing Control
+duration_min: 4
+format: micro_lesson
+machine_types: [EX-20t]
+competency_ids: [C04, C09]
+summary: >-
+  How to plan the swing path, slow the swing near the truck, keep the bucket clear of the side boards
+  and never swing over the cab. Pairs with the swing-to-truck simulator drill.
+change_summary: "Adds a first key point on planning the swing path before each cycle (SOP-EX-04 §3.1). Quiz unchanged."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP0
+    text: Plan the swing path before each cycle so the bucket travels over the truck body only, never over the cab or people.
+    citation: {doc_id: SOP-EX-04, section: "3.1", version: "1.2"}
+  - id: KP1
+    text: Slow the swing as the bucket approaches the truck body. Ease off the swing control early so the machine stops without overshooting.
+    citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
+  - id: KP2
+    text: Raise the bucket higher than the truck side boards before you swing over them.
+    citation: {doc_id: SOP-EX-04, section: "3.3", version: "1.2"}
+  - id: KP3
+    text: Never swing the bucket or the load over the truck cab.
+    citation: {doc_id: SOP-EX-04, section: "3.4", version: "1.2"}
+  - id: KP4
+    text: If the truck moves while you are swinging, stop the swing and hold the bucket clear until the truck stops.
+    citation: {doc_id: SOP-EX-04, section: "3.5", version: "1.2"}
+quiz:
+  pass_mark: 0.8
+  questions:
+    - id: Q1
+      prompt: The bucket is 4 m from the truck body and swinging fast. What should you do?
+      options:
+        - Keep the speed so the cycle stays short
+        - Ease off the swing control now so the swing stops without overshooting
+        - Stop the swing abruptly right at the truck
+        - Lower the bucket into the truck while still swinging
+      answer: 1
+      explanation: Slow the swing in the last part of the swing, starting early, so it stops without overshooting.
+      citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
+    - id: Q2
+      prompt: When must the bucket be higher than the truck side boards?
+      options:
+        - Only while dumping
+        - Before you swing over them, with a clear gap through the whole swing
+        - It does not matter if the swing is slow
+        - Only after the bucket is over the truck body
+      answer: 1
+      explanation: Raise the bucket above the side boards before swinging over them and keep a clear gap.
+      citation: {doc_id: SOP-EX-04, section: "3.3", version: "1.2"}
+    - id: Q3
+      prompt: The truck is parked so that your swing would pass over its cab. What do you do?
+      options:
+        - Swing quickly over the cab
+        - Swing over the cab with the bucket held high
+        - Stop and have the truck repositioned
+        - Load from the far side without telling the driver
+      answer: 2
+      explanation: Never swing over the truck cab; have the truck repositioned.
+      citation: {doc_id: SOP-EX-04, section: "3.4", version: "1.2"}
+    - id: Q4
+      prompt: You are mid-swing toward the truck and the truck starts to move. What next?
+      options:
+        - Finish the dump quickly before it leaves
+        - Stop the swing, hold the bucket clear and wait until the truck stops
+        - Follow the truck with the bucket
+        - Sound the horn and keep swinging
+      answer: 1
+      explanation: Stop the swing, hold the bucket clear of the truck and wait until it has stopped again.
+      citation: {doc_id: SOP-EX-04, section: "3.5", version: "1.2"}
+    - id: Q5
+      prompt: Why is a fast swing late in the loading cycle a problem?
+      options:
+        - It uses less fuel
+        - It is the most common cause of bucket contact with the truck and spilled material
+        - It makes the truck load faster
+        - It is only a problem in the rain
+      answer: 1
+      explanation: A fast swing late in the cycle is the most common cause of truck contact and spillage.
+      citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — swing approach to truck (placeholder video)"
+  url: null
+  note: "Placeholder. The validated expert envelope overlay is shown instead of raw expert control (05 §5.6)."
+instructor_approved: null

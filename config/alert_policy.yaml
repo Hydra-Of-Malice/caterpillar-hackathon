@@ -1,0 +1,165 @@
+# CAT Sentinel — alert manager policy (agent E, sentinel/alerts). Versioned; changes need review
+# (07 §5.3 management of change). Tiers, timers and wording follow docs/sections/07-interventions.md.
+#
+# Times are simulated seconds (sample clock), never wall clock.
+# Every what / why / do template renders to <= 12 words (tests enforce this).
+
+version: "alert-policy-1.0.0"
+
+signal_words:
+  T_CRIT: DANGER
+  T3: WARNING
+  T2: WARNING
+  T1: CAUTION
+  T0: NOTICE
+  T4: SUPERVISOR NOTIFIED
+
+# Proposed tier when Event.tier is empty (04 risk taxonomy → 07 tiers). null = record only.
+tier_by_category:
+  immediate_critical: T_CRIT
+  dangerous_condition: T2
+  emerging_degradation: T1
+  procedural: T1
+  unusual_harmless: T0
+  normal: null
+
+ml_max_tier: T2                  # an event with ML provenance never becomes T-CRIT (brief: T-CRIT is rule-only)
+machine_attribution_max_tier: T1 # SUP-2: machine-caused anomalies go to maintenance, not operator warnings
+machine_template: machine_issue
+
+# Single in-cab alert slot: highest first; ties → most recent.
+banner_priority: [T_CRIT, T2, T3, T4, T1]
+
+tiers:
+  T_CRIT:
+    requires_ack: false          # cannot be dismissed; clears when the safety process clears it
+    dismissible: false
+    incident: true
+    severity: high
+    repeat_escalate_count: 2     # ESC-3: 2nd T-CRIT of the same type in a shift → T4
+  T2:
+    requires_ack: true
+    dismissible: true
+    incident: true
+    severity: medium
+    dedupe_window_s: 300         # DED-1: same type while an unacked T2 is showing → one alert
+    ack_timeout_s: 60            # not acked → re-raised once
+    reraise_max: 1
+    escalate_after_reraise_s: 60 # still not acked 60 s after the re-raise → T4
+    recurrence_escalate_count: 3 # 3rd T2 of the same type in a shift → T4
+  T1:
+    requires_ack: false
+    dismissible: true
+    auto_clear_s: 8
+    rate_limit_window_s: 600     # 1 per 10 min per type
+    max_per_hour: 6              # 07 §2 total in-cab advisory budget
+    promote_count: 3             # ESC-1: 3 T1 of one type within 30 min → one T2
+    promote_window_s: 1800
+    promote_min_gap_s: 20        # occurrences closer than this are one episode
+  T3:
+    requires_ack: true
+    dismissible: false
+  T4:
+    requires_ack: false
+    dismissible: true
+    display_s: 30                # "SUPERVISOR NOTIFIED" shown in-cab for this long; stays escalated for the supervisor
+    escalate_to: SUP-01
+  T0:
+    in_cab: false                # coaching: post-shift report only (queued_post_shift)
+    max_per_shift_report: 3
+
+outbox_priority: {T_CRIT: 0, T4: 0, T2: 1, T3: 1, T1: 1, T0: 2, incident: 0, event: 1}
+
+suppression:
+  # SUP-1: idle advisories are suppressed (logged with a reason) while the operator reports waiting.
+  waiting_for_truck_types: [excessive_idle, idle_excessive, long_idle, idle]
+
+break:                           # 06 §7 deterministic break rule (time-on-task, not fatigue detection)
+  advisory_min: 120              # T1 break check-in
+  recommend_min: 150             # T3 break recommended
+  snooze_min: 10                 # "Remind me in 10 min", allowed once
+  snooze_max: 1
+  escalate_min: 165              # T4 if still no break
+  min_break_min: 10              # a break shorter than this does not reset continuous operation
+
+incident:
+  snapshot_pre_s: 10
+  snapshot_post_s: 10
+  ring_buffer_s: 20
+
+protection:
+  heartbeat_max_age_s: 3.0       # AC2.3: PROTECTION DEGRADED within 3 s of heartbeat loss
+  degraded_sensor_states: [fault, stale]   # same rule as sentinel.safety.health.protection_state
+
+display:
+  proximity_zones_m: {danger: 4.0, warning: 8.0}
+
+# what / why / do per event type. {placeholders} come from event.context, event.evidence and
+# derived fields (top_label, top_value, top_baseline, top_unit, count, idle_min, cont_h, cont_m).
+# A *_fallback string is used when a placeholder is missing.
+templates:
+  default:
+    what: "{type_label}"
+    why: "{top_label} {top_value:.0f}{top_unit}, usual {top_baseline:.0f}{top_unit}"
+    why_fallback: "Unusual for this task"
+    do: "Check your operation when safe"
+  fast_swing_near_truck:
+    what: "FAST SWING NEAR TRUCK"
+    why: "Swing {top_value:.0f}{top_unit}, usual {top_baseline:.0f}{top_unit} near truck"
+    why_fallback: "Swing faster than usual near the truck"
+    do: "Slow the swing near the truck"
+  approach_speed_near_truck:
+    what: "FAST APPROACH TO TRUCK"
+    why: "Bucket approach faster than usual near the truck"
+    do: "Slow down before dumping"
+  harsh_reversal:
+    what: "JERKY CONTROL INPUTS"
+    why: "Frequent sharp lever reversals this window"
+    do: "Use smooth, steady lever movements"
+  excessive_idle:
+    what: "ENGINE IDLING {idle_min:.0f} MIN"
+    what_fallback: "ENGINE IDLING"
+    why: "No truck waiting reported"
+    do: "Consider shutting down if the wait continues"
+  anomaly:
+    what: "UNUSUAL OPERATION FOR THIS TASK"
+    why: "{top_label} above your usual range"
+    why_fallback: "Pattern unusual for this task"
+    do: "Check your technique when safe"
+  machine_issue:
+    what: "MACHINE CHECK NEEDED"
+    why: "{top_label} unusual; likely a machine issue"
+    why_fallback: "Machine signals unusual; likely a machine issue"
+    do: "Report to maintenance at next stop"
+  seatbelt_unfastened_moving:
+    what: "FASTEN SEATBELT — MACHINE ACTIVE"
+    why: "Seatbelt open while machine active"
+    do: "Stop and fasten your seatbelt"
+  person_in_danger_zone:
+    what: "STOP — PERSON IN DANGER ZONE"
+    why: "Person inside the danger zone"
+    do: "Stop all motion until the person is clear"
+  break_checkin:
+    what: "BREAK CHECK-IN"
+    why: "{cont_h} h {cont_m} min without a break"
+    do: "Take a break at the next stop"
+  break_recommended:
+    what: "BREAK RECOMMENDED"
+    why: "{cont_h} h {cont_m} min continuous operation (site limit 2 h)"
+    do: "Park safely and take a 10-minute break"
+  escalation_break_not_taken:
+    what: "SUPERVISOR NOTIFIED"
+    why: "No break after {cont_h} h {cont_m} min operation"
+    do: "Park safely and take your break"
+  escalation_t2_unacknowledged:
+    what: "SUPERVISOR NOTIFIED"
+    why: "Warning not acknowledged within 2 min"
+    do: "Acknowledge warnings when it is safe"
+  escalation_recurrence:
+    what: "SUPERVISOR NOTIFIED"
+    why: "Same warning {count} times this shift"
+    do: "Continue carefully; your supervisor will follow up"
+  escalation_tcrit_repeat:
+    what: "SUPERVISOR NOTIFIED"
+    why: "Danger alert repeated {count} times this shift"
+    do: "Stop safely and contact your supervisor"

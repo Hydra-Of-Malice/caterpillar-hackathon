@@ -1,0 +1,164 @@
+# SIMULATED - fleet baseline for Isolation Forest training (C) and operator history:
+# 4 operators x 2 machines x 2 shifts = 16 shifts of 8.5 h. No scripted operator injections, only natural
+# variation between archetypes. Machine-vs-operator attribution: EX-09 carries a hydraulic fault (hyd_fault,
+# gt actor "machine") from 2026-09-14 09:30 to 2026-09-15 12:00 local, i.e. across OP-1019 (Joe) and
+# OP-1007 (Anita). Filter on gt_inject to exclude those windows from "normal" training data.
+# Operators: OP-1042 Ravi (novice_improving, skill 0 = history), OP-1007 Anita (expert), OP-1019 Joe
+# (intermediate), OP-1033 Lena (late_shift_degradation: more variable after 5 h).
+version: "scn-1.0"
+name: baseline_fleet
+description: "Fleet baseline: 4 operators x 2 machines x 2 shifts; EX-09 hydraulic fault across 2 operators."
+simulated: true
+site_id: north-quarry
+machines:
+  EX-07: {machine_type: EX-20t, model: "Cat 320 (simulated)", smu_h: 6280.0, fuel_l: 389200.0, prox_fitted: true}
+  EX-09:
+    machine_type: EX-20t
+    model: "Cat 320 (simulated)"
+    smu_h: 8120.0
+    fuel_l: 512300.0
+    prox_fitted: true
+    faults:
+      - {kind: hyd_fault, start: "2026-09-14T09:30:00+05:30", end: "2026-09-15T12:00:00+05:30"}
+schedules:
+  loading_day:
+    - {kind: warmup, minutes: 6, zone: PARK-1}
+    - {kind: travel, minutes: 2, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 180, task_id: "{shift}-T1", task_type: truck_loading, zone: TL-1, material: clay_gravel, truck_gap_s: 120, passes_per_truck: 6}
+    - {kind: break, minutes: 30, zone: TL-1}
+    - {kind: task, minutes: 90, task_id: "{shift}-T1", task_type: truck_loading, zone: TL-1, material: clay_gravel, truck_gap_s: 150, passes_per_truck: 6}
+    - {kind: break, minutes: 30, zone: TL-1}
+    - {kind: travel, minutes: 4, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 150, task_id: "{shift}-T2", task_type: trenching, zone: TR-4, material: clay}
+    - {kind: travel, minutes: 3, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 13, task_id: "{shift}-T3", task_type: stockpile, zone: SP-1, material: clay_gravel}
+    - {kind: cooldown, minutes: 2, zone: SP-1}
+  trench_day:
+    - {kind: warmup, minutes: 6, zone: PARK-1}
+    - {kind: travel, minutes: 3, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 180, task_id: "{shift}-T1", task_type: trenching, zone: TR-4, material: clay}
+    - {kind: break, minutes: 30, zone: TR-4}
+    - {kind: task, minutes: 90, task_id: "{shift}-T1", task_type: trenching, zone: TR-4, material: clay}
+    - {kind: break, minutes: 30, zone: TR-4}
+    - {kind: travel, minutes: 4, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 150, task_id: "{shift}-T2", task_type: truck_loading, zone: TL-1, material: clay_gravel, truck_gap_s: 120, passes_per_truck: 6}
+    - {kind: travel, minutes: 3, zone: HAUL-RD, speed_kmh: 2.8}
+    - {kind: task, minutes: 12, task_id: "{shift}-T3", task_type: stockpile, zone: SP-1, material: clay_gravel}
+    - {kind: cooldown, minutes: 2, zone: SP-1}
+shifts:
+  - shift_id: SH-20260908-EX07
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.0
+    start: "2026-09-08T06:00:00+05:30"
+    schedule: loading_day
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+  - shift_id: SH-20260908-EX09
+    operator_id: OP-1007
+    machine_id: EX-09
+    archetype: expert
+    skill: 0.0
+    start: "2026-09-08T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260909-EX07
+    operator_id: OP-1019
+    machine_id: EX-07
+    archetype: intermediate
+    skill: 0.0
+    start: "2026-09-09T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260909-EX09
+    operator_id: OP-1033
+    machine_id: EX-09
+    archetype: late_shift_degradation
+    skill: 0.0
+    start: "2026-09-09T06:00:00+05:30"
+    schedule: loading_day
+  - shift_id: SH-20260910-EX07
+    operator_id: OP-1007
+    machine_id: EX-07
+    archetype: expert
+    skill: 0.0
+    start: "2026-09-10T06:00:00+05:30"
+    schedule: loading_day
+  - shift_id: SH-20260910-EX09
+    operator_id: OP-1042
+    machine_id: EX-09
+    archetype: novice_improving
+    skill: 0.0
+    start: "2026-09-10T06:00:00+05:30"
+    schedule: trench_day
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+  - shift_id: SH-20260911-EX07
+    operator_id: OP-1033
+    machine_id: EX-07
+    archetype: late_shift_degradation
+    skill: 0.0
+    start: "2026-09-11T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260911-EX09
+    operator_id: OP-1019
+    machine_id: EX-09
+    archetype: intermediate
+    skill: 0.0
+    start: "2026-09-11T06:00:00+05:30"
+    schedule: loading_day
+  - shift_id: SH-20260914-EX07
+    operator_id: OP-1042
+    machine_id: EX-07
+    archetype: novice_improving
+    skill: 0.0
+    start: "2026-09-14T06:00:00+05:30"
+    schedule: loading_day
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}
+  - shift_id: SH-20260914-EX09
+    operator_id: OP-1019
+    machine_id: EX-09
+    archetype: intermediate
+    skill: 0.0
+    start: "2026-09-14T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260915-EX07
+    operator_id: OP-1019
+    machine_id: EX-07
+    archetype: intermediate
+    skill: 0.0
+    start: "2026-09-15T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260915-EX09
+    operator_id: OP-1007
+    machine_id: EX-09
+    archetype: expert
+    skill: 0.0
+    start: "2026-09-15T06:00:00+05:30"
+    schedule: loading_day
+  - shift_id: SH-20260916-EX07
+    operator_id: OP-1007
+    machine_id: EX-07
+    archetype: expert
+    skill: 0.0
+    start: "2026-09-16T06:00:00+05:30"
+    schedule: loading_day
+  - shift_id: SH-20260916-EX09
+    operator_id: OP-1033
+    machine_id: EX-09
+    archetype: late_shift_degradation
+    skill: 0.0
+    start: "2026-09-16T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260917-EX07
+    operator_id: OP-1033
+    machine_id: EX-07
+    archetype: late_shift_degradation
+    skill: 0.0
+    start: "2026-09-17T06:00:00+05:30"
+    schedule: trench_day
+  - shift_id: SH-20260917-EX09
+    operator_id: OP-1042
+    machine_id: EX-09
+    archetype: novice_improving
+    skill: 0.0
+    start: "2026-09-17T06:00:00+05:30"
+    schedule: loading_day
+    operator_overrides: {near_truck_dps: 20.0, near_truck_sd: 2.5, zone_m: 5.45}

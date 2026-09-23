@@ -1,0 +1,63 @@
+id: MOD-PRESTART
+version: "1.1"
+status: approved
+title: Pre-Start Inspection & Walk-Around
+duration_min: 3
+format: micro_lesson
+machine_types: [EX-20t, WL]
+competency_ids: [C01]
+summary: The daily walk-around, cab and start-up checks, and what to do with a critical defect.
+change_summary: "Added start-up fault-code recording (SOP-GEN-02 v1.1 §3.1)."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Walk all the way around the machine and look for leaks, damaged hoses, track damage, worn bucket teeth and loose pins.
+    citation: {doc_id: SOP-GEN-02, section: "2.1", version: "1.1"}
+  - id: KP2
+    text: Check that windows, mirrors and cameras are clean, the seatbelt latches, and the fire extinguisher is present and charged.
+    citation: {doc_id: SOP-GEN-02, section: "2.3", version: "1.1"}
+  - id: KP3
+    text: After starting, check gauges, warning lights and active fault codes, and record any fault code on the checklist.
+    citation: {doc_id: SOP-GEN-02, section: "3.1", version: "1.1"}
+  - id: KP4
+    text: With a critical defect, do not operate; tag the machine out, record the defect and report it.
+    citation: {doc_id: SOP-GEN-02, section: "4.2", version: "1.1"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: The walk-around finds a major hydraulic leak. What do you do?
+      options:
+        - Operate carefully and report it at the end of the shift
+        - Do not operate; tag it out, record the defect and report it
+        - Top up the oil and carry on
+        - Ask another operator to take the machine
+      answer: 1
+      explanation: A critical defect means the machine is not operated until it is fixed.
+      citation: {doc_id: SOP-GEN-02, section: "4.2", version: "1.1"}
+    - id: Q2
+      prompt: A fault code is active on the display at start-up. What should you do?
+      options:
+        - Clear it and ignore it
+        - Record it on the checklist
+        - Restart the engine until it goes away
+        - Only mention it if an alert appears
+      answer: 1
+      explanation: Record any fault code on the checklist.
+      citation: {doc_id: SOP-GEN-02, section: "3.1", version: "1.1"}
+    - id: Q3
+      prompt: Why should you not rush the walk-around?
+      options:
+        - It is only needed on new machines
+        - A walk-around done in a hurry misses defects
+        - The app completes it for you
+        - It does not affect safety
+      answer: 1
+      explanation: Rushed inspections miss defects.
+      citation: {doc_id: SOP-GEN-02, section: "4.3", version: "1.1"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — 360° walk-around (placeholder video)"
+  url: null
+  note: "Placeholder video."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.1", date: "2026-08-12"}

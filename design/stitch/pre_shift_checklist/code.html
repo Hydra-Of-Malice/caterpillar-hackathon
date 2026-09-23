@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"series-green":"#1AC69E","surface-container-lowest":"#0e0e0e","surface-bright":"#262626","inverse-on-surface":"#313030","surface-container-low":"#141414","outline-variant":"#565656","on-error":"#FFFFFF","provenance-ml":"#1AC69E","primary":"#ffeec6","tertiary-fixed":"#67fbd0","error-container":"#FFDAD6","surface-container":"#201f1f","success":"#197527","on-secondary-container":"#481d00","surface-dim":"#131313","on-secondary-fixed":"#321200","notice":"#0067B8","on-primary-container":"#6f5800","on-surface-variant":"#d1c5ab","primary-fixed":"#ffe08a","on-tertiary":"#00382a","surface-container-highest":"#303030","escalation":"#8F24D1","background":"#131313","secondary":"#ffb68c","caution":"#F3C206","on-primary":"#3d2f00","surface":"#0E0E0E","on-surface":"#FFFFFF","surface-variant":"#353534","on-tertiary-fixed-variant":"#00513f","surface-container-high":"#2a2a2a","notice-dark":"#4DB1FF","inverse-surface":"#e5e2e1","secondary-fixed-dim":"#ffb68c","on-tertiary-container":"#006751","on-error-container":"#ffdad6","provenance-mock":"#909090","on-secondary-fixed-variant":"#753400","on-primary-fixed":"#241a00","series-purple":"#6852BE","series-orange":"#FB5A00","error":"#C52320","secondary-container":"#e76e03","series-blue":"#0066FF","on-background":"#e5e2e1","surface-tint":"#f1c100","tertiary-fixed-dim":"#44deb4","tertiary":"#b2ffe3","primary-fixed-dim":"#f1c100","on-primary-fixed-variant":"#574400","warning":"#E56C00","secondary-fixed":"#ffdbc9","on-secondary":"#522300","outline":"#3A3A3A","on-tertiary-fixed":"#002118","provenance-sim":"#6852BE","tertiary-container":"#55ebc1","primary-container":"#FFE672","inverse-primary":"#745b00"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","space-sm":"0.5rem","space-xl":"2rem","space-md":"1rem","margin":"1.5rem","margin-cab":"1rem","gutter-sm":"0.75rem","gutter":"1rem","gutter-lg":"1.5rem","space-lg":"1.5rem"},"fontFamily":{"label-sm":["Barlow Condensed"],"label-lg":["Barlow Condensed"],"body-lg":["Noto Sans"],"headline-xl":["Barlow Condensed"],"headline-sm":["Barlow Condensed"],"label-md":["Barlow Condensed"],"headline-lg":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"body-sm":["Noto Sans"],"body-md":["Noto Sans"]},"fontSize":{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"700"}],"label-lg":["18px",{"lineHeight":"22px","letterSpacing":"0.05em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0.01em","fontWeight":"700"}],"label-md":["15px",{"lineHeight":"18px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 flex flex-col"><div class="w-full h-1 bg-primary-container shrink-0"></div><div class="h-18 h-[72px] bg-black border-b border-outline px-space-md flex items-center justify-between select-none"><div class="flex items-center gap-space-md overflow-hidden"><div class="flex items-center gap-space-xs shrink-0"><div class="w-4 h-4 bg-primary-container shrink-0"></div><span class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface">CAT SENTINEL</span></div><div class="h-6 w-px bg-outline shrink-0"></div><div class="flex items-center gap-space-xs overflow-x-auto whitespace-nowrap"><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">UNIT:</span><span class="font-label-sm text-label-sm uppercase text-on-surface">EX-07 (Cat 320)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">OP:</span><span class="font-label-sm text-label-sm uppercase text-on-surface">Ravi Kumar (OP-1042)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="material-symbols-outlined text-[16px] text-primary-container">schedule</span><span class="font-label-sm text-label-sm uppercase text-on-surface">06:42</span><span class="font-label-sm text-label-sm text-on-surface-variant">· 1h 52m</span></div><div class="flex items-center gap-1.5 bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="w-2 h-2 rounded-full bg-success"></span><span class="font-label-sm text-label-sm uppercase text-on-surface">SEATBELT</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-series-green border border-series-green px-1">PROTECTION ACTIVE</span></div><div class="hidden xl:flex items-center gap-space-xs bg-surface-container px-space-sm py-1 border border-outline rounded-none"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant">EDGE: ONLINE · CLOUD: OK</span></div></div></div><div class="flex items-center gap-space-md shrink-0"><div class="bg-provenance-sim px-space-sm py-1 border border-provenance-sim text-on-surface font-label-sm text-label-sm uppercase tracking-wider">DEMO: SIMULATED TELEMETRY</div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-[76px] bottom-0 w-24 bg-surface-container z-40 border-r border-outline flex flex-col justify-between py-space-sm"><nav class="flex flex-col gap-1 w-full" data-active-classes="bg-surface-container-highest text-primary-container border-l-4 border-primary-container"><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="operate" href="#"><span class="material-symbols-outlined text-[26px]">speed</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">OPERATE</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 transition-colors bg-surface-container-highest text-primary-container border-l-4 border-primary-container" data-path="checklist" href="#"><span class="material-symbols-outlined text-[26px]">fact_check</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">CHECKLIST</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="incident-log" href="#"><span class="material-symbols-outlined text-[26px]">warning</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">LOG</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="training" href="#"><span class="material-symbols-outlined text-[26px]">school</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">TRAINING</span></a><a class="flex flex-col items-center justify-center min-h-[64px] py-space-xs px-1 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="shift-review" href="#"><span class="material-symbols-outlined text-[26px]">timeline</span><span class="font-label-sm text-label-sm uppercase mt-0.5 tracking-wider">REVIEW</span></a></nav><div class="px-2"><div class="bg-surface-container-low p-1.5 border border-outline text-center"><div class="font-label-sm text-label-sm text-on-surface-variant uppercase">CAB V2.4</div></div></div></aside><div class="pl-24"><main class="w-full min-h-[calc(100vh-80px)] pt-[76px] pb-[88px] px-space-md bg-surface"><div class="flex flex-col w-full gap-space-md">
+<div class="w-full bg-surface-container-high px-space-md py-space-sm flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface text-[20px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wider">CHECK COMPLETE · 05:52</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Digitally Signed: Ravi K. (OP-1042) • Verified via Cab NFC Hub</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-space-sm py-1 bg-surface-container-lowest text-series-green">TELEMETRY AUDITED</span>
+<span class="font-label-sm text-label-sm uppercase px-space-sm py-1 bg-surface-container-lowest text-primary-container">OSHA 1926.1412 COMPLIANT</span>
+</div>
+</div>
+<div class="w-full grid grid-cols-12 gap-gutter items-start">
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-space-sm">
+<div class="bg-surface-container p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">INSPECTION GROUPS</span>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-primary-container text-on-primary-container">STAGE 2/4</span>
+</div>
+<nav class="flex flex-col gap-space-xs">
+<button class="w-full min-h-[64px] p-space-sm text-left bg-surface-container-highest flex items-center justify-between transition-colors" type="button">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container font-headline-sm text-headline-sm flex items-center justify-center shrink-0">1</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg uppercase text-on-surface truncate">1. WALK-AROUND</span>
+<span class="font-body-sm text-body-sm text-primary-container truncate font-bold">5 of 6 Checked · 1 Defect</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-error text-on-error shrink-0">FAIL 1</span>
+</button>
+<button class="w-full min-h-[64px] p-space-sm text-left bg-surface-container-high hover:bg-surface-container-highest flex items-center justify-between transition-colors" type="button">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-container text-on-surface font-headline-sm text-headline-sm flex items-center justify-center shrink-0">2</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg uppercase text-on-surface truncate">2. CAB &amp; CONTROLS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">4 of 4 Verified</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-success text-on-surface shrink-0">PASS 4</span>
+</button>
+<button class="w-full min-h-[64px] p-space-sm text-left bg-surface-container-high hover:bg-surface-container-highest flex items-center justify-between transition-colors" type="button">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-container text-on-surface font-headline-sm text-headline-sm flex items-center justify-center shrink-0">3</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg uppercase text-on-surface truncate">3. SAFETY SYSTEMS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">2 of 3 Verified</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-lowest text-series-green shrink-0">AUTO-PASS</span>
+</button>
+<button class="w-full min-h-[64px] p-space-sm text-left bg-surface-container-high hover:bg-surface-container-highest flex items-center justify-between transition-colors" type="button">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-container text-on-surface font-headline-sm text-headline-sm flex items-center justify-center shrink-0">4</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg uppercase text-on-surface truncate">4. SITE CONDITIONS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Pending Supervisor Signoff</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-lowest text-on-surface-variant shrink-0">0 / 1</span>
+</button>
+</nav>
+</div>
+<div class="bg-surface-container-low p-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">CAB HARDWARE ID</span>
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">ECU-7724-EX</span>
+<span class="font-label-sm text-label-sm uppercase text-series-green">LINK OK</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 overflow-hidden mt-1">
+<div class="bg-primary-container h-full w-[78%]"></div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Overall Inspection Completion: 78%</span>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-9 flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md uppercase text-primary-container">SECTION 1: WALK-AROUND INSPECTION</span>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-highest text-on-surface">6 ITEMS REQUIRED</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">MANDATORY R2 PROTOCOL</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="min-h-[72px] bg-surface-container px-space-md py-space-xs flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface truncate">TRACKS &amp; ROLLERS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Inspect clean tension, sprocket teeth wear, and absence of foreign debris</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-success text-on-surface font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+<div class="bg-surface-container-high p-space-md flex flex-col gap-space-md">
+<div class="min-h-[72px] flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm uppercase text-error truncate">HOSES &amp; FITTINGS</span>
+<span class="font-label-sm text-label-sm uppercase bg-error text-on-error px-space-xs py-0.5">ATTENTION REQUIRED</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Check boom/stick junctions for hydraulic weeping, chafing, or coupling pinches</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-error text-on-error font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm text-error">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+<span class="font-headline-sm text-headline-sm uppercase tracking-wider">DEFECT LOGGED: TRANSMITTING TO DISPATCH</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md uppercase text-on-surface" for="defect-desc">DESCRIBE THE DEFECT</label>
+<div class="relative w-full">
+<input class="w-full h-14 bg-surface-container px-space-md text-on-surface font-body-md text-body-md focus:outline-none focus:bg-black" id="defect-desc" type="text" value="Minor oil weeping near bucket cylinder gland nut"/>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<button class="h-14 min-h-[48px] px-space-md bg-surface-container-high hover:bg-surface-container-highest text-on-surface flex items-center gap-space-xs uppercase font-headline-sm text-headline-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[24px] text-primary-container">photo_camera</span>
+<span>ADD PHOTO</span>
+<span class="font-label-sm text-label-sm uppercase px-1 py-0.5 bg-provenance-mock text-on-surface ml-1">MOCK</span>
+</button>
+<div class="hidden sm:flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] text-series-green">check_circle</span>
+<span>Photo attached: IMG_3391.raw (1.2MB)</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-warning">DISPATCH CODE: FLUID-HYD-04</span>
+</div>
+<div class="bg-surface-container p-space-sm flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0">info</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+                  Defects are automatically sent to site maintenance and your supervisor <strong class="text-primary-container uppercase">(Priya Nair)</strong>. Continue check to record operational readiness.
+                </p>
+</div>
+</div>
+</div>
+<div class="min-h-[72px] bg-surface-container px-space-md py-space-xs flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface truncate">BUCKET, TEETH &amp; PINS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Retaining pins seated and locked; teeth intact without structural fissures</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-success text-on-surface font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+<div class="min-h-[72px] bg-surface-container px-space-md py-space-xs flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface truncate">MIRRORS &amp; CAMERAS CLEAN</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Unobstructed 360-degree rear and blindspot camera lenses; mirrors adjusted</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-success text-on-surface font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+<div class="min-h-[72px] bg-surface-container px-space-md py-space-xs flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface truncate">WORK LIGHTS &amp; BEACON</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">High-illumination LED arrays functional; amber cab strobe rotating smoothly</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-success text-on-surface font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+<div class="min-h-[72px] bg-surface-container px-space-md py-space-xs flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface truncate">FIRE EXTINGUISHER PRESENT</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Dry chemical extinguisher gauge in green zone; annual tag valid through current quarter</span>
+</div>
+<div class="flex items-center bg-surface-container-lowest p-1 shrink-0">
+<button class="w-20 h-14 min-h-[48px] bg-success text-on-surface font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">PASS</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">FAIL</button>
+<button class="w-20 h-14 min-h-[48px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface-variant font-headline-sm text-headline-sm uppercase flex items-center justify-center" type="button">N/A</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md uppercase text-on-surface">SECTION 2: CAB &amp; CONTROLS</span>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-highest text-series-green">4 VERIFIED</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">4 ITEMS TOTAL</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-sm">
+<div class="bg-surface-container p-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">SEATBELT LATCH</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Smooth reel retraction</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-series-green uppercase px-space-sm py-1 bg-surface-container-lowest">PASS</span>
+</div>
+<div class="bg-surface-container p-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">CAB HORN</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Audible at 100m perimeter</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-series-green uppercase px-space-sm py-1 bg-surface-container-lowest">PASS</span>
+</div>
+<div class="bg-surface-container p-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">TRAVEL ALARM</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Directional reverse buzzer active</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-series-green uppercase px-space-sm py-1 bg-surface-container-lowest">PASS</span>
+</div>
+<div class="bg-surface-container p-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">HYDRAULIC LOCKOUT</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lever stops pilot pressure</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-series-green uppercase px-space-sm py-1 bg-surface-container-lowest">PASS</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md uppercase text-on-surface">SECTION 3: SAFETY SYSTEMS &amp; TELEMETRY</span>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-provenance-ml text-on-surface font-bold">AUTOMATED TEST</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-series-green">3 LIVE SENSORS</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="min-h-[64px] bg-surface-container px-space-md py-space-xs flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[24px] text-series-green">airline_seat_recline_normal</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">SEATBELT SENSOR STATUS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Continuous cab buckle interlock circuit</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="flex items-center gap-1 px-space-sm py-1 bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="font-label-md text-label-md uppercase text-on-surface">FASTENED (Hall-effect OK)</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-highest text-on-surface">RULE</span>
+</div>
+</div>
+<div class="min-h-[64px] bg-surface-container px-space-md py-space-xs flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[24px] text-notice-dark">sensors</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">PROXIMITY SENSING SELF-TEST</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">LiDAR array &amp; ultrasonic ground-distance matrix</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="px-space-sm py-1 bg-surface-container-lowest">
+<span class="font-label-md text-label-md uppercase text-notice-dark">ACTIVE · 4 SECTORS OK</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-highest text-series-green">PASS</span>
+</div>
+</div>
+<div class="min-h-[64px] bg-surface-container px-space-md py-space-xs flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[24px] text-primary-container">shield</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">CAT SENTINEL PROTECTION</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Model confidence score: 0.984 • Payload limits initialized</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="px-space-sm py-1 bg-surface-container-lowest">
+<span class="font-label-md text-label-md uppercase text-series-green">PASSED</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-surface-container-highest text-on-surface">RULE</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md uppercase text-on-surface">SECTION 4: SITE CONDITIONS</span>
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 bg-warning text-on-surface">PENDING TALK</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">1 ITEM TOTAL</span>
+</div>
+<div class="bg-surface-container p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col max-w-xl">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">GROUND CONDITIONS &amp; OVERHEAD HAZARDS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Bench stability confirmed; safe working clearance verified beneath 33kV high-voltage overhead distribution lines</span>
+</div>
+<label class="flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-space-xs cursor-pointer select-none">
+<input checked="" class="w-6 h-6 accent-primary-container bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">TOOLBOX TALK DONE</span>
+<span class="font-label-sm text-label-sm text-series-green uppercase">BRIEFED BY FOREMAN #04</span>
+</div>
+</label>
+</div>
+</div>
+<div class="w-full bg-surface-container-low p-space-md flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">CHECKLIST PROGRESS</span>
+<span class="font-headline-lg text-headline-lg uppercase text-on-surface">11 / 14 COMPLETED</span>
+</div>
+<div class="hidden sm:flex flex-col pl-space-md">
+<span class="font-label-sm text-label-sm uppercase text-warning">DISPATCH ALERT ACTIVE</span>
+<span class="font-body-sm text-body-sm text-on-surface">1 Defect flagged • Conditional run authorized</span>
+</div>
+</div>
+<button class="w-full sm:w-auto h-16 min-h-[64px] px-space-xl bg-primary-container hover:bg-surface-tint text-on-primary font-headline-md text-headline-md uppercase tracking-wider flex items-center justify-center gap-space-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[26px]">task_alt</span>
+<span>SIGN OFF CHECK</span>
+</button>
+</div>
+</div>
+</div>
+</div></main></div><footer class="fixed bottom-0 left-24 right-0 h-20 bg-surface-container border-t border-outline z-40 px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md w-full"><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-warning hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-warning">report_problem</span><span>LOG INCIDENT</span></button><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-primary-container hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-primary-container">coffee</span><span>TAKE BREAK</span></button><button class="flex-1 h-14 min-h-[48px] bg-surface-container-high border-2 border-outline-variant hover:border-notice-dark hover:bg-surface-container-highest text-on-surface px-space-md flex items-center justify-center gap-space-sm uppercase font-headline-sm text-headline-sm transition-colors" type="button"><span class="material-symbols-outlined text-[24px] text-notice-dark">radio</span><span>CALL SUPERVISOR</span></button></div></footer></body></html>

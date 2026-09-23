@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_blank" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"series-green":"#1AC69E","surface-container-lowest":"#0e0e0e","surface-bright":"#262626","inverse-on-surface":"#313030","surface-container-low":"#141414","outline-variant":"#565656","on-error":"#FFFFFF","provenance-ml":"#1AC69E","primary":"#ffeec6","tertiary-fixed":"#67fbd0","error-container":"#FFDAD6","surface-container":"#201f1f","success":"#197527","on-secondary-container":"#481d00","surface-dim":"#131313","on-secondary-fixed":"#321200","notice":"#0067B8","on-primary-container":"#6f5800","on-surface-variant":"#d1c5ab","primary-fixed":"#ffe08a","on-tertiary":"#00382a","surface-container-highest":"#303030","escalation":"#8F24D1","background":"#131313","secondary":"#ffb68c","caution":"#F3C206","on-primary":"#3d2f00","surface":"#0E0E0E","on-surface":"#FFFFFF","surface-variant":"#353534","on-tertiary-fixed-variant":"#00513f","surface-container-high":"#2a2a2a","notice-dark":"#4DB1FF","inverse-surface":"#e5e2e1","secondary-fixed-dim":"#ffb68c","on-tertiary-container":"#006751","on-error-container":"#ffdad6","provenance-mock":"#909090","on-secondary-fixed-variant":"#753400","on-primary-fixed":"#241a00","series-purple":"#6852BE","series-orange":"#FB5A00","error":"#C52320","secondary-container":"#e76e03","series-blue":"#0066FF","on-background":"#e5e2e1","surface-tint":"#f1c100","tertiary-fixed-dim":"#44deb4","tertiary":"#b2ffe3","primary-fixed-dim":"#f1c100","on-primary-fixed-variant":"#574400","warning":"#E56C00","secondary-fixed":"#ffdbc9","on-secondary":"#522300","outline":"#3A3A3A","on-tertiary-fixed":"#002118","provenance-sim":"#6852BE","tertiary-container":"#55ebc1","primary-container":"#FFE672","inverse-primary":"#745b00"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","space-sm":"0.5rem","space-xl":"2rem","space-md":"1rem","margin":"1.5rem","margin-cab":"1rem","gutter-sm":"0.75rem","gutter":"1rem","gutter-lg":"1.5rem","space-lg":"1.5rem"},"fontFamily":{"label-sm":["Barlow Condensed"],"label-lg":["Barlow Condensed"],"body-lg":["Noto Sans"],"headline-xl":["Barlow Condensed"],"headline-sm":["Barlow Condensed"],"label-md":["Barlow Condensed"],"headline-lg":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"body-sm":["Noto Sans"],"body-md":["Noto Sans"]},"fontSize":{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"700"}],"label-lg":["18px",{"lineHeight":"22px","letterSpacing":"0.05em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0.01em","fontWeight":"700"}],"label-md":["15px",{"lineHeight":"18px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen flex flex-col justify-center items-center"><div class="fixed top-0 left-0 right-0 h-1 bg-primary-container z-50"></div><main class="w-full max-w-4xl p-space-md"><div class="flex flex-col w-full">
+<!-- Cab Status Utility Bar -->
+<div class="flex flex-wrap items-center justify-between gap-gutter-sm bg-surface-container-low px-space-md py-space-sm mb-gutter">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="inline-block w-2.5 h-2.5 bg-primary-container"></span>
+<span class="font-label-md text-label-md text-on-surface uppercase tracking-wider">TERMINAL // CAB-07A</span>
+</div>
+<span class="text-outline-variant">/</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">GATEWAY READY // UTC 05:42</span>
+</div>
+<!-- Demo Mode / Simulated Provenance Header Indicator -->
+<div class="flex items-center gap-space-sm px-space-sm py-1 bg-surface-container border border-series-purple">
+<span class="material-symbols-outlined text-series-purple text-base">sensors</span>
+<span class="font-label-sm text-label-sm text-series-purple uppercase tracking-widest font-bold">DEMO MODE: SIMULATED TELEMETRY</span>
+<span class="inline-block w-2 h-2 bg-series-purple animate-pulse"></span>
+</div>
+</div>
+<!-- Primary Operator Layout: Grid Split -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-gutter">
+<!-- Left / Center Primary Card: Operator Authentication Target -->
+<div class="lg:col-span-7 flex flex-col bg-surface-container border border-outline p-space-lg">
+<div class="flex items-center justify-between pb-space-sm border-b border-outline mb-space-lg">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest block">OPERATOR SIGN-IN</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-wide">GOOD MORNING, RAVI</h1>
+</div>
+<div class="flex items-center gap-1.5 px-space-xs py-0.5 border border-provenance-mock border-dashed">
+<span class="font-label-sm text-label-sm text-provenance-mock tracking-widest uppercase font-bold">MOCK PROVENANCE</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-lg items-center">
+<!-- Large Contactless NFC Target -->
+<div class="flex flex-col items-center">
+<div class="w-48 h-48 sm:w-[200px] sm:h-[200px] bg-surface-container-high border-2 border-primary-container flex flex-col items-center justify-center cursor-pointer transition-colors hover:bg-surface-bright active:bg-surface-container relative group" id="nfc-target">
+<span class="material-symbols-outlined text-primary-container text-6xl group-hover:scale-105 transition-transform" style="font-variation-settings: 'FILL' 1;">contactless</span>
+<span class="mt-space-sm font-label-md text-label-md text-on-surface text-center uppercase tracking-wider px-space-xs font-bold leading-tight">TAP BADGE TO START SHIFT</span>
+<div class="absolute bottom-2 px-1.5 py-0.5 border border-provenance-mock border-dashed bg-surface-container-lowest">
+<span class="font-label-sm text-label-sm text-provenance-mock font-bold">MOCK SENSOR</span>
+</div>
+</div>
+<span class="mt-space-sm font-body-sm text-body-sm text-on-surface-variant text-center">RFID / MIFARE ISO-14443</span>
+</div>
+<!-- Alternative Numeric Operator Keypad -->
+<div class="flex flex-col items-center bg-surface-container-low p-space-md border border-outline">
+<div class="w-full flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">OPERATOR ID PIN</span>
+<div class="flex gap-1.5 tracking-widest font-headline-md text-headline-md text-primary-container h-8 items-center" id="pin-display">
+<span>•</span><span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 w-full max-w-[240px]">
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('1')" type="button">1</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('2')" type="button">2</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('3')" type="button">3</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('4')" type="button">4</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('5')" type="button">5</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('6')" type="button">6</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('7')" type="button">7</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('8')" type="button">8</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('9')" type="button">9</button>
+<button class="h-14 bg-surface-container border border-outline hover:border-outline-variant font-label-md text-label-md text-on-surface-variant flex items-center justify-center cursor-pointer uppercase" onclick="clearPin()" type="button">CLR</button>
+<button class="h-14 bg-surface-container-high border border-outline hover:border-outline-variant active:border-primary-container font-headline-md text-headline-md text-on-surface flex items-center justify-center cursor-pointer" onclick="handlePin('0')" type="button">0</button>
+<button class="h-14 bg-surface-container border border-outline hover:border-outline-variant font-headline-md text-headline-md text-on-surface-variant flex items-center justify-center cursor-pointer" onclick="backspacePin()" type="button">
+<span class="material-symbols-outlined text-lg">backspace</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Today at a Glance -->
+<div class="lg:col-span-5 flex flex-col justify-between bg-surface-container border border-outline p-space-lg">
+<div>
+<div class="flex items-center justify-between pb-space-sm border-b border-outline mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="w-1.5 h-4 bg-primary-container"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">TODAY AT A GLANCE</h2>
+</div>
+<div class="flex items-center gap-1 px-space-xs py-0.5 border border-provenance-sim">
+<span class="font-label-sm text-label-sm text-series-purple font-bold uppercase tracking-wider">SIMULATED</span>
+</div>
+</div>
+<div class="space-y-space-md">
+<!-- Heavy Machine Assignment Card -->
+<div class="bg-surface-container-low p-space-md border border-outline">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-primary-container tracking-widest uppercase block">ASSIGNED ASSET</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">EX-07</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs py-0.5 text-on-surface-variant border border-outline-variant uppercase">320 SERIES</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Cat 320 Hydraulic Excavator</p>
+</div>
+<!-- Dispatch Operations Matrix -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-surface-container-low p-space-sm border border-outline">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">LOCATION</span>
+<span class="font-label-lg text-label-lg text-on-surface">North Quarry</span>
+<span class="font-body-sm text-body-sm text-outline-variant block">Bench 3 / Pit Wall</span>
+</div>
+<div class="bg-surface-container-low p-space-sm border border-outline">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">SHIFT WINDOW</span>
+<span class="font-label-lg text-label-lg text-on-surface">06:00 – 14:30</span>
+<span class="font-body-sm text-body-sm text-outline-variant block">8.5 HRS / DAY A</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm border border-outline flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">SCHEDULED DISPATCH</span>
+<span class="font-label-lg text-label-lg text-on-surface">3 Active Quarry Tasks</span>
+</div>
+<span class="material-symbols-outlined text-primary-container text-2xl">assignment</span>
+</div>
+<!-- Site Environmental Conditions -->
+<div class="bg-surface-container-low p-space-sm border border-outline flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-caution text-3xl">partly_cloudy_day</span>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">SITE WEATHER</span>
+<span class="font-label-md text-label-md text-on-surface">31°C · Moderate Dust</span>
+<span class="font-body-sm text-body-sm text-notice-dark block">Light rain forecast from 13:00</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline-variant uppercase">BARO</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block">1014 hPa</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Telemetry Heartbeat Status -->
+<div class="pt-space-md border-t border-outline flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">CAN BUS CONNECTED</span>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 bg-success"></span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface">LINK OK</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Panel: Privacy & Logging Disclosure -->
+<div class="bg-surface-container border border-outline p-space-md mb-gutter">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md max-w-2xl">
+<span class="material-symbols-outlined text-outline-variant text-2xl mt-0.5 shrink-0">verified_user</span>
+<div>
+<div class="flex items-center gap-space-sm mb-1">
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-widest font-bold">WHAT CAT SENTINEL RECORDS</span>
+<span class="font-label-sm text-label-sm text-outline-variant">|</span>
+<a class="font-label-sm text-label-sm text-on-surface underline underline-offset-4 hover:text-primary-container tracking-wider uppercase" href="javascript:void(0)" onclick="togglePolicyModal()">LEARN MORE</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+            Machine signals and alerts during your shift; you can see all of your own data; supervisors see alerts that were escalated to them and team totals; no camera or microphone recording.
+          </p>
+</div>
+</div>
+<!-- Large 48px Tactile Checkbox Target -->
+<label class="flex items-center gap-space-sm cursor-pointer select-none bg-surface-container-high px-space-md py-space-sm border border-outline hover:border-outline-variant transition-colors shrink-0">
+<input checked="" class="sr-only" id="agreement-checkbox" onchange="toggleAgreement(this)" type="checkbox"/>
+<div class="w-12 h-12 bg-primary-container flex items-center justify-center transition-colors" id="checkbox-indicator">
+<span class="material-symbols-outlined text-surface-container-lowest text-2xl font-bold">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface uppercase tracking-wider">I UNDERSTAND AND AGREE TO SHIFT LOGGING</span>
+</label>
+</div>
+</div>
+<!-- Primary Safety Action Button -->
+<button class="w-full h-16 min-h-[64px] bg-primary-container text-on-primary-fixed border border-[#B18D00] rounded-DEFAULT flex items-center justify-center gap-space-sm hover:brightness-105 active:brightness-95 cursor-pointer transition-all" id="primary-action-btn" onclick="startPreShiftCheck()" type="button">
+<span class="material-symbols-outlined text-2xl font-bold">play_arrow</span>
+<span class="font-label-lg text-label-lg tracking-wider uppercase font-bold text-[18px]">START PRE-SHIFT CHECK</span>
+</button>
+<!-- Modal: Telemetry & Logging Policy Dialog -->
+<div class="fixed inset-0 bg-surface/90 flex items-center justify-center p-space-md z-50 hidden" id="policy-modal">
+<div class="bg-surface-container-high border-2 border-outline max-w-xl w-full p-space-lg">
+<div class="flex items-center justify-between pb-space-sm border-b border-outline mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container">policy</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">OPERATOR TELEMETRY POLICY</span>
+</div>
+<button class="w-10 h-10 bg-surface-container border border-outline text-on-surface flex items-center justify-center hover:border-primary-container" onclick="togglePolicyModal()" type="button">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<div class="space-y-space-sm font-body-sm text-body-sm text-on-surface-variant">
+<p><strong class="text-on-surface font-label-md uppercase">1. Machine Operational Signals:</strong> Engine RPM, oil temperature, hydraulic pressure, safety interlock statuses, and physical tilt telemetry are strictly cataloged for structural safety and preventive dispatch.</p>
+<p><strong class="text-on-surface font-label-md uppercase">2. Access Transparency:</strong> Operators retain real-time and post-shift visibility into all generated metrics. Shift metrics are aggregated into site averages for management auditing.</p>
+<p><strong class="text-on-surface font-label-md uppercase">3. Privacy Guarantee:</strong> CAT Sentinel adheres to ISO 19782 standards. Cab spaces are never subject to audio or visual monitoring by this gateway.</p>
+</div>
+<div class="mt-space-lg pt-space-sm border-t border-outline flex justify-end">
+<button class="h-12 px-space-lg bg-primary-container text-on-primary-fixed font-label-md text-label-md uppercase font-bold hover:brightness-105" onclick="togglePolicyModal()" type="button">ACKNOWLEDGE</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentPin = '';
+
+  function handlePin(digit) {
+    if (currentPin.length < 4) {
+      currentPin += digit;
+      updatePinDisplay();
+      if (currentPin.length === 4) {
+        showBadgeFeedback("PIN VERIFIED: RAVI (ID #4492)");
+      }
+    }
+  }
+
+  function clearPin() {
+    currentPin = '';
+    updatePinDisplay();
+  }
+
+  function backspacePin() {
+    currentPin = currentPin.slice(0, -1);
+    updatePinDisplay();
+  }
+
+  function updatePinDisplay() {
+    const display = document.getElementById('pin-display');
+    let dots = '';
+    for (let i = 0; i < 4; i++) {
+      dots += `<span>${i < currentPin.length ? '●' : '•'}</span>`;
+    }
+    display.innerHTML = dots;
+  }
+
+  function toggleAgreement(checkbox) {
+    const indicator = document.getElementById('checkbox-indicator');
+    const startBtn = document.getElementById('primary-action-btn');
+
+    if (checkbox.checked) {
+      indicator.className = 'w-12 h-12 bg-primary-container flex items-center justify-center transition-colors';
+      indicator.innerHTML = '<span class="material-symbols-outlined text-surface-container-lowest text-2xl font-bold">check</span>';
+      startBtn.disabled = false;
+      startBtn.className = 'w-full h-16 min-h-[64px] bg-primary-container text-on-primary-fixed border border-[#B18D00] rounded-DEFAULT flex items-center justify-center gap-space-sm hover:brightness-105 active:brightness-95 cursor-pointer transition-all';
+    } else {
+      indicator.className = 'w-12 h-12 bg-surface-container border border-outline-variant flex items-center justify-center transition-colors';
+      indicator.innerHTML = '';
+      startBtn.disabled = true;
+      startBtn.className = 'w-full h-16 min-h-[64px] bg-surface-container text-on-surface-variant border border-outline rounded-DEFAULT flex items-center justify-center gap-space-sm cursor-not-allowed opacity-50';
+    }
+  }
+
+  function togglePolicyModal() {
+    const modal = document.getElementById('policy-modal');
+    modal.classList.toggle('hidden');
+  }
+
+  function showBadgeFeedback(msg) {
+    const nfc = document.getElementById('nfc-target');
+    nfc.classList.add('border-series-green');
+    setTimeout(() => {
+      nfc.classList.remove('border-series-green');
+    }, 1800);
+  }
+
+  document.getElementById('nfc-target').addEventListener('click', () => {
+    showBadgeFeedback("BADGE DETECTED: RAVI");
+  });
+
+  function startPreShiftCheck() {
+    const checkbox = document.getElementById('agreement-checkbox');
+    if (!checkbox.checked) return;
+    const btn = document.getElementById('primary-action-btn');
+    btn.innerHTML = '<span class="material-symbols-outlined text-2xl animate-spin">refresh</span><span class="font-label-lg text-label-lg tracking-wider uppercase font-bold text-[18px]">INITIALIZING IN-CAB WALK-AROUND PROTOCOL...</span>';
+    setTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined text-2xl font-bold text-series-green">done_all</span><span class="font-label-lg text-label-lg tracking-wider uppercase font-bold text-[18px]">SHIFT PROTOCOL INITIATED // LOAD CHECKLIST</span>';
+    }, 1200);
+  }
+</script></main></body></html>

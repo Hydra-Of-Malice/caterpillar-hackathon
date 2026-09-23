@@ -1,0 +1,216 @@
+/* Local fonts so the demo runs offline (no Google Fonts CDN). */
+@import '@fontsource/noto-sans/400.css';
+@import '@fontsource/noto-sans/600.css';
+@import '@fontsource/noto-sans/700.css';
+@import '@fontsource/roboto-condensed/400.css';
+@import '@fontsource/roboto-condensed/700.css';
+@import '@fontsource/roboto-mono/400.css';
+@import 'material-symbols/outlined.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Theme tokens (rgb channels). :root = in-cab NIGHT (dark, Stitch). .theme-light (on <html>) =
+ * Caterpillar light theme for office pages and the in-cab DAY mode (docs/ui-theme.md).
+ */
+:root,
+.theme-dark {
+  --surface: 14 14 14;
+  --surface-lowest: 8 8 8;
+  --surface-low: 20 20 20;
+  --surface-container: 30 30 30;
+  --surface-high: 38 38 38;
+  --surface-highest: 48 48 48;
+  --on-surface: 255 255 255;
+  --on-surface-variant: 225 225 225;
+  --on-surface-muted: 170 170 170;
+  --outline: 58 58 58;
+  --outline-variant: 86 86 86;
+  --outline-strong: 117 117 117;
+  --danger-text: 255 107 102;
+  --warning-text: 255 154 64;
+  --caution-text: 243 194 6;
+  --notice-text: 77 177 255;
+  --escalation-text: 199 125 255;
+  --success-text: 76 217 100;
+  --sim-text: 179 166 240;
+  --gain-text: 77 148 255;
+  --cat-text: 255 205 17;
+  --comp-training: 77 177 255;
+  --comp-improving: 26 198 158;
+  --comp-demonstrated: 76 217 100;
+  /* charts / svg */
+  --chart-grid: #262626;
+  --chart-axis: #3a3a3a;
+  --chart-tick: #aaaaaa;
+  --chart-band: #ffffff;
+  --chart-tip-bg: #141414;
+  --chart-tip-border: #565656;
+  --svg-text: #ffffff;
+  --svg-accent: #4db1ff;
+  --card-shadow: none;
+}
+
+.theme-light {
+  --surface: 255 255 255;
+  --surface-lowest: 255 255 255;
+  --surface-low: 247 247 247;
+  --surface-container: 255 255 255;
+  --surface-high: 242 242 242;
+  --surface-highest: 225 225 225;
+  --on-surface: 0 0 0;
+  --on-surface-variant: 63 63 63;
+  --on-surface-muted: 102 101 101;
+  --outline: 225 225 225;
+  --outline-variant: 204 204 204;
+  --outline-strong: 144 144 144;
+  --danger-text: 197 35 32;
+  --warning-text: 176 74 0;
+  --caution-text: 108 86 0;
+  --notice-text: 0 103 184;
+  --escalation-text: 122 31 179;
+  --success-text: 25 117 39;
+  --sim-text: 90 69 171;
+  --gain-text: 0 85 212;
+  --cat-text: 108 86 0;
+  --comp-training: 0 103 184;
+  --comp-improving: 7 136 120;
+  --comp-demonstrated: 25 117 39;
+  --chart-grid: #eeeeee;
+  --chart-axis: #cccccc;
+  --chart-tick: #666565;
+  --chart-band: #000000;
+  --chart-tip-bg: #ffffff;
+  --chart-tip-border: #cccccc;
+  --svg-text: #000000;
+  --svg-accent: #0067b8;
+  --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  color-scheme: light;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-surface font-body text-body-md text-on-surface antialiased;
+    overscroll-behavior: none;
+  }
+  /* All changing numbers use tabular figures. */
+  .tnum,
+  td,
+  .font-display {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: #ffcd11;
+    color: #000;
+  }
+  *:focus-visible {
+    outline: 2px solid #ffcd11;
+    outline-offset: 2px;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--surface));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--outline-variant));
+    border: 2px solid rgb(var(--surface));
+  }
+}
+
+@layer components {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    line-height: 1;
+    user-select: none;
+  }
+  .icon-fill {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  /* Uppercase condensed label (signal words, nav, short labels). */
+  .label {
+    @apply font-display uppercase;
+    letter-spacing: 0.04em;
+  }
+  .panel {
+    @apply border border-outline bg-surface-container;
+    box-shadow: var(--card-shadow);
+  }
+  .theme-light .panel {
+    border-color: transparent;
+  }
+  .panel-low {
+    @apply border border-outline bg-surface-container-low;
+  }
+  /* Diagonal stripes for SIMULATED badges / ribbon. */
+  .stripes-sim {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(104, 82, 190, 0.35) 0 4px,
+      rgba(104, 82, 190, 0.1) 4px 8px
+    );
+  }
+  .stripes-sim-solid {
+    background-image: repeating-linear-gradient(135deg, #6852be 0 8px, #5a45ab 8px 16px);
+  }
+  /* Hazard band for PROTECTION DEGRADED. */
+  .stripes-hazard {
+    background-image: repeating-linear-gradient(135deg, #c52320 0 14px, #1a0000 14px 28px);
+  }
+  .stripes-hazard-thin {
+    background-image: repeating-linear-gradient(135deg, rgba(197, 35, 32, 0.9) 0 6px, transparent 6px 12px);
+  }
+  .placeholder-media {
+    @apply bg-surface-high;
+  }
+  .table-dense th {
+    @apply border-b border-outline bg-surface-container-low px-3 py-2 text-left font-display text-label-sm uppercase text-on-surface-muted;
+  }
+  .table-dense td {
+    @apply border-b border-outline px-3 py-2.5 align-middle text-body-sm;
+  }
+  .input {
+    @apply h-12 w-full border border-outline-variant bg-surface-container-lowest px-3 text-body-md text-on-surface placeholder:text-on-surface-muted focus:border-cat focus:outline-none;
+  }
+  .select {
+    @apply h-12 w-full border border-outline-variant bg-surface-container-lowest px-3 text-body-md text-on-surface focus:border-cat focus:outline-none;
+  }
+}
+
+/* Recharts theme overrides (CSS beats SVG presentation attributes) */
+.recharts-cartesian-axis-tick-value {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 12px;
+  fill: var(--chart-tick);
+}
+.recharts-cartesian-grid line {
+  stroke: var(--chart-grid);
+}
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: var(--chart-axis);
+}
+.recharts-label {
+  fill: var(--chart-tick);
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--chart-tip-bg) !important;
+  border: 1px solid var(--chart-tip-border) !important;
+  color: rgb(var(--on-surface));
+  font-size: 12px;
+}
+.recharts-legend-item-text {
+  font-family: 'Roboto Condensed', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Noto+Sans:wght@400;700&amp;family=Roboto+Condensed:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container":"#201f1f","warning":"#E56C00","surface-container-lowest":"#080808","tertiary-container":"#55ebc1","tertiary-fixed":"#67fbd0","on-tertiary-fixed":"#002118","on-surface-variant":"#E1E1E1","surface-container-highest":"#303030","inverse-surface":"#e5e2e1","secondary-fixed-dim":"#ffb68c","on-background":"#e5e2e1","secondary":"#ffb68c","tertiary-fixed-dim":"#44deb4","primary":"#ffeec6","notice":"#0067B8","on-secondary-fixed-variant":"#753400","outline-variant":"#4e4632","surface":"#0E0E0E","surface-container-high":"#262626","provenance-ml":"#1AC69E","on-primary":"#000000","success":"#197527","surface-tint":"#f1c100","caution":"#F3C206","surface-container-low":"#1c1b1b","on-primary-fixed":"#241a00","secondary-fixed":"#ffdbc9","surface-bright":"#262626","on-surface":"#e5e2e1","on-primary-container":"#6f5800","surface-dim":"#131313","series-blue":"#0066FF","primary-container":"#FFE672","on-primary-fixed-variant":"#574400","on-secondary-fixed":"#321200","series-green":"#1AC69E","on-tertiary-fixed-variant":"#00513f","surface-variant":"#353534","escalation":"#8F24D1","error-container":"#FFDAD6","provenance-mock":"#909090","on-error":"#690005","tertiary":"#b2ffe3","on-secondary":"#522300","on-error-container":"#ffdad6","on-secondary-container":"#481d00","primary-fixed":"#ffe08a","inverse-on-surface":"#313030","secondary-container":"#e76e03","provenance-sim":"#6852BE","background":"#131313","series-purple":"#6852BE","error":"#C52320","on-tertiary":"#00382a","outline":"#3A3A3A","inverse-primary":"#745b00","series-orange":"#FB5A00","primary-fixed-dim":"#f1c100","on-tertiary-container":"#006751","notice-dark":"#4DB1FF"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-md":"1rem","gutter-lg":"1.5rem","space-xl":"2rem","gutter":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"1.5rem","gutter-sm":"0.75rem","space-lg":"1.5rem","margin-cab":"1rem"},"fontFamily":{"label-md":["Barlow Condensed"],"headline-xl":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"body-md":["Noto Sans"],"body-lg":["Noto Sans"],"label-sm":["Barlow Condensed"],"body-sm":["Noto Sans"],"headline-lg":["Barlow Condensed"],"label-lg":["Barlow Condensed"],"headline-sm":["Barlow Condensed"]},"fontSize":{"label-md":["15px",{"lineHeight":"18px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"700"}],"label-lg":["18px",{"lineHeight":"22px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0.01em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-on-primary border-b-4 border-caution"><div class="w-full px-margin flex items-center justify-between h-16"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm select-none"><div class="w-8 h-8 bg-caution flex items-center justify-center font-headline-md text-headline-md text-on-primary font-bold leading-none">C</div><span class="font-headline-md text-headline-md tracking-wider uppercase text-inverse-surface font-bold">CAT SENTINEL</span></div><nav class="flex items-center gap-gutter" data-active-classes="border-b-4 border-caution text-inverse-surface"><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="home" href="#">Home</a><a aria-current="page" class="h-16 flex items-center px-space-xs font-label-md uppercase transition-colors border-b-4 border-caution text-inverse-surface" data-path="training" href="#">Training</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="incidents" href="#">Incidents</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="tasks" href="#">Tasks</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="crew" href="#">Crew</a><a class="h-16 flex items-center px-space-xs font-label-md text-label-md uppercase text-on-surface-variant hover:text-inverse-surface border-b-4 border-transparent transition-colors" data-path="diagnostics" href="#">Diagnostics</a></nav></div><div class="flex items-center gap-gutter"><div class="hidden xl:flex items-center px-space-sm py-1 bg-surface-container-high border border-provenance-sim text-provenance-sim font-label-sm text-label-sm tracking-widest uppercase bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(104,82,190,0.15)_6px,rgba(104,82,190,0.15)_12px)]"><span class="material-symbols-outlined text-[14px] mr-1">network_check</span>DEMO MODE: SIMULATED TELEMETRY</div><div class="flex items-center gap-space-sm pl-space-sm border-l border-outline"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md leading-tight text-inverse-surface">Ravi Kumar / Marcus Lee</div><div class="font-label-sm text-label-sm tracking-wider uppercase text-caution">Field Supervisor</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-64px)]"><div class="flex flex-col w-full">
+<!-- Top Command Bar: Sub-header Context / Breadcrumb / Status Telemetry -->
+<div class="w-full bg-surface-container-low px-margin py-space-md flex flex-wrap items-center justify-between gap-gutter">
+<div class="flex items-center gap-space-md">
+<div class="w-3 h-10 bg-caution"></div>
+<div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span>Heavy Fleet Operations</span>
+<span class="text-outline">/</span>
+<span class="text-caution">CAT Field Academy</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl uppercase text-inverse-surface tracking-wide leading-none">Training Hub</h1>
+</div>
+</div>
+<!-- Operator Telemetry Snapshot -->
+<div class="flex items-center gap-gutter flex-wrap">
+<div class="flex items-center gap-space-sm bg-surface-container px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-series-blue">history_edu</span>
+<div class="text-left">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant leading-none">Shift Requirement</div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface leading-tight">2 Modules Pending</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-series-green" style="font-variation-settings: 'FILL' 1;">verified</span>
+<div class="text-left">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant leading-none">Competency Rating</div>
+<div class="font-headline-sm text-headline-sm text-inverse-surface leading-tight">82% Field Qualified</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Grid Workspace: Left (2/3) + Right (1/3) -->
+<div class="w-full px-margin py-space-lg grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg">
+<!-- Left Column (2/3 -> 8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- SECTION (A): RECOMMENDED FOR YOU -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-caution text-[24px]">target</span>
+<h2 class="font-headline-lg text-headline-lg uppercase text-inverse-surface tracking-wider">Recommended For You</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-space-sm py-1">Telemetry-Driven Directives</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Card 1: Approach & Swing Control -->
+<div class="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="w-full h-1 bg-caution absolute top-0 left-0 right-0"></div>
+<div class="flex flex-col gap-space-sm">
+<!-- Thumbnail Placeholder -->
+<div class="w-full h-44 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A heavy yellow hydraulic excavator executing a cab-level swing pass near a heavy dump haul truck on a sun-drenched industrial quarry gravel bench with high contrast shadows and ultra-realistic textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnUzCcclrsM4khzxxwv3eKqpBY2-YX8s3gNF1zxhJhQF8igyDdUQn3Nn-Pf5ENdFlRmdkddkwsTGyn7cwYQxmodTGI8zRwlTaU_rDs7Fe33K7gcLb4Z2As6omAfappA6v7OfIRGwoEpb6G5C18S93vgzOPHuQgT21MTRE6D13d6oYZkLe4hF46623kzWNN1yaSvc6sGcghxh83o_HWLpguAN9vxAniDiqxDzCWVsBP4uFxPFI5HNM"/>
+<div class="absolute top-2 left-2 flex gap-space-xs">
+<span class="bg-series-blue text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded">IN TRAINING</span>
+<span class="bg-surface-container-lowest/90 text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">timer</span> 4 MIN
+                  </span>
+</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-caution font-label-sm text-label-sm px-2 py-0.5 rounded uppercase">CAT 349 EXCAVATOR</div>
+</div>
+<!-- Content & Evidence -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<h3 class="font-headline-md text-headline-md uppercase text-inverse-surface leading-tight">Approach &amp; Swing Control</h3>
+<div class="bg-surface-container-high p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center gap-1 text-warning font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[15px]">priority_high</span>
+                    Why Recommended:
+                  </div>
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-warning/20 text-warning px-2 py-0.5 rounded font-body-sm text-body-sm font-bold">3 fast swings near truck in 2 shifts</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Recorded via cab slew encoder telemetry</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase pt-1">
+<span class="material-symbols-outlined text-series-green text-[16px]">verified_user</span>
+<span>Instructor approved • v1.2 • 12 Aug 2026</span>
+</div>
+</div>
+</div>
+<!-- Start Action Button (Minimum 64px ergonomics target) -->
+<div class="pt-space-md">
+<button class="w-full h-16 bg-caution text-on-primary font-headline-sm text-headline-sm uppercase tracking-wider rounded font-bold hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-space-sm cursor-pointer" onclick="startModule('Approach &amp; Swing Control')">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+<span>START MODULE</span>
+</button>
+</div>
+</div>
+<!-- Card 2: Trenching Near Edges -->
+<div class="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-md relative overflow-hidden group">
+<div class="w-full h-1 bg-surface-container-highest absolute top-0 left-0 right-0"></div>
+<div class="flex flex-col gap-space-sm">
+<!-- Thumbnail Placeholder -->
+<div class="w-full h-44 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A tracked excavator digging alongside an engineered safety trench berm with highwall rock reinforcement and digital depth grade indicator markings under sharp overhead industrial field lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh3FprprlGHpOODJDnRDWt8Ue3VmrLY1aqmjWSyWJCm3GqproKxKYRi7v6ApNkeDk27sbm2PPckOEMtQV665eiGT3d7-stoaIvtwTGAD7a2kGv8sWZA-ZbkzbiPUz86LMGO70vlBH0h4jtyMgIV9ul34YyU8T3rW6fMwggnBydCjrCDwrORwlB-vvZUEhBhokd4My1QU-RzUtiThm5y6RvEfSdHADghyWG_Fc3JaK6U46Nr44OuM8"/>
+<div class="absolute top-2 left-2 flex gap-space-xs">
+<span class="bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded">NOT STARTED</span>
+<span class="bg-surface-container-lowest/90 text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">timer</span> 5 MIN
+                  </span>
+</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-caution font-label-sm text-label-sm px-2 py-0.5 rounded uppercase">EARTHMOVING SAFETY</div>
+</div>
+<!-- Content & Evidence -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<h3 class="font-headline-md text-headline-md uppercase text-inverse-surface leading-tight">Trenching Near Edges</h3>
+<div class="bg-surface-container-high p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[15px]">assignment_turned_in</span>
+                    Why Recommended:
+                  </div>
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-surface-container-highest text-inverse-surface px-2 py-0.5 rounded font-body-sm text-body-sm font-bold">Before your first trench task today</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Shift Task: Trench A-04 foundation</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase pt-1">
+<span class="material-symbols-outlined text-series-blue text-[16px]">rule</span>
+<span>Mandatory safety gate • Site Rule SR-304</span>
+</div>
+</div>
+</div>
+<!-- Start Action Button -->
+<div class="pt-space-md">
+<button class="w-full h-16 bg-caution text-on-primary font-headline-sm text-headline-sm uppercase tracking-wider rounded font-bold hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-space-sm cursor-pointer" onclick="startModule('Trenching Near Edges')">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+<span>START MODULE</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION (B): ALL MODULES -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-caution text-[24px]">view_module</span>
+<h2 class="font-headline-lg text-headline-lg uppercase text-inverse-surface tracking-wider">All Modules</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Qualified curriculum for field operators, heavy mechanics, and worksite supervisors.</p>
+</div>
+<div class="font-label-md text-label-md uppercase text-on-surface-variant">Showing <span class="text-caution" id="module-counter">6 of 6</span> Courses</div>
+</div>
+<!-- Filter & Search Toolbar -->
+<div class="bg-surface-container rounded-lg p-space-md flex flex-col gap-space-sm shadow-md">
+<!-- Top Row: Search Input -->
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-14 pl-12 pr-space-md bg-surface-container-lowest text-inverse-surface placeholder:text-on-surface-variant/60 font-body-md text-body-md rounded focus:outline-none focus:ring-2 focus:ring-caution" id="module-search" placeholder="Search module title, machine series, or safety code..." type="text"/>
+</div>
+<!-- Bottom Row: Multi-faceted Filter Chips -->
+<div class="flex flex-wrap items-center justify-between gap-gutter pt-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant mr-1">Machine:</span>
+<button class="filter-chip bg-caution text-on-primary font-label-sm text-label-sm uppercase px-3 py-1.5 rounded font-bold cursor-pointer">Excavator</button>
+<button class="filter-chip bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1.5 rounded cursor-pointer">Articulated Hauler</button>
+<button class="filter-chip bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1.5 rounded cursor-pointer">Wheel Loader</button>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant mr-1">Format:</span>
+<button class="format-btn bg-surface-container-highest text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1 rounded cursor-pointer font-bold" onclick="toggleFormat(this, 'all')">All</button>
+<button class="format-btn bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1 rounded cursor-pointer" onclick="toggleFormat(this, 'video')">Video</button>
+<button class="format-btn bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1 rounded cursor-pointer" onclick="toggleFormat(this, 'micro')">Micro-Lesson</button>
+<button class="format-btn bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1 rounded cursor-pointer" onclick="toggleFormat(this, 'quiz')">Scenario Quiz</button>
+<button class="format-btn bg-surface-container-high text-on-surface-variant hover:text-inverse-surface font-label-sm text-label-sm uppercase px-3 py-1 rounded cursor-pointer" onclick="toggleFormat(this, 'sim')">Simulator</button>
+</div>
+</div>
+</div>
+<!-- 6 Module Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter" id="module-grid">
+<!-- Card 1: Safe Highwall Excavation -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="video" onclick="showQuickDetail('Safe Highwall Excavation')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="High angle shot of a massive quarry highwall excavation cut face with unstable shale strata, highlighted safety boundary lines, and heavy tracked equipment stationed below." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq7NkHvST-FIcFz-LW5Yk-q2BniUdWY3jf4A0Bqg7hSWlND1dXOScdENa-dYNZVqEgddNrkOBr9V3rkHO8WRnZkOTm5dA0RLBojBOsCGtk82m1HVj5kStweJgMeEu63UfFmmYTeEVMsVz8VK_qs4nyoa_WW_c7Bj_VxuNEapaA9z4gp_KaVf0ZHp5j40htGj2wvNcQvX0qKL5MjPRPRLfkc2PN4nb7ebqAo0Vh20k2P5JXes3NC0o"/>
+<div class="absolute top-2 left-2 bg-series-orange text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">VIDEO</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">6 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-caution">Geotechnical Hazards</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Safe Highwall Excavation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Bench standoff distance, overhang detection, and vibration attenuation during active face extraction.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-series-green">check_circle</span> Passed (ML)</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+<!-- Card 2: Auto-Idle Fuel Optimization -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="micro" onclick="showQuickDetail('Auto-Idle Fuel Optimization')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modern Caterpillar machine cab dashboard showing engine management digital fuel consumption graph, tachometer rpm, and green eco-efficiency mode telemetry." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuoSk9wL67OrR6oTR2QpxtrYYpVOcaP-lA2zy9fmD_XiyOkeTGlcHpMqU4bijj95wDH1JGnqlHckPVkwRsvNSMcfeq_3LvRND7MxZUBLencBPdLxZSc48vKHtQwajd5q3VU6eyhDBuFbg_XQwg31gc1O5unFP46DgUnn2rjgow01JPv1SBLyOeVGa6i-WoEjjaBEB-tBASJ8Ds6JVVdz2r62lbWAjotNMXzGtauQCUcBCk6WmtDM8"/>
+<div class="absolute top-2 left-2 bg-series-green text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">MICRO-LESSON</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">3 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-warning">Eco Management</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Auto-Idle Fuel Optimization</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Preventing unnecessary burner hours, throttle maps, and proper hydraulic lock-out during wait stages.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="text-warning font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">priority_high</span> Gap Observed</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+<!-- Card 3: Quick-Coupler Inspection -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="quiz" onclick="showQuickDetail('Quick-Coupler Inspection')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up view of heavy duty mechanical hydraulic quick coupler locking pin and wedge mechanism on an excavator arm covered in grease and steel wear patterns." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDVH2V_Qcfm1TKXlX5cJnuo09YCGoRVRVXjC2TJMDoNjtPfDm7xGiP37e45yq443SDEpnCF3zmvN0hifqUZYhzQCMHEk__V-G3lb4nuLl-8yhuRb5N2u0sVBzBzO2u0M52FKVXZhHFXdNOCNh3Q0QXRzwDk_cqwRR5LqMH93dnGFE39hFyAjKTxZKf1g3374SN5mJlRm8Ef-JnbTZcM1RdvUipsLHfmumqFdr0SU0Cwrb5eUJWv7g"/>
+<div class="absolute top-2 left-2 bg-series-purple text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">SCENARIO QUIZ</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">5 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-series-blue">Mechanical Verification</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Quick-Coupler Inspection</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Positive engagement verification, hydraulic cylinder pressure release check, and bucket shake test.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Not Assessed</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+<!-- Card 4: Blind-Zone Proximity Protocol -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="video" onclick="showQuickDetail('Blind-Zone Proximity Protocol')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Overhead schematics of a construction excavator showing radar blind spot perimeter zones, personnel detection radar grid lines, and safety cones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZnP6QholgLuIdlbVo-rFZfO8JXo-OUwHk5xfXve2HtTvYO3Ls3V6sff5x0ba1JLUzhEm6lXxw_riAcQBCxFwxRxPwf52xd__FnrhCGpl8FqtPdzkW2LJl0YAkiadOgiPsRoeGDe4Cegml34QcJAg9-8991KWP_vkiUdSbgrsfTaObncfwT4PfTb65RIpwKt3_uPHgscBdyDoAZ03T9re6aDFCK6kPfnSAe5K-yMHllB7xrYrasio"/>
+<div class="absolute top-2 left-2 bg-series-orange text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">VIDEO</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">8 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-caution">Personnel Safety</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Blind-Zone Proximity</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Radar alerts, 360-camera review, and strict visual handshake rules with ground personnel and spotters.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="text-tertiary-fixed-dim">Improving</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+<!-- Card 5: Grade Control System Calibration -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="sim" onclick="showQuickDetail('Grade Control Calibration')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Operator cab touch monitor displaying 3D GPS surface models, cut-fill elevation charts, and satellite rover positioning coordinates in high definition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCR7P8167aALYAQKuLvWf5_sa4nCi-PeVhql7CTNka-5Bub1zD_FnSCNqSLw-bMX4O5_LR8-xXWdoFFuT8IgJ8XrlmMqiMPZRvLu2lJKeeLVqeGtk00KP_XJzee6hbMfemAfqOXl2nTORB7i5FL8s1peLS5aC83dP0RTghPc7EB0ogh9Bib_fbV1kGitDYeiySGzmFIjihldhGT36pLYnWfQqdnKBybJm6JQLdFcU-wuV8MtQX3Mw"/>
+<div class="absolute top-2 left-2 bg-series-purple text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">SIMULATOR</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">12 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-provenance-ml">Precision Systems</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Grade Control Calibration</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Base station sync, bucket tip calibration benching, and target depth boundary validation.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="text-series-blue">In Training</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+<!-- Card 6: Emergency Hydraulic Depressurization -->
+<div class="module-card bg-surface-container rounded-lg p-space-md flex flex-col justify-between hover:bg-surface-container-high transition-colors shadow-md group cursor-pointer" data-format="quiz" onclick="showQuickDetail('Hydraulic Depressurization')">
+<div class="flex flex-col gap-space-sm">
+<div class="w-full h-32 rounded bg-surface-container-lowest relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Technical cutaway view of high pressure hydraulic relief valves, accumulator bleeder circuits, and lock-out tag-out hardware on a heavy industrial machine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbO9kv4M2eHFImXwbXbN7t6zX4IS_0XibpUHBVZhIpEf0_GO5Dg01ajl5EcL3WBJ18ZhqoSbUp-JLYtEEabE3SckMoaHdxJqTyLUhsDha5F7eb5bnT85DHv9ojtmAaJbXY_IY4PraYaouCWmEvtI5vVrsOylVg4TdFiCkTJFkya7fbQfAZq46yAcUEQPp8TmeFvmiGxnOLtvuXTa-hXpRpZ4rLmgrsA0JJgMZydbr6FYKoTWFeA8w"/>
+<div class="absolute top-2 left-2 bg-error text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wider rounded font-bold">SCENARIO QUIZ</div>
+<div class="absolute bottom-2 right-2 bg-surface-container-lowest/90 text-inverse-surface font-label-sm text-label-sm px-1.5 py-0.5 rounded">6 MIN</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase text-error">Critical Interlock</span>
+<h4 class="font-headline-sm text-headline-sm uppercase text-inverse-surface group-hover:text-caution transition-colors leading-tight">Hydraulic Depressurization</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-1">Accumulator bleed off sequence and zero-energy state verification prior to boom service work.</p>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Not Assessed</span>
+<span class="text-caution font-bold group-hover:translate-x-1 transition-transform">LAUNCH →</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (1/3 -> 4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-xl">
+<!-- SECTION (D): UPCOMING SESSIONS (High priority banner) -->
+<section class="bg-surface-container rounded-lg p-space-md flex flex-col gap-space-sm shadow-md border-l-4 border-series-purple">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-caution font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Upcoming Evaluation</span>
+</div>
+<span class="bg-provenance-sim/20 text-provenance-sim font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-widest font-bold rounded">MOCK</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md uppercase text-inverse-surface leading-tight">Simulator session with Marcus Lee</h3>
+<p class="font-body-md text-body-md text-caution font-bold mt-1">Thu 25 Sep • 10:00 AM CST</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Cab Simulator Bay 3 • Focus on Trench Precision &amp; Rapid Slew Brake Dampening.</p>
+</div>
+<div class="pt-space-sm">
+<button class="w-full h-12 bg-surface-container-high hover:bg-surface-container-highest text-inverse-surface font-label-md text-label-md uppercase tracking-wider rounded font-bold border-2 border-outline hover:border-caution transition-all flex items-center justify-center gap-space-xs cursor-pointer" onclick="bookInstructorModal()">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>BOOK INSTRUCTOR</span>
+</button>
+</div>
+</section>
+<!-- SECTION (C): MY COMPETENCIES -->
+<section class="bg-surface-container rounded-lg p-space-md flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-caution text-[22px]">workspace_premium</span>
+<h3 class="font-headline-lg text-headline-lg uppercase text-inverse-surface tracking-wider">My Competencies</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Excavator Class I Field Verification Matrix</p>
+</div>
+<span class="font-label-sm text-label-sm text-caution font-bold bg-surface-container-lowest px-2 py-1 rounded">14 TOTAL</span>
+</div>
+<!-- Progress Overview Visualization -->
+<div class="bg-surface-container-high p-space-sm rounded flex flex-col gap-2">
+<div class="flex justify-between font-label-sm text-label-sm uppercase">
+<span class="text-on-surface-variant">Field Verification Progress</span>
+<span class="text-inverse-surface font-bold">57% Verified</span>
+</div>
+<!-- Segmented Progress Bar -->
+<div class="w-full h-3 bg-surface-container-lowest rounded overflow-hidden flex">
+<div class="bg-success h-full" style="width: 50%" title="Demonstrated: 7"></div>
+<div class="bg-tertiary-fixed-dim h-full" style="width: 14%" title="Improving: 2"></div>
+<div class="bg-series-blue h-full" style="width: 14%" title="In Training: 2"></div>
+<div class="bg-warning h-full" style="width: 7%" title="Gap Observed: 1"></div>
+<div class="bg-surface-container-highest h-full" style="width: 15%" title="Unassessed: 2"></div>
+</div>
+</div>
+<!-- Competencies Items List -->
+<div class="flex flex-col gap-2 max-h-[580px] overflow-y-auto pr-1">
+<!-- 1: Pre-start inspection -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Pre-start inspection</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Fluids, tracks &amp; safety harness</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">ML</span>
+</div>
+</div>
+<!-- 2: Seatbelt & cab entry -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Seatbelt &amp; cab entry</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">3-point contact discipline</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">ML</span>
+</div>
+</div>
+<!-- 3: Working near spotters -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Working near spotters</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Standard hand &amp; radio signals</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">ML</span>
+</div>
+</div>
+<!-- 4: Approach & swing control -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-blue text-[18px]">sync</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Approach &amp; swing control</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Slew rate brake modulation</div>
+</div>
+</div>
+<span class="bg-series-blue text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              IN TRAINING
+            </span>
+</div>
+<!-- 5: Blind-zone awareness -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">trending_up</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Blind-zone awareness</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Mirror &amp; radar scan cycles</div>
+</div>
+</div>
+<span class="bg-tertiary-fixed-dim/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              IMPROVING
+            </span>
+</div>
+<!-- 6: Fuel-efficient idle practice -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-warning text-[18px]">error</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Fuel-efficient idle practice</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Excessive idling &gt; 18% of shift</div>
+</div>
+</div>
+<span class="bg-warning/20 text-warning font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              GAP OBSERVED
+            </span>
+</div>
+<!-- 7: Trenching near edges -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">radio_button_unchecked</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Trenching near edges</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Subsurface shear recognition</div>
+</div>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              UNASSESSED
+            </span>
+</div>
+<!-- Remaining 7 competencies to reach 14 total -->
+<!-- 8: Quick-coupler lock verification -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Coupler Lock Verification</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Mechanical pin seating confirmation</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">ML</span>
+</div>
+</div>
+<!-- 9: Bench stability assessment -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Bench stability assessment</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Edge distance &amp; load bearing</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">RK</span>
+</div>
+</div>
+<!-- 10: Overhead power line clearance -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Overhead line clearance</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">10ft minimum standoff buffer</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">ML</span>
+</div>
+</div>
+<!-- 11: Cold-start hydraulic warm-up -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-green text-[18px]">check_circle</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Hydraulic warm-up cycle</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Viscosity thermal compliance</div>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-success/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded font-bold whitespace-nowrap">
+<span>DEMONSTRATED ✓</span>
+<span class="bg-success text-on-primary text-[10px] px-1 rounded">RK</span>
+</div>
+</div>
+<!-- 12: Grade slope sensor zeroing -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">trending_up</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Grade sensor zeroing</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Laser benchmark alignment</div>
+</div>
+</div>
+<span class="bg-tertiary-fixed-dim/20 text-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              IMPROVING
+            </span>
+</div>
+<!-- 13: Emergency shut-off protocol -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-series-blue text-[18px]">sync</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Emergency Shut-Off</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">E-Stop trip &amp; fuel isolation</div>
+</div>
+</div>
+<span class="bg-series-blue text-inverse-surface font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              IN TRAINING
+            </span>
+</div>
+<!-- 14: Track tension adjustment check -->
+<div class="bg-surface-container-high p-space-sm rounded flex items-center justify-between gap-space-sm hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">radio_button_unchecked</span>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Track tension inspection</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Sag measurement against spec</div>
+</div>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded uppercase font-bold whitespace-nowrap">
+              UNASSESSED
+            </span>
+</div>
+</div>
+<!-- Legend at Bottom -->
+<div class="bg-surface-container-lowest p-space-sm rounded flex items-start gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-caution text-[16px] mt-0.5">info</span>
+<span class="font-label-sm text-label-sm uppercase leading-tight">
+            Only an instructor or a passed assessment can mark DEMONSTRATED.
+          </span>
+</div>
+</section>
+<!-- Quick Action Interlock Notice (Office Theme Compliant) -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded bg-caution/10 flex items-center justify-center text-caution">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<div>
+<div class="font-label-md text-label-md uppercase text-inverse-surface">Marcus Lee (ML)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Senior Field Certified Instructor</div>
+</div>
+</div>
+<span class="bg-series-green/10 text-series-green font-label-sm text-label-sm uppercase px-2 py-1 rounded font-bold">ACTIVE DISPATCH</span>
+</div>
+</div>
+</div>
+<!-- Interactive Modal Container (Hidden by Default) -->
+<div class="fixed inset-0 z-50 bg-surface/80 flex items-center justify-center p-space-md hidden backdrop-blur-sm" id="booking-modal">
+<div class="bg-surface-container max-w-lg w-full rounded-xl p-space-lg shadow-2xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-caution">schedule</span>
+<h3 class="font-headline-md text-headline-md uppercase text-inverse-surface">Book Instructor Evaluation</h3>
+</div>
+<button class="text-on-surface-variant hover:text-inverse-surface" onclick="closeBookingModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Select an available evaluation slot with Instructor Marcus Lee or Field Supervisor Ravi Kumar.
+      </p>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm uppercase text-on-surface-variant">Available Simulator Windows</label>
+<select class="h-12 bg-surface-container-lowest text-inverse-surface font-body-md text-body-md rounded px-space-sm focus:outline-none focus:ring-2 focus:ring-caution">
+<option>Fri 26 Sep • 08:30 (Bay 2 - Trenching)</option>
+<option>Fri 26 Sep • 13:00 (Bay 1 - Highwall Slew)</option>
+<option>Mon 29 Sep • 09:00 (Bay 3 - Grade Control)</option>
+</select>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm uppercase text-on-surface-variant">Target Competency</label>
+<select class="h-12 bg-surface-container-lowest text-inverse-surface font-body-md text-body-md rounded px-space-sm focus:outline-none focus:ring-2 focus:ring-caution">
+<option>Approach &amp; swing control (In Training)</option>
+<option>Fuel-efficient idle practice (Gap Observed)</option>
+<option>Trenching near edges (Unassessed)</option>
+</select>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-md">
+<button class="px-space-md h-12 bg-surface-container-high text-inverse-surface font-label-md text-label-md uppercase rounded hover:bg-surface-container-highest cursor-pointer" onclick="closeBookingModal()">
+          Cancel
+        </button>
+<button class="px-space-lg h-12 bg-caution text-on-primary font-headline-sm text-headline-sm uppercase rounded font-bold hover:brightness-110 cursor-pointer" onclick="confirmBooking()">
+          Confirm Reservation
+        </button>
+</div>
+</div>
+</div>
+<!-- Toast Notification Template -->
+<div class="fixed bottom-6 right-6 z-50 bg-caution text-on-primary px-space-lg py-space-sm rounded shadow-2xl font-label-md text-label-md uppercase tracking-wider hidden transition-all duration-300 flex items-center gap-space-sm" id="toast-banner">
+<span class="material-symbols-outlined text-[20px]">check</span>
+<span id="toast-msg">Module launched successfully</span>
+</div>
+<!-- Inline Script for Client-side Micro-interactions -->
+<script>
+    function startModule(moduleName) {
+      showToast('Launching ' + moduleName + ' cab training sequence...');
+    }
+
+    function showQuickDetail(name) {
+      showToast('Selected course: ' + name);
+    }
+
+    function bookInstructorModal() {
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function closeBookingModal() {
+      document.getElementById('booking-modal').classList.add('hidden');
+    }
+
+    function confirmBooking() {
+      closeBookingModal();
+      showToast('Instructor session scheduled with Marcus Lee!');
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById('toast-banner');
+      var toastMsg = document.getElementById('toast-msg');
+      toastMsg.innerText = message;
+      toast.classList.remove('hidden');
+      setTimeout(function() {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    function toggleFormat(btn, format) {
+      var buttons = document.querySelectorAll('.format-btn');
+      buttons.forEach(function(b) {
+        b.classList.remove('bg-surface-container-highest', 'text-inverse-surface', 'font-bold');
+        b.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+      });
+      btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+      btn.classList.add('bg-surface-container-highest', 'text-inverse-surface', 'font-bold');
+
+      var cards = document.querySelectorAll('.module-card');
+      var visibleCount = 0;
+      cards.forEach(function(card) {
+        if (format === 'all' || card.getAttribute('data-format') === format) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      document.getElementById('module-counter').innerText = visibleCount + ' of 6';
+    }
+
+    // Module live search filter
+    document.getElementById('module-search').addEventListener('input', function(e) {
+      var query = e.target.value.toLowerCase();
+      var cards = document.querySelectorAll('.module-card');
+      var visibleCount = 0;
+      cards.forEach(function(card) {
+        var text = card.innerText.toLowerCase();
+        if (text.includes(query)) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      document.getElementById('module-counter').innerText = visibleCount + ' of 6';
+    });
+  </script>
+</div></main><footer class="w-full bg-on-primary border-t border-outline py-space-md"><div class="w-full px-margin flex flex-col md:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Caterpillar Sentinel Operations Network</span><span class="text-outline">|</span><span class="font-label-sm text-label-sm uppercase text-caution">ANSI Z535 Compliant</span></div><div class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Caterpillar Inc. Heavy Equipment &amp; Fleet Dispatch Systems. All rights reserved.</div></div></footer></body></html>

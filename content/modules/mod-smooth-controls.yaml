@@ -1,0 +1,63 @@
+id: MOD-SMOOTH-CONTROLS
+version: "1.0"
+status: approved
+title: Smooth, Combined Controls
+duration_min: 4
+format: micro_lesson
+machine_types: [EX-20t]
+competency_ids: [C09, C04]
+summary: Combining boom, stick, bucket and swing into one smooth movement, with fewer stop-start corrections and an easy stop at the truck.
+change_summary: "New module linked from Practice Analyser coaching tips (smoothness, reversals, boom-swing overlap)."
+label: "SAMPLE — team-authored training content, not official Caterpillar material"
+key_points:
+  - id: KP1
+    text: Use smooth, combined movements of the boom, stick, bucket and swing controls instead of one control at a time.
+    citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
+  - id: KP2
+    text: Avoid sudden starts, stops and control reversals; they add shock load and make the bucket harder to place.
+    citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
+  - id: KP3
+    text: Ease off the swing early in the last part of the swing so the machine stops without overshooting.
+    citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
+  - id: KP4
+    text: Plan the swing path before each cycle so the bucket only ever travels over the truck body.
+    citation: {doc_id: SOP-EX-04, section: "3.1", version: "1.2"}
+quiz:
+  pass_mark: 0.66
+  questions:
+    - id: Q1
+      prompt: Your practice report shows 9 stick reversals per dig. What is the best fix?
+      options:
+        - Move the stick faster
+        - Use one smooth, combined movement and plan the dig before you start
+        - Dig with the bucket only
+        - Increase engine speed
+      answer: 1
+      explanation: Smooth, combined movements with fewer control reversals are more precise and put less shock load on the machine.
+      citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
+    - id: Q2
+      prompt: When should you start slowing the swing toward the truck?
+      options:
+        - When the bucket is over the truck
+        - Early, in the last part of the swing, so the machine stops without overshooting
+        - Only if the truck driver signals
+        - Never; full speed is most productive
+      answer: 1
+      explanation: Ease off early in the last part of the swing so the upper structure stops without overshooting.
+      citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
+    - id: Q3
+      prompt: Why does smooth control matter near the truck?
+      options:
+        - It looks better
+        - It makes the bucket position easier to predict and reduces shock loads
+        - It uses more fuel
+        - It is only required for new operators
+      answer: 1
+      explanation: Smooth control reduces shock loads and makes the bucket position easier to predict near the truck.
+      citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
+expert_demo:
+  type: video_placeholder
+  title: "Expert demonstration — combined boom and swing movement (placeholder video)"
+  url: null
+  note: "Placeholder. The Practice Analyser shows the validated expert envelope overlay instead of raw expert control."
+instructor_approved: {by: "INS-01 Marcus Lee", version: "1.0", date: "2026-09-23"}

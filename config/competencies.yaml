@@ -1,0 +1,299 @@
+# CAT Sentinel — competency catalog, event -> competency map and gap rule (08 §8.2–8.3, 05 §5.7).
+# Owner: agent F (cloud). Thresholds are [PROPOSED] and meant to be tuned; every change bumps `version`.
+# The map is deterministic and instructor-reviewable; it is never learned. ML only feeds event creation.
+version: "comp-0.1.0"
+catalog_version: "0.1"
+effective_date: "2026-09-22"
+
+gap_rule:
+  version: "gap-0.1.0"
+  posterior_threshold: 0.8        # P(rate > reference) must reach this
+  confidence_high: 0.95           # >= high, 0.8–0.95 medium
+  min_shifts: 2                   # recurrence across >= 2 distinct shifts
+  floor: 3                        # >= 3 weighted events (default)
+  floor_safety_critical: 2        # >= 2 for safety-critical (⚠) competencies
+  decay_half_life_days: 14        # old evidence fades; a gap is never a life sentence
+  lookback_days: 30
+  counted_attributions: [operator, unknown]   # machine/environment never count toward gaps
+  unknown_low_confidence_share: 0.5           # > this share of 'unknown' events -> confidence "low"
+
+profile:
+  experience_bands_h: {novice: 500, intermediate: 4000}   # novice < 500 h, intermediate < 4000 h, else experienced
+
+# Priors are Gamma(alpha, beta) on the event rate per exposure unit, "parent level"
+# (machine type x task). Fitted offline on the SIMULATED fleet (prior version pr-2026-09-22).
+# prior_mode "empirical" refits by method of moments when >= min_operators have exposure.
+prior_mode: fixed
+empirical_prior: {min_operators: 5}
+
+competencies:
+  - id: C01
+    label: Pre-start inspection & walk-around
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Checklist completed before key-on and time spent (App); start-up fault codes not noted (A)"
+    exposure: {unit: shifts}
+    count_mode: shifts_with_event
+    reference_rate: 0.2            # at most 1 in 5 shifts skipped or rushed
+    prior: {alpha: 0.5, beta: 5.0}
+    floor: 2
+    min_exposure: 2
+    module_ids: [MOD-PRESTART]
+    assessment_can_demonstrate: true     # knowledge-type: a scored pass may set demonstrated
+    reassess_metric: "Checklist completion over 5 shifts + instructor spot-check"
+    why_template: "Checklist skipped or rushed in {n_events} of {opportunities} shifts"
+
+  - id: C02
+    label: Seatbelt & cab entry/exit
+    applies_to: [EX, WL]
+    safety_critical: true
+    indicators: "Seatbelt switch vs travel/implement motion (B); also the T-CRIT source"
+    exposure: {unit: operating_h}
+    reference_rate: 0.05           # 0 per 20 operating hours is the target; 1 per 20 h reference
+    prior: {alpha: 0.5, beta: 10.0}
+    min_exposure: 4
+    module_ids: [MOD-SEATBELT-CAB]
+    assessment_can_demonstrate: false
+    reassess_metric: "Unbuckled-while-operating events per 20 operating h"
+    why_template: "Seatbelt unfastened while operating {n_events} times across {n_shifts} shifts"
+
+  - id: C03
+    label: "Safe park: attachment grounded, hydraulic lockout, park brake"
+    applies_to: [EX, WL]
+    safety_critical: true
+    indicators: "Implement position at engine-off/door-open, lock-lever state, park brake (B)"
+    exposure: {unit: operating_h}
+    reference_rate: 0.05
+    prior: {alpha: 0.5, beta: 10.0}
+    min_exposure: 4
+    module_ids: [MOD-SEATBELT-CAB]
+    assessment_can_demonstrate: false
+    reassess_metric: "Share of shutdowns compliant (target >= 95 %)"
+    why_template: "Machine left without safe-park steps {n_events} times across {n_shifts} shifts"
+
+  - id: C04
+    label: Approach & swing control near trucks
+    applies_to: [EX]
+    safety_critical: false
+    indicators: "Peak swing rate, swing acceleration, bucket height at the truck inside the loading geofence (B + A); truck proximity (C)"
+    exposure: {unit: truck_approach_cycles, task_types: [truck_loading]}
+    reference_rate: 0.05           # site target: <= 1 over-envelope loading cycle in 20
+    reference_note: "Over-envelope = peak swing rate near the truck above the validated expert P90 (SIMULATED envelope)"
+    prior: {alpha: 1.0, beta: 10.0}   # parent level EX-20t x truck_loading, novice-heavy SIMULATED fleet (mean 0.10)
+    min_exposure: 30               # >= 30 loading cycles
+    module_ids: [MOD-SWING-APPROACH, MOD-TRUCK-LOADING]
+    assessment_can_demonstrate: false
+    reassess_metric: "Share of loading cycles with peak swing rate <= expert P90 (matched context)"
+    reassess_min_opportunities: 30
+    why_template: "{n_events} fast swings near the truck in {n_shifts} shifts ({n_events} of {opportunities} loading cycles)"
+
+  - id: C05
+    label: Blind-zone & surroundings check before swing/travel
+    applies_to: [EX, WL]
+    safety_critical: true
+    indicators: "Proximity-zone intrusions (C); motion started < 1 s after a proximity warning; reverse travel with no pause (B)"
+    exposure: {unit: operating_h}
+    reference_rate: 0.05
+    prior: {alpha: 0.5, beta: 10.0}
+    min_exposure: 4
+    module_ids: [MOD-BLIND-ZONE]
+    assessment_can_demonstrate: false
+    reassess_metric: "Intrusions per operating h; median pause-before-motion"
+    why_template: "{n_events} proximity events with you at the controls across {n_shifts} shifts"
+
+  - id: C06
+    label: Travel on slopes & uneven ground
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Travel speed vs grade; pitch/roll; attachment carried high while travelling (B)"
+    exposure: {unit: operating_h}
+    reference_rate: 0.1
+    prior: {alpha: 0.5, beta: 5.0}
+    min_exposure: 4
+    module_ids: [MOD-SLOPE-TRAVEL]
+    assessment_can_demonstrate: false
+    reassess_metric: "Share of grade segments at speed <= limit with attachment low"
+    why_template: "{n_events} slope or high-attachment travel events across {n_shifts} shifts"
+
+  - id: C07
+    label: Working near trench/excavation edges
+    applies_to: [EX]
+    safety_critical: true
+    indicators: "Machine position vs edge geofence (C); approach speed near the edge (B)"
+    exposure: {unit: operating_h, task_types: [trenching]}
+    reference_rate: 0.1
+    prior: {alpha: 0.5, beta: 5.0}
+    min_exposure: 1
+    module_ids: [MOD-TRENCH-EDGES]
+    assessment_can_demonstrate: false
+    reassess_metric: "Edge-approach events per trench-task hour; instructor observation pass"
+    why_template: "{n_events} edge-approach events during trench work across {n_shifts} shifts"
+
+  - id: C08
+    label: Load handling & lifting
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Payload vs rated (A/B); boom pressure spikes (B); load swung over cab or people (C)"
+    exposure: {unit: cycles}
+    reference_rate: 0.02
+    prior: {alpha: 0.5, beta: 25.0}
+    min_exposure: 30
+    module_ids: [MOD-TRUCK-LOADING]
+    assessment_can_demonstrate: false
+    reassess_metric: "Share of cycles within rated payload; spike rate"
+    why_template: "{n_events} load-handling events in {opportunities} cycles across {n_shifts} shifts"
+
+  - id: C09
+    label: Smooth multi-function control
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Joystick jerk, pressure spikes, stop-start oscillation (B); Isolation Forest window score"
+    exposure: {unit: operating_h}
+    reference_rate: 0.25
+    prior: {alpha: 1.0, beta: 4.0}
+    min_exposure: 4
+    module_ids: [MOD-SWING-APPROACH, MOD-TRUCK-LOADING]
+    assessment_can_demonstrate: false
+    reassess_metric: "Median jerk vs expert band (matched task)"
+    why_template: "{n_events} unusually jerky control windows across {n_shifts} shifts"
+
+  - id: C10
+    label: Idle & fuel-efficient operation
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Idle time and fuel rate (A), gated by task state 'waiting for truck' (App)"
+    exposure: {unit: shifts}
+    count_mode: shifts_with_event
+    reference_rate: 0.2
+    prior: {alpha: 0.5, beta: 5.0}
+    floor: 3                        # unexplained idle above target in >= 3 of the last shifts
+    min_exposure: 3
+    module_ids: [MOD-IDLE-FUEL]
+    assessment_can_demonstrate: true
+    reassess_metric: "Unexplained idle fraction per shift"
+    why_template: "Unexplained idle above the site target in {n_events} of {opportunities} shifts"
+
+  - id: C11
+    label: Travel speed & site traffic rules
+    applies_to: [EX, WL]
+    safety_critical: true
+    indicators: "GPS speed vs zone limit (A); travel speed (B); also the over-speed T-CRIT source"
+    exposure: {unit: operating_h}
+    reference_rate: 0.05
+    prior: {alpha: 0.5, beta: 10.0}
+    min_exposure: 4
+    module_ids: [MOD-SLOPE-TRAVEL]
+    assessment_can_demonstrate: false
+    reassess_metric: "Over-limit events per 10 km"
+    why_template: "{n_events} over-speed events across {n_shifts} shifts"
+
+  - id: C12
+    label: Communication with spotters & signals
+    applies_to: [EX, WL]
+    safety_critical: false
+    assessment_only: true           # no reliable telemetry: set by instructor observation or scenario test
+    indicators: "No reliable telemetry; horn before travel is a weak proxy"
+    exposure: {unit: shifts}
+    reference_rate: 0.2
+    prior: {alpha: 0.5, beta: 5.0}
+    module_ids: [MOD-BLIND-ZONE]
+    assessment_can_demonstrate: true
+    reassess_metric: "Observation checklist pass"
+    why_template: "Set by instructor observation"
+
+  - id: C13
+    label: Break & shift-duration discipline
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "Continuous operating time vs break log (A + App). Behaviour only, never a fatigue diagnosis"
+    exposure: {unit: shifts}
+    count_mode: shifts_with_event
+    reference_rate: 0.2
+    prior: {alpha: 0.5, beta: 5.0}
+    floor: 2
+    min_exposure: 2
+    module_ids: []
+    assessment_can_demonstrate: true
+    reassess_metric: "Share of shifts break-compliant"
+    why_template: "Continuous operation above site policy in {n_events} of {opportunities} shifts"
+
+  - id: C14
+    label: Warm-up, cool-down & machine care
+    applies_to: [EX, WL]
+    safety_critical: false
+    indicators: "High load shortly after cold start, or shutdown right after high load (B); fault codes (A)"
+    exposure: {unit: operating_h}
+    reference_rate: 0.1
+    prior: {alpha: 0.5, beta: 5.0}
+    min_exposure: 4
+    module_ids: [MOD-IDLE-FUEL]
+    assessment_can_demonstrate: false
+    reassess_metric: "Share of compliant starts and shutdowns"
+    why_template: "{n_events} hard starts or hot shutdowns across {n_shifts} shifts"
+
+# Event -> competency map. Rules are tried in order; the FIRST matching rule wins.
+# A rule matches on an exact `types` entry or on the `pattern` regex (searched in the event type),
+# and optionally on `when` (event.context[key] must equal the value, or be in the list).
+# If no rule matches, the event's own competency_ids are used with weight 1.0.
+event_map:
+  - id: MAP-SWING-TRUCK
+    types: [fast_swing_near_truck, swing_speed_near_truck, high_swing_near_truck, swing_overspeed_near_truck,
+            fast_approach_truck, approach_speed_near_truck, bucket_low_over_truck]
+    pattern: "(swing|approach).*truck|truck.*(swing|approach)"
+    competencies: {C04: 1.0, C09: 0.3}
+  - id: MAP-SWING-RATE-LOADING
+    types: [swing_rate_exceed, fast_swing]
+    when: {task_type: truck_loading}
+    competencies: {C04: 1.0, C09: 0.3}
+  - id: MAP-SWING-RATE-OTHER
+    types: [swing_rate_exceed, fast_swing]
+    competencies: {C09: 1.0}
+  - id: MAP-BUCKET-OVER-CAB
+    types: [bucket_over_cab, load_over_cab, load_over_people]
+    competencies: {C04: 1.0, C08: 1.0}
+  - id: MAP-SEATBELT
+    types: [seatbelt_unfastened_moving, seatbelt_open_moving, seatbelt_unfastened, seatbelt_open]
+    pattern: "seat_?belt"
+    competencies: {C02: 1.0}
+  - id: MAP-SAFE-PARK
+    types: [unsafe_park, hyd_lockout_not_engaged, lock_lever_up_door_open, attachment_raised_at_shutdown,
+            park_brake_not_applied]
+    competencies: {C03: 1.0}
+  - id: MAP-PROXIMITY
+    types: [person_in_zone, person_inner_zone, proximity_person_inner, proximity_intrusion, person_rear,
+            motion_after_proximity_warning, reverse_without_pause]
+    pattern: "person|proximity|pedestrian"
+    competencies: {C05: 1.0}
+  - id: MAP-SLOPE
+    types: [slope_travel_speed, travel_attachment_high, attachment_high_travel, travel_on_slope_fast]
+    pattern: "slope"
+    competencies: {C06: 1.0}
+  - id: MAP-TRENCH-EDGE
+    types: [trench_edge_approach, edge_setback_breach, edge_proximity]
+    pattern: "trench|edge"
+    competencies: {C07: 1.0}
+  - id: MAP-LOAD
+    types: [payload_over_rated, overload, boom_pressure_spike]
+    competencies: {C08: 1.0}
+  - id: MAP-CONTROL
+    types: [jerky_control, joystick_reversal, control_oscillation, hyd_pressure_spike, hyd_spike]
+    competencies: {C09: 1.0}
+  - id: MAP-ML-ANOMALY
+    types: [ml_anomaly, unusual_operation, anomaly, iforest_anomaly]
+    competencies: {C09: 0.5}
+  - id: MAP-IDLE
+    types: [excessive_idle, unexplained_idle]
+    competencies: {C10: 1.0}
+  - id: MAP-SPEED
+    types: [overspeed, travel_overspeed, zone_speed_exceed]
+    pattern: "overspeed|speed_limit"
+    competencies: {C11: 1.0}
+  - id: MAP-BREAK
+    types: [break_overdue, continuous_operation_exceeded, break_snoozed]
+    competencies: {C13: 1.0}
+  - id: MAP-WARMUP
+    types: [cold_start_high_load, hot_shutdown, no_cooldown]
+    competencies: {C14: 1.0}
+  - id: MAP-CHECKLIST
+    types: [checklist_skipped, checklist_rushed, checklist_incomplete]
+    competencies: {C01: 1.0}
