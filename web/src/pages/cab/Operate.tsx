@@ -132,7 +132,7 @@ export default function Operate() {
                 <Icon name="timer_pause" size={28} className="text-on-surface-muted" /> Idle {fmtDur(snap?.idle.today_min ?? 0)}
               </li>
               <li className="flex items-center gap-3">
-                <Icon name="timelapse" size={28} className="text-on-surface-muted" /> Operating {fmtDur(contMin)}
+                <Icon name="timelapse" size={28} className="text-on-surface-muted" /> Since break {fmtDur(contMin)}
               </li>
             </ul>
             <button
