@@ -88,12 +88,19 @@ export default function Operate() {
             <div className="font-display text-headline-sm uppercase text-on-surface-muted">{task?.name ?? 'No active task'}</div>
             <div className="mt-4 flex items-baseline justify-between">
               <div className="flex items-baseline gap-3">
-                <span className="font-display text-[72px] font-bold leading-none tnum">{Math.round(task?.done_qty ?? 0)}</span>
-                <span className="font-display text-headline-lg text-on-surface-muted">/ {task?.planned_qty ?? '—'} {(task?.unit ?? 'm³').replace('m3', 'm³')}</span>
+                <span className="font-display text-[72px] font-bold leading-none tnum">{Math.round(task?.volume_done_m3 ?? task?.done_qty ?? 0)}</span>
+                <span className="font-display text-headline-lg text-on-surface-muted">
+                  / {Math.round(task?.volume_planned_m3 ?? task?.planned_qty ?? 0) || '—'} {task?.volume_planned_m3 != null ? 'm³' : (task?.unit ?? 'm³').replace('m3', 'm³')}
+                </span>
               </div>
               <span className="font-display text-headline-lg tnum">{Math.round(task?.progress_pct ?? 0)}%</span>
             </div>
             <ProgressBar pct={task?.progress_pct ?? 0} height="h-4" className="mt-4 border-0 p-0" />
+            {task?.volume_planned_m3 != null && (
+              <div className="mt-2 text-body-md text-on-surface-muted tnum">
+                {Math.round(task.done_qty)} / {task.planned_qty} m of trench
+              </div>
+            )}
           </div>
           {eta && (
             <div>

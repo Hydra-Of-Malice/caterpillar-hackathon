@@ -28,7 +28,7 @@ from sentinel.edge_api import services
 from sentinel.edge_api.pipeline_adapter import load_pipeline
 from sentinel.edge_api.settings import EdgeSettings
 from sentinel.edge_api.tracking import OperationTracker, ProgressTracker
-from sentinel.eta.estimator import TaskTimeEstimator
+from sentinel.eta.estimator import DEFAULT_TRENCH_DEPTH_M, TRENCH_WIDTH_M, TaskTimeEstimator
 from sentinel.shared import topics
 from sentinel.shared.config import load_yaml
 from sentinel.shared.schemas import (Alert, AlertState, Attribution, Event, Provenance, RiskCategory,
@@ -445,6 +445,10 @@ class EdgeRuntime:
                          "unit": task["qty_unit"], "progress_pct": round(100 * task["done_qty"] / task["planned_qty"], 1)
                          if task["planned_qty"] else 0.0, "cycles": self.progress.cycles,
                          "avg_cycle_s": self.progress.avg_cycle_s(), "progress_source": self.progress.source}
+            if task["qty_unit"] == "m":          # trench: also report excavated volume (length × width × depth)
+                xs = TRENCH_WIDTH_M * ((task.get("meta") or {}).get("depth_m") or DEFAULT_TRENCH_DEPTH_M)
+                task_view.update(volume_done_m3=round(task["done_qty"] * xs, 1),
+                                 volume_planned_m3=round(task["planned_qty"] * xs, 1))
         eta = self.current_eta()
         idle = self.tracker.idle_summary()
         idle["suppressed_now"] = bool(self.waiting_for_truck and idle["current_min"] > 0)

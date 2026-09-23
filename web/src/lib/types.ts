@@ -503,6 +503,9 @@ export interface LiveSnapshot {
     planned_qty: number;
     unit: string;
     progress_pct: number;
+    /** Trench tasks are planned in metres of trench; these give the same work as excavated volume. */
+    volume_done_m3?: number;
+    volume_planned_m3?: number;
     cycles?: number;
     avg_cycle_s?: number;
   } | null;
