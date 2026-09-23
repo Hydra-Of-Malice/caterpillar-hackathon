@@ -62,6 +62,7 @@ quiz:
       explanation: Stop loading immediately; resume only when the cause has been cleared.
       citation: {doc_id: SOP-EX-04, section: "5.1", version: "1.2"}
 expert_demo:
+  replay: truck_loading_basic          # animated motion replay of the simulated expert (Practice Analyser data)
   type: video_placeholder
   title: "Expert demonstration — four-pass truck load (placeholder video)"
   url: null

@@ -274,7 +274,16 @@ export default function ModulePlayer() {
         <div className="space-y-10 xl:col-span-2">
           {/* video */}
           <section className="space-y-4">
-            <MotionReplay onEnded={onReplayEnded} />
+            {mod.replay_exercise ? (
+              <MotionReplay key={mod.module_id} exercise={mod.replay_exercise} onEnded={onReplayEnded} />
+            ) : (
+              <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded bg-surface-container-low text-center">
+                <Icon name="smart_display" size={40} className="text-on-surface-muted" />
+                <p className="text-body-md text-on-surface">Demonstration video</p>
+                <p className="text-body-sm text-on-surface-muted">Recorded with an instructor in the production phase. Key points and quiz below are ready now.</p>
+                <button type="button" onClick={onReplayEnded} className="mt-2 text-body-sm text-notice-dark hover:underline">Go to key points</button>
+              </div>
+            )}
             <VrOption vr={mod.vr} />
             <StepProgress steps={steps} current={step} done={completed} onSelect={setStep} />
           </section>

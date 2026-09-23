@@ -31,7 +31,7 @@ const S = 40;                                  // px per metre in the side view
 const sx = (r: number) => (r + 3) * S;
 const sy = (z: number) => (9 - z) * S;
 
-export function MotionReplay({ onEnded }: { onEnded?: () => void }) {
+export function MotionReplay({ exercise = 'truck_loading_basic', onEnded }: { exercise?: string; onEnded?: () => void }) {
   const [who, setWho] = useState<Archetype>('expert');
   const [data, setData] = useState<Partial<Record<Archetype, Replay>>>({});
   const [failed, setFailed] = useState(false);
@@ -42,14 +42,14 @@ export function MotionReplay({ onEnded }: { onEnded?: () => void }) {
   useEffect(() => {
     if (data[who]) return;
     let live = true;
-    fetch(`${CLOUD_URL}/practice/motion-replay?archetype=${who}&cycles=2`)
+    fetch(`${CLOUD_URL}/practice/motion-replay?archetype=${who}&exercise=${encodeURIComponent(exercise)}&cycles=2`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d: Replay) => live && setData((m) => ({ ...m, [who]: d })))
       .catch(() => live && setFailed(true));
     return () => {
       live = false;
     };
-  }, [who, data]);
+  }, [who, data, exercise]);
 
   const rep = data[who];
   const n = rep?.frames.length ?? 0;

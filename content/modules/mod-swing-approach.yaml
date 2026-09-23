@@ -78,6 +78,7 @@ quiz:
       explanation: A fast swing late in the cycle is the most common cause of truck contact and spillage.
       citation: {doc_id: SOP-EX-04, section: "3.2", version: "1.2"}
 expert_demo:
+  replay: truck_loading_basic          # animated motion replay of the simulated expert (Practice Analyser data)
   type: video_placeholder
   title: "Expert demonstration — swing approach to truck (placeholder video)"
   url: null

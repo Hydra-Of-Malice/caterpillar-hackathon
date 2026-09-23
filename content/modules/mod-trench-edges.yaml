@@ -84,6 +84,7 @@ quiz:
       explanation: No one may be in the trench within reach of the bucket while you dig.
       citation: {doc_id: SOP-EX-07, section: "4.1", version: "1.1"}
 expert_demo:
+  replay: trench_basic          # animated motion replay of the simulated expert (Practice Analyser data)
   type: video_placeholder
   title: "Expert demonstration — trench start and edge setback (placeholder video)"
   url: null

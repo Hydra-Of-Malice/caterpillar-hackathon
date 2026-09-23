@@ -90,6 +90,7 @@ export function normModule(raw: unknown): TrainingModule {
     status: s(m.status),
     safety_critical: m.safety_critical as boolean | undefined,
     vr: normVr(o(m.expert_demo).vr),
+    replay_exercise: s(o(m.expert_demo).replay),
   };
 }
 

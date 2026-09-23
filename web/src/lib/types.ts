@@ -625,6 +625,8 @@ export interface TrainingModule {
   safety_critical?: boolean;
   /** VR viewing — only for demonstrations recorded in 3D (stereoscopic 180°/360°). Placeholder until production recordings exist. */
   vr?: { available: boolean; format?: string; title?: string; url?: string | null };
+  /** Practice exercise whose simulated expert motion is replayed as the demonstration (movement-skill modules only). */
+  replay_exercise?: string;
 }
 
 export interface QuizQuestion {

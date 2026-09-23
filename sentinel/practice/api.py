@@ -232,8 +232,9 @@ def warm_cohort_cache() -> None:
     """Precompute the UI's default cohort query in the background so the demo page opens instantly."""
     def warm() -> None:
         from sentinel.practice.replay import motion_replay as _replay
-        for a in ("expert", "novice"):
-            _replay(a, DEFAULT_EXERCISE, 2)
+        for ex in (DEFAULT_EXERCISE, "trench_basic"):
+            for a in ("expert", "novice"):
+                _replay(a, ex, 2)
         for e in (None, 1.4):
             _cohort_cached(20, 12, e, 0)
 

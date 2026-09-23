@@ -56,6 +56,7 @@ quiz:
       explanation: Smooth control reduces shock loads and makes the bucket position easier to predict near the truck.
       citation: {doc_id: SOP-EX-04, section: "4.3", version: "1.2"}
 expert_demo:
+  replay: truck_loading_basic          # animated motion replay of the simulated expert (Practice Analyser data)
   type: video_placeholder
   title: "Expert demonstration — combined boom and swing movement (placeholder video)"
   url: null
