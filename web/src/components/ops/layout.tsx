@@ -25,17 +25,23 @@ export function Card({ title, sub, right, children, className, as = 'section' }:
 }
 
 /** Key number: small muted label, big value, optional one-line sub. */
-export function Stat({ label, value, unit, sub, tone = 'neutral', className }: { label: ReactNode; value: ReactNode; unit?: ReactNode; sub?: ReactNode; tone?: 'neutral' | 'red' | 'orange' | 'green' | 'blue' | 'purple'; className?: string }) {
+export function Stat({ label, value, unit, sub, tone = 'neutral', className, onClick, active }: { label: ReactNode; value: ReactNode; unit?: ReactNode; sub?: ReactNode; tone?: 'neutral' | 'red' | 'orange' | 'green' | 'blue' | 'purple'; className?: string; onClick?: () => void; active?: boolean }) {
   const color = { neutral: 'text-on-surface', red: 'text-danger-text', orange: 'text-warning-text', green: 'text-success-text', blue: 'text-notice-dark', purple: 'text-escalation-text' }[tone];
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div className={cx('panel rounded-lg p-6', className)}>
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      aria-pressed={onClick ? !!active : undefined}
+      className={cx('panel rounded-lg p-6 text-left', onClick && 'transition-colors hover:bg-surface-container-high', active && 'border-cat', className)}
+    >
       <div className="text-body-sm text-on-surface-variant">{label}</div>
       <div className="mt-2 flex items-baseline gap-1.5">
         <span className={cx('font-display text-headline-lg leading-none tnum', color)}>{value}</span>
         {unit && <span className="font-display text-body-md text-on-surface-muted">{unit}</span>}
       </div>
       {sub && <div className="mt-2 text-body-sm text-on-surface-muted">{sub}</div>}
-    </div>
+    </Tag>
   );
 }
 

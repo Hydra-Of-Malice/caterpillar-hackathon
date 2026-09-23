@@ -168,16 +168,22 @@ export default function Incidents() {
     source: (params.get('source') ?? '').toUpperCase(),
     type: params.get('type') ?? '',
     status: (params.get('status') ?? '').toLowerCase(),
+    disputed: params.get('disputed') === '1',
   };
   const selectedId = params.get('incident');
   const moreActive = !!(f.operator_id || f.source || f.type);
   const [moreOpen, setMoreOpen] = useState(moreActive);
 
-  const setParam = (k: string, v: string | null) => {
-    const next = new URLSearchParams(params);
-    if (v) next.set(k, v);
-    else next.delete(k);
-    setParams(next, { replace: true });
+  const setParam = (k: string, v: string | null) => setParams2({ [k]: v });
+  const setParams2 = (patch: Record<string, string | null>) => {
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [k, v] of Object.entries(patch)) {
+        if (v) next.set(k, v);
+        else next.delete(k);
+      }
+      return next;
+    }, { replace: true });
   };
   const clearFilters = () => {
     const next = new URLSearchParams();
@@ -191,7 +197,7 @@ export default function Incidents() {
     machine_id: f.machine_id || undefined,
     signal_word: f.signal_word || undefined,
     source: f.source || undefined,
-    status: f.status || undefined,
+    status: f.status && f.status !== 'resolved' ? f.status : undefined,
   };
   const key = JSON.stringify(serverFilters);
   const { data, loading, error, setData, reload } = useResource(() => edge.incidents(serverFilters), [key]);
@@ -213,10 +219,11 @@ export default function Incidents() {
       .filter((i) => !f.signal_word || normaliseSignalWord(i.signal_word) === f.signal_word)
       .filter((i) => sourceMatches(i, f.source))
       .filter((i) => typeMatches(i, f.type))
-      .filter((i) => !f.status || i.status === f.status)
+      .filter((i) => !f.status || (f.status === 'resolved' ? i.status === 'reviewed' || i.status === 'closed' : i.status === f.status))
+      .filter((i) => !f.disputed || i.dispute_status === 'disputed')
       .sort((a, b) => b.ts - a.ts);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, key, f.date, f.type, dayStart]);
+  }, [data, key, f.date, f.type, f.status, f.disputed, dayStart]);
 
   const summary = {
     resolved: rows.filter((i) => i.status === 'reviewed' || i.status === 'closed').length,
@@ -251,10 +258,22 @@ export default function Incidents() {
 
       {/* key numbers — operational counts only */}
       <div className="grid grid-cols-2 gap-6 xl:grid-cols-4">
-        <Stat label="Open for review" tone={summary.open > 0 ? 'orange' : 'neutral'} value={summary.open} />
-        <Stat label="Reviewed or closed" value={summary.resolved} />
-        <Stat label={summary.nearMiss === 1 ? 'Near-miss logged' : 'Near-misses logged'} value={summary.nearMiss} />
-        <Stat label="Disputed by operator" value={summary.disputed} />
+        <Stat
+          label="Open for review" tone={summary.open > 0 ? 'orange' : 'neutral'} value={summary.open}
+          active={f.status === 'open'} onClick={() => setParams2({ status: f.status === 'open' ? null : 'open', disputed: null })}
+        />
+        <Stat
+          label="Reviewed or closed" value={summary.resolved}
+          active={f.status === 'resolved'} onClick={() => setParams2({ status: f.status === 'resolved' ? null : 'resolved', disputed: null })}
+        />
+        <Stat
+          label={summary.nearMiss === 1 ? 'Near-miss logged' : 'Near-misses logged'} value={summary.nearMiss}
+          active={f.type === 'near_miss'} onClick={() => setParam('type', f.type === 'near_miss' ? null : 'near_miss')}
+        />
+        <Stat
+          label="Disputed by operator" value={summary.disputed}
+          active={f.disputed} onClick={() => setParams2({ disputed: f.disputed ? null : '1', status: null })}
+        />
       </div>
 
       <Card>
