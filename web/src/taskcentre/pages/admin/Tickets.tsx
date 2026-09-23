@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import { Card } from '../../../components/ops/layout';
 import { Button, Drawer, Icon, cx, toast } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
-import { adminApi, errorText, personName } from '../../api';
+import { adminApi, errorText, personName, ticketSubject } from '../../api';
 import { SeverityChip, SimulatedChip, TicketStatusChip, kindLabel } from '../../components/Badges';
 import { GmtTime } from '../../components/GmtTime';
 import { TcEmpty, TcError, TcLoading } from '../../components/States';
@@ -156,7 +156,7 @@ export function TicketsPanel({ people, machines, now }: { people: PersonRow[]; m
             <div className="flex flex-wrap items-center gap-2">
               <SimulatedChip source={active.source} />
               {active.machine_id && <span className="text-body-sm text-on-surface-muted">Machine {active.machine_id}</span>}
-              {(active.subject_name ?? active.subject_user_id) && <span className="text-body-sm text-on-surface-muted">Subject {active.subject_name ?? active.subject_user_id}</span>}
+              {ticketSubject(active).name && <span className="text-body-sm text-on-surface-muted">Subject {ticketSubject(active).name}</span>}
               {active.task_id && <span className="text-body-sm text-on-surface-muted">Task {active.task_id}</span>}
               <span className="text-body-sm text-on-surface-muted">Owner {active.owner_name ?? active.owner_user_id ?? active.owner_role}</span>
             </div>

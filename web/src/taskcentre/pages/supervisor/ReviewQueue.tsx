@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { sup } from '../../api';
+import { sup, ticketSubject } from '../../api';
 import { GmtTime, NotAvailable, SimulatedChip, TcError, TicketCard, kindLabel } from '../../components';
 import { POLL } from '../../constants';
 import { fmtMetres, nowTs } from '../../time';
@@ -103,7 +103,7 @@ export default function ReviewQueue() {
                       <TicketFooter
                         ticket={t}
                         now={now}
-                        subjectName={t.subject_name ?? nameOf(t.subject_user_id)}
+                        subjectName={ticketSubject(t).name ?? nameOf(ticketSubject(t).id)}
                         decidedNow={justDecided[t.ticket_id]}
                         onDecided={(body) => {
                           setJustDecided((d) => ({ ...d, [t.ticket_id]: { ...body, ts: nowTs() } }));
@@ -160,8 +160,8 @@ function TicketFooter({
     <div className="space-y-5 border-t border-outline pt-4">
       <div className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
         <span>Subject:</span>
-        {ticket.subject_user_id ? (
-          <Link to={`/tc/sup/operator/${ticket.subject_user_id}`} className="font-semibold text-notice-dark hover:underline">
+        {ticketSubject(ticket).id ? (
+          <Link to={`/tc/sup/operator/${ticketSubject(ticket).id}`} className="font-semibold text-notice-dark hover:underline">
             {subjectName}
           </Link>
         ) : (

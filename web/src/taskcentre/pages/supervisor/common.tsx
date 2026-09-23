@@ -42,6 +42,32 @@ export function inBucket(t: TcTask, b: Bucket, now: number): boolean {
   return b === 'overdue' ? isOverdue(t, now) : t.status === b;
 }
 
+/**
+ * The single bucket a task belongs to, for the stacked chart where a bar's height must equal the
+ * number of tasks assigned.
+ *
+ * `inBucket` deliberately lets `overdue` overlap `ongoing` and `pending`, because in a flat count
+ * both readings are useful. A stack cannot show one task twice, so here each task is counted once:
+ * a completed task stays completed, anything unfinished and past its expected finish is overdue,
+ * and the rest fall to their status. Cancelled tasks belong to no bucket and are not drawn.
+ */
+export function exclusiveBucket(t: TcTask, now: number): Bucket | null {
+  if (t.status === 'cancelled') return null;
+  if (t.status === 'completed') return 'completed';
+  if (isOverdue(t, now)) return 'overdue';
+  return t.status === 'ongoing' ? 'ongoing' : 'pending';
+}
+
+/** :func:`exclusiveBucket` totalled over a task list. The four numbers sum to the tasks drawn. */
+export function exclusiveCounts(tasks: TcTask[], now: number): Record<Bucket, number> {
+  const out: Record<Bucket, number> = { completed: 0, ongoing: 0, pending: 0, overdue: 0 };
+  for (const t of tasks) {
+    const b = exclusiveBucket(t, now);
+    if (b) out[b] += 1;
+  }
+  return out;
+}
+
 /** Server counts, or the same four numbers derived from the task list when the API omits them. */
 export function bucketCounts(counts: TaskCounts | undefined, tasks: TcTask[], now: number): Record<Bucket, number> {
   if (counts) {

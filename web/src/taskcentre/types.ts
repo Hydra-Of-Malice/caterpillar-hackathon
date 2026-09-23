@@ -355,6 +355,9 @@ export interface Ticket {
   kind: TicketKind;
   severity: Severity;
   status: TicketStatus;
+  /** What the API actually sends: the person the flag is about, nested. */
+  subject_user?: { user_id?: string | null; name?: string | null } | null;
+  /** Flat forms some responses use instead. Read all three through `ticketSubject`. */
   subject_user_id?: string | null;
   subject_name?: string | null;
   owner_role: Role | string;
@@ -581,7 +584,10 @@ export interface SupOperatorDetail {
 
 export interface SupDashboard {
   counts?: TaskCounts;
+  /** Flattened from `buckets` by the client when the API sends the buckets instead of a flat list. */
   tasks?: TcTask[];
+  /** What `/tc/sup/dashboard` actually returns: bucket name -> tasks, with `overdue` overlapping. */
+  buckets?: Record<string, TcTask[]>;
   operators?: SupOperatorRow[];
   open_tickets?: number;
   ts?: number;

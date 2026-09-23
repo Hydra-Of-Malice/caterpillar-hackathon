@@ -5,6 +5,7 @@
  */
 import { useState, type ReactNode } from 'react';
 import { Button, Icon, cx } from '../../components/ui';
+import { ticketSubject } from '../api';
 import { fmtMetres } from '../time';
 import type { DecisionBody, ReviewDecision, Ticket, TicketDecision } from '../types';
 import { SeverityChip, SimulatedChip, TicketStatusChip, kindLabel } from './Badges';
@@ -181,9 +182,9 @@ export function TicketCard({
       <h3 className="mt-2 font-display text-headline-sm text-on-surface">{ticket.title}</h3>
       {ticket.detail && <p className={cx('mt-1 text-body-md text-on-surface-variant', compact && 'line-clamp-2')}>{ticket.detail}</p>}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-body-sm text-on-surface-muted">
-        {ticket.subject_name || ticket.subject_user_id ? (
+        {ticketSubject(ticket).name || ticketSubject(ticket).id ? (
           <span>
-            <Icon name="person" size={16} className="align-[-3px]" /> {ticket.subject_name ?? ticket.subject_user_id}
+            <Icon name="person" size={16} className="align-[-3px]" /> {ticketSubject(ticket).name ?? ticketSubject(ticket).id}
           </span>
         ) : null}
         {ticket.machine_id && (

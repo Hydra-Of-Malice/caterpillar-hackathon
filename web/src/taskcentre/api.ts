@@ -329,7 +329,20 @@ export const supApi = {
 
   operator: (userId: string): Promise<SupOperatorDetail> => request<SupOperatorDetail>('GET', `/sup/operators/${enc(userId)}`),
 
-  dashboard: (): Promise<SupDashboard> => request<SupDashboard>('GET', '/sup/dashboard'),
+  /**
+   * `/tc/sup/dashboard` returns `buckets` (bucket name -> tasks), not a flat `tasks` array, and a
+   * task past its expected finish is listed twice: once under its status and again under `overdue`.
+   * Callers want one list with each task once, so the buckets are flattened and de-duplicated here.
+   */
+  dashboard: async (): Promise<SupDashboard> => {
+    const d = await request<SupDashboard>('GET', '/sup/dashboard');
+    if (d.tasks?.length) return d;
+    const seen = new Map<string, TcTask>();
+    for (const list of Object.values(d.buckets ?? {})) {
+      for (const t of list ?? []) if (!seen.has(t.task_id)) seen.set(t.task_id, t);
+    }
+    return { ...d, tasks: [...seen.values()] };
+  },
 
   tasks: async (params: { operator_id?: string; status?: string } = {}): Promise<TcTask[]> => asList<TcTask>(await request('GET', `/sup/tasks${qs(params)}`), 'tasks', 'items'),
 
@@ -496,6 +509,24 @@ export function personName(p: PersonLike): string {
 /** The id for a person-shaped row, wherever this endpoint happens to put them. */
 export function personId(p: PersonLike): string | undefined {
   return p.user_id ?? p.user?.user_id ?? p.operator?.user_id;
+}
+
+/**
+ * Who a ticket is about, wherever the response happens to put them.
+ *
+ * `/tc/sup/review` and `/tc/admin/tickets` nest the person under `subject_user`; the flat
+ * `subject_user_id` / `subject_name` are the shape some other responses use. Reading only the flat
+ * pair is why the review queue used to say "Unknown" for every flag.
+ */
+export function ticketSubject(t: {
+  subject_user?: { user_id?: string | null; name?: string | null } | null;
+  subject_user_id?: string | null;
+  subject_name?: string | null;
+}): { id?: string; name?: string } {
+  return {
+    id: t.subject_user?.user_id ?? t.subject_user_id ?? undefined,
+    name: t.subject_user?.name ?? t.subject_name ?? undefined,
+  };
 }
 
 /** Turn any thrown value into a message worth showing a user. */
