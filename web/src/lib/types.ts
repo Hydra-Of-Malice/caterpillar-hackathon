@@ -187,6 +187,8 @@ export interface Task {
   planned_qty: number;
   unit: string;
   done_qty?: number;
+  volume_done_m3?: number;
+  volume_planned_m3?: number;
   progress_pct: number;
   status: TaskStatus;
   material?: string;

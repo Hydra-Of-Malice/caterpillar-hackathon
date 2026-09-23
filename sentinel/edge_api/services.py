@@ -72,6 +72,10 @@ def task_dict(row: TaskRow, estimate: TaskEstimate | None) -> dict[str, Any]:
              spotter_assigned=meta.get("spotter_assigned"), planned_duration_min=meta.get("planned_duration_min"),
              planned_start=meta.get("planned_start"),
              estimate=estimate.model_dump(mode="json") if estimate else None, simulated=True)
+    if row.qty_unit == "m":          # trench: also report excavated volume (length x width x depth)
+        from sentinel.eta.estimator import DEFAULT_TRENCH_DEPTH_M, TRENCH_WIDTH_M
+        xs = TRENCH_WIDTH_M * (meta.get("depth_m") or DEFAULT_TRENCH_DEPTH_M)
+        d.update(volume_done_m3=round((row.done_qty or 0.0) * xs, 1), volume_planned_m3=round(row.planned_qty * xs, 1))
     return d
 
 

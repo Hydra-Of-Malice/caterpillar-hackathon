@@ -18,6 +18,10 @@ export function TaskCard({ task, nowTs, onWhy }: { task: Task; nowTs: number; on
   const active = task.status === 'in_progress';
   const est = task.estimate;
   const unit = (task.unit ?? '').replace('m3', 'm³');
+  const isTrench = task.volume_planned_m3 != null;
+  const mainDone = isTrench ? task.volume_done_m3! : (task.done_qty ?? 0);
+  const mainPlanned = isTrench ? task.volume_planned_m3! : task.planned_qty;
+  const mainUnit = isTrench ? 'm³' : unit;
   return (
     <article className={cx('panel relative p-6', active && 'pl-7')}>
       {active && <span className="absolute bottom-0 left-0 top-0 w-1.5 bg-cat" />}
@@ -33,11 +37,16 @@ export function TaskCard({ task, nowTs, onWhy }: { task: Task; nowTs: number; on
         <div className="mt-4">
           <div className="mb-2 flex justify-between text-body-lg">
             <span className="tnum">
-              {Math.round(task.done_qty ?? 0)} / {task.planned_qty} {unit}
+              {Math.round(mainDone)} / {Math.round(mainPlanned)} {mainUnit}
             </span>
             <span className="font-display tnum">{Math.round(task.progress_pct)}%</span>
           </div>
           <ProgressBar pct={task.progress_pct} className="border-0 p-0" height="h-2" />
+          {isTrench && (
+            <div className="mt-1 text-body-sm text-on-surface-muted tnum">
+              {Math.round(task.done_qty ?? 0)} / {task.planned_qty} m of trench
+            </div>
+          )}
         </div>
       )}
 
