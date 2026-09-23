@@ -7,7 +7,7 @@
 
 **CAT Sentinel — a safety-first operator copilot for CAT excavators.**
 
-Construction and mining face an operator shortage: 77% of firms report they cannot find enough equipment operators (AGC 2025). New operators take months to reach proficiency, and operator skill alone swings machine output by 10–15%. Existing telematics tell a supervisor *what* happened; they rarely explain *why*, and almost never turn it into targeted training.
+Construction and mining face an operator shortage: 77% of firms report they cannot find enough equipment operators (AGC 2025). New operators take months to reach proficiency, and unsafe habits are easy to form and hard to unlearn. Existing telematics tell a supervisor *what* happened; they rarely explain *why*, and almost never turn it into targeted training.
 
 CAT Sentinel closes that loop on the machine:
 
@@ -62,7 +62,7 @@ AI also accelerated our build: we used Claude Code to research the domain, gener
 
 **Safety first, evidence always, honesty as a feature.**
 
-We started by researching the actual problem rather than the technology: what Caterpillar already ships (VisionLink Operator Coaching, Cat Detect), what the published evidence supports, and where the genuine gap is. That research is documented in 16 sections covering feasibility, ML approach selection, human factors, evaluation design, critical risk analysis and business value — with sources cited and every claim tagged as established, hypothesis or assumption.
+We started by researching the actual problem rather than the technology: what Caterpillar already ships (VisionLink Operator Coaching, Cat Detect), what the published evidence supports, and where the genuine gap is. That research is documented in 15 sections covering feasibility, ML approach selection, human factors, evaluation design, critical risk analysis and novelty — with sources cited and every claim tagged as established, hypothesis or assumption.
 
 Three deliberate decisions shaped the build:
 
@@ -70,9 +70,9 @@ Three deliberate decisions shaped the build:
 
 **We chose defensible over impressive.** We rejected in-house computer vision, reinforcement learning, autonomous control and fatigue *diagnosis* — that last one because no published evidence validates excavator control data as a fatigue signal. We say so rather than claim it.
 
-**We built the honest version of the numbers.** Our business case uses sourced figures with low/base/high ranges. When our own model showed fleet-wide output uplift of only ~2.7%, we changed the pitch to focus on trainees (+11%) rather than inflate the number.
+**We report uncertainty instead of hiding it.** Our re-assessment shows a rate ratio with a confidence interval, and says "not yet conclusive" when the interval spans no change. Task-time estimates are P10–P90 ranges, not single numbers. Where the evidence does not support a claim, we drop the claim rather than soften it.
 
-We worked as parallel specialist tracks — simulator, safety, ML pipeline, practice analyser, edge, cloud, frontend, business value — against a shared written contract of data schemas and API definitions, which let the pieces integrate on first connection.
+We worked as parallel specialist tracks — simulator, safety, ML pipeline, practice analyser, edge, cloud and frontend — against a shared written contract of data schemas and API definitions, which let the pieces integrate on first connection.
 
 ---
 
@@ -91,8 +91,7 @@ Operator coaching exists in the market. What we did not find in the sources we r
 - **Evidenced competency gaps** — recurrence thresholds and Bayesian rates, so coaching is never based on a single bad moment.
 - **Grounded copilot** — answers only from approved procedures, with citations, or it refuses.
 - **Task-time estimates with real uncertainty** — P10–P90 ranges that narrow as the task progresses.
-- **Business Value page** — editable assumptions, sourced ranges, per-lever breakdown and payback.
-- **Privacy by design** — operators see their own data; supervisors see escalations and team aggregates; no ranking leaderboards; no automated employment decisions.
+- **Privacy by design** — no ranking leaderboards, no automated employment decisions, and every individual profile view is audit-logged. The prototype ships two roles, so the supervisor also signs off competencies; a production deployment separates that duty from crew oversight.
 
 ---
 
@@ -100,7 +99,7 @@ Operator coaching exists in the market. What we did not find in the sources we r
 
 **A complete, running end-to-end system — not slides.**
 
-**Research (complete):** 16 documented sections — requirement traceability, feasibility against what Caterpillar already ships, AI architecture, ML approach comparison, operator profile design, fatigue-risk validation plan, intervention design, training loop, dataset plan, MVP spec, execution roadmap, demo script, evaluation framework, critical risk analysis, novelty assessment and a sourced business-value model. Plus an ML overview written for the judging panel.
+**Research (complete):** 15 documented sections — requirement traceability, feasibility against what Caterpillar already ships, AI architecture, ML approach comparison, operator profile design, fatigue-risk validation plan, intervention design, training loop, dataset plan, MVP spec, execution roadmap, demo script, evaluation framework, critical risk analysis and novelty assessment. Plus an ML overview written for the judging panel.
 
 **Built and running live:**
 - Excavator simulator — 10 Hz telemetry, four operator archetypes, injectable safety events, full shift scenarios
@@ -111,12 +110,11 @@ Operator coaching exists in the market. What we did not find in the sources we r
 - **Practice Analyser** — phase segmentation, expert envelopes, 15 skill metrics, safety-gated scoring, ranked coaching, cohort simulation
 - **Azure OpenAI GPT-4o copilot** — live, answering from approved procedures with verified citations
 - React UI — 28 routes across in-cab (dark) and office (light) themes, ported from our Caterpillar-themed designs
-- Business value model — sourced assumptions, Monte Carlo ranges, per-lever breakdown
 - Expert motion replay — animated side and top view comparing expert vs novice technique
 
 **Quality:** 484 automated tests passing. Full stack running locally: MQTT broker, safety process, simulator, both APIs and the web app. Code on GitHub.
 
-**Headline business case (estimates, sourced):** +11% output per trainee (range 7–18%), −15% avoidable idle hours, ~$5,100 value per machine per year, ~4.6 month payback.
+**Measured on the running system:** safety-rule latency p99 of 52 µs, 28 UI routes across in-cab and office themes, and a live failure test in which the ML service and the network are killed while the safety advisories keep running.
 
 ---
 
@@ -130,7 +128,7 @@ Operator coaching exists in the market. What we did not find in the sources we r
 
 **4. Demo rehearsal and resilience (~2 h).** Rehearse the seven-beat demo including the live failure test: kill the ML service and drop the network in front of the judges to show safety advisories keep running. Recorded fallback for every beat.
 
-**5. Pitch and documentation (~3 h).** Finalise the judge-facing pitch built around the business case, the traceability matrix and the honest limitations. Polish the Demo Tour page so judges can trigger every outcome themselves.
+**5. Pitch and documentation (~3 h).** Finalise the judge-facing pitch built around the closed loop, the traceability matrix and the honest limitations. Polish the Demo Tour page so judges can trigger every outcome themselves.
 
 **6. Buffer (~3 h)** for integration issues and UI polish.
 

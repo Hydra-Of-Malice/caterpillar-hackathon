@@ -14,7 +14,6 @@ Statistics turns these outputs into decisions:
 
 - Bayesian rates decide who needs training.
 - Exact intervals show whether the training worked.
-- Monte Carlo simulation puts a range on the business value.
 
 A retrieval copilot answers only from approved documents. The principle throughout is: **deterministic rules protect; ML explains, personalises and coaches; ML never controls the machine.**
 
@@ -47,7 +46,6 @@ flowchart LR
     GAP["Gamma–Poisson gap evidence"]
     RRT["Rate ratio + exact CI"]
     RAG["Hybrid retrieval +<br/>verified citations"]
-    VAL["Value model<br/>Monte Carlo"]
   end
   subgraph U["Who uses it"]
     CAB["Operator in cab"]
@@ -65,8 +63,7 @@ flowchart LR
   FUS -->|operator-attributed events| GAP --> INS
   GAP --> RRT --> INS
   PRA --> CYC --> EMM -->|score, tips, overlay| TRN
-  EMM --> COH --> VAL
-  EMM -->|"m³/h gap"| VAL --> PLN
+  EMM --> COH --> INS
   HIS --> PRE --> ETA -->|P10/P50/P90| PLN
   ETA --> CAB
   DOC --> RAG --> TRN
@@ -83,7 +80,6 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 | **(e) Reassessment** | Did training work? | R3 | Rate ratio, exact conditional binomial CI | Pre/post events + exposure | RR, 95 % CI, verdict + caveat | Honest at tiny counts | Built, running | Numerical tests; control arm (pilot) |
 | **(f) RAG copilot** | Answers from SOPs, not invention | R3 | BM25 + TF-IDF with RRF, citation verification, extractive and refusal modes | Question + 7 approved SAMPLE SOPs | Cited answer, quote or refusal | Free-text questions | Built, running | Gold set: cited vs refused |
 | **(g) Cohort simulation** | Coaching benefit before a pilot | R3 | Simulated learning curves, coached vs control | Metric references + sourced assumption | Sessions to proficiency, m³/h | No field data yet | Built, running | Sanity tests only. **Not evidence** |
-| **(h) Value model** (statistics, not ML) | Worth, with uncertainty | all | Monte Carlo + tornado | 47 assumptions (YAML) | P10/P50/P90 $, payback | Ranges, not one number | Built, running | Pilot replaces assumptions |
 
 ### How each part works, in plain words
 
@@ -94,7 +90,7 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 4. **Score.** A one-class Gaussian mixture learns only what experts look like. Likelihood is mapped to 0–100 through the expert ECDF (empirical distribution): expert median → 90, expert P10 → 78, well outside the band → 40.
 5. **Safety gate.** Expert cycles over a site cap (> 35 °/s swing near the truck, > 15° overshoot) are **removed before training**. A flagged trainee cycle can't score above 60, and a session with a flagged cycle can't reach "expert-like".
 6. **Tips.** Ranked by distance outside the band × a safety weight, so safety comes first. Each tip links to a competency and a module and never says "go faster".
-7. **Productivity.** m³/h = 3600 / cycle time × payload / density. The gap to the expert feeds the value model.
+7. **Productivity.** m³/h = 3600 / cycle time × payload / density, reported as the gap to the expert.
 
 **(b) Unusual behaviour:**
 - **Features.** 33 per window, 28 without proximity sensors.
@@ -129,7 +125,6 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 - **Set-up.** 20 simulated trainees, 12 sessions each, on the same random draws in both arms.
 - **Coaching effect.** Skills targeted by the top tips learn **1.18× faster (1.05–1.41)**. This is an ASSUMPTION derived from analogue studies of simulator and proficiency-based training.
 
-**(h) Value:** 1,000 triangular Monte Carlo draws plus a one-at-a-time tornado.
 
 ### What is deliberately NOT ML
 
@@ -179,7 +174,6 @@ Protections must pass 100 % of boundary, missing-signal and stuck-value tests, a
 | 2. Shadow, 30 days | Run silently; retrain and re-threshold on real hours; fit the ETA on real logs | Null calibration holds; ≤ 1 T1/h |
 | 3. Real experts | Instructors nominate experts on safe technique (≥ 2,000 h, clean 12 months); ≥ 3 experts and ≥ 50 cycles per context | Envelopes published |
 | 4. Pilot, 90 days | 5 treatment vs 5 control machines, difference-in-differences | Output ≥ +1.5 %, avoidable idle ≤ −8 %, 90 % CI excluding 0 |
-| 5. Replace assumptions | Measured effects overwrite ASSUMPTION rows | Value model re-versioned |
 
 ## 4. Evaluation and honest numbers
 
@@ -194,7 +188,6 @@ Protections must pass 100 % of boundary, missing-signal and stuck-value tests, a
 | Gap evidence | Demo: 7 events, 2 shifts, 81 loading cycles → P ≈ 0.90 → gap. One shift or two events → no gap |
 | Reassessment | 7/81 → 2/45: RR 0.51, 95 % CI 0.05–2.70 → "trending better, not conclusive" |
 | RAG | 16/16 answerable questions cite the expected passage; 8/8 out-of-corpus questions refused |
-| Value | Base $5,126 gross, $3,926 net per machine-year; payback 4.6 months; Monte Carlo net P10–P90 $4,180–7,980 (ESTIMATE) |
 
 **Trains tomorrow** (targets from `13-evaluation.md`):
 
@@ -211,7 +204,7 @@ If the Isolation Forest doesn't beat robust z, we'll say so and ship the simpler
 - **Explainable.** Alerts name their features against normal. Tips quote your number against the expert band. ETA drivers are shown in minutes. Every copilot sentence carries a citation.
 - **Safety-gated.** Rules own protection. ML alone never alerts in the cab. Unsafe cycles are excluded or capped.
 - **Calibrated.** Held-out ECDFs, alert-budget thresholds and conformal coverage.
-- **Uncertainty shown.** P10/P50/P90 bands, posterior probabilities, exact CIs and Monte Carlo ranges.
+- **Uncertainty shown.** P10/P50/P90 bands, posterior probabilities and exact confidence intervals.
 - **No black-box decisions about people.** Only an instructor or a passed assessment sets "demonstrated". There is no ranking, supervisors see aggregates, and machine faults never count against operators.
 - **Privacy.** Coaching use only. Operators see and can dispute their evidence, drill-downs are audit-logged, and raw windows are kept for 90 days.
 
@@ -232,8 +225,8 @@ In a pilot, instructors nominate experts on safe technique, with minimum hours a
 **What if the model is wrong?**
 The worst case is a wrong tip or review item, never a machine action or a missed critical alert. "Not useful" feedback and disputes feed back, and instructors confirm every competency change.
 
-**How does this make money?**
-Mostly productivity from closing the novice–expert gap, then planning, idle fuel and onboarding. The base case is about $5,100 gross per machine-year with a 4.6-month payback. That is an ESTIMATE whose two biggest drivers the pilot measures.
+**What is the operational benefit?**
+A trainee reaches expert technique sooner, unexplained idle drops, and recurring unsafe habits are caught and coached before they become incidents. We report these in operational units — m³/h, idle minutes, event rates per shift — and a pilot would measure them against a control group rather than us asserting a figure.
 
 **Isn't "anomalous" just "different"?**
 Yes, so anomaly ≠ risk. Only risky-direction deviations count, exposure scales severity, and benign slow work is a must-not-alert test.

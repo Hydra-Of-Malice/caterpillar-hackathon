@@ -37,7 +37,7 @@ API docs are at http://127.0.0.1:8000/docs (edge) and http://127.0.0.1:8100/docs
 | Simulator | `sentinel/sim` | 10 Hz excavator telemetry, operator archetypes, injected events, scenarios |
 | Safety (independent) | `sentinel/safety` | Deterministic seatbelt / proximity / speed / sensor-fault advisories and a 1 Hz heartbeat. It has no ML imports |
 | Edge API :8000 | `sentinel/edge_api`, `alerts`, `pipeline`, `eta`, `sync` | Shift, checklist, tasks, alert tiers, incidents, behaviour pipeline, task-time estimates, offline outbox, live WebSocket |
-| Cloud API :8100 | `sentinel/cloud`, `practice`, `value` | Competency gaps, training modules and quizzes, cited RAG copilot, reassessment, supervisor, monitoring, Practice Analyser, business value |
+| Cloud API :8100 | `sentinel/cloud`, `practice` | Competency gaps, training modules and quizzes, cited RAG copilot, reassessment, supervisor, monitoring, Practice Analyser |
 | Web :5173 | `web/` | React UI ported from the Google Stitch designs |
 
 ## Docs (`docs/`)
@@ -47,6 +47,6 @@ API docs are at http://127.0.0.1:8000/docs (edge) and http://127.0.0.1:8100/docs
 | [00-design-brief.md](docs/00-design-brief.md) | Canonical decisions |
 | [implementation-plan.md](docs/implementation-plan.md) | Module contracts and API |
 | [ui-theme.md](docs/ui-theme.md) · [stitch-master-prompt.md](docs/stitch-master-prompt.md) | Caterpillar-derived theme and the Stitch screen spec |
-| [sections/](docs/sections/) | Research 01–16: traceability, feasibility, architecture, ML, operator profile, fatigue, interventions, training loop, dataset, MVP, roadmap, demo, evaluation, risks, novelty, **business value** |
+| [sections/](docs/sections/) | Research 01–15: traceability, feasibility, architecture, ML, operator profile, fatigue, interventions, training loop, dataset, MVP, roadmap, demo, evaluation, risks, novelty |
 
 The UI designs from Google Stitch are in `design/stitch/`.
