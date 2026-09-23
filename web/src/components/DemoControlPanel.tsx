@@ -4,6 +4,8 @@ import { INJECTIONS, triggerFastForward, triggerInject, triggerScenario, trigger
 import { useKey } from '../lib/hooks';
 import { localPreview, useLive, type LocalPreview } from '../lib/live';
 import { setForcedMock, useMockStatus } from '../lib/mockStatus';
+import { setShowSources, useShowSources } from '../lib/prefs';
+import { setCabDay, useCabDay } from '../lib/theme';
 import { Button, Icon, cx, toast } from './ui';
 
 const PREVIEWS: Array<{ kind: LocalPreview; label: string }> = [
@@ -23,6 +25,8 @@ export function DemoControlPanel() {
   const [speed, setSpeed] = useState(1);
   const live = useLive();
   const ms = useMockStatus();
+  const sources = useShowSources();
+  const day = useCabDay();
   useKey('d', () => setOpen((o) => !o));
   if (!open) return null;
   const dot = (ok: boolean) => <span className={cx('inline-block h-2 w-2 rounded-full', ok ? 'bg-success-text' : 'bg-danger-text')} />;
@@ -113,6 +117,15 @@ export function DemoControlPanel() {
             ))}
           </div>
           <p className="mt-2 text-body-sm text-on-surface-muted">Previews change only this browser (for rehearsing 5e/5f/offline states).</p>
+        </section>
+
+        <section className="grid grid-cols-2 gap-2">
+          <Button variant="secondary" size="sm" icon={sources ? 'visibility_off' : 'visibility'} onClick={() => setShowSources(!sources)}>
+            {sources ? 'Hide data sources' : 'Show data sources'}
+          </Button>
+          <Button variant="secondary" size="sm" icon={day ? 'dark_mode' : 'light_mode'} onClick={() => setCabDay(!day)}>
+            Cab {day ? 'night' : 'day'} mode
+          </Button>
         </section>
 
         <section className="flex flex-wrap gap-2 border-t border-outline pt-4">

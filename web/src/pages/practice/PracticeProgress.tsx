@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CartesianGrid, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { DataSourceChip } from '../../components/DataSourceChip';
 import { GainChip, signed } from '../../components/GainChip';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { ScoreBandChip } from '../../components/practice/parts';
-import { ProvenanceBadges } from '../../components/ProvenanceBadge';
 import { Button, EmptyState, Loading, PageTitle } from '../../components/ui';
 import { practice } from '../../lib/api';
 import { fmtDate } from '../../lib/format';
@@ -26,12 +24,11 @@ export default function PracticeProgress() {
   const firstProficient = data.find((d) => d.score >= 65)?.n;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <TrainingTabs />
       <PageTitle
-        kicker="Practice Analyser"
-        title="Progress across sessions"
-        sub="Expert-likeness score per session against SIMULATED expert operators."
+        title="Progress"
+        sub="Expert-likeness score per session."
         right={
           <>
             <select className="select h-10 w-auto" value={trainee} onChange={(e) => setTrainee(e.target.value)} aria-label="Trainee">
@@ -41,8 +38,6 @@ export default function PracticeProgress() {
                 </option>
               ))}
             </select>
-            <ProvenanceBadges kinds={['ML', 'SIMULATED']} />
-            <DataSourceChip endpoints={['GET /practice/sessions']} modelBacked />
           </>
         }
       />
@@ -55,14 +50,11 @@ export default function PracticeProgress() {
         </EmptyState>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2">
-            {first !== undefined && last !== undefined && <GainChip size="lg">{signed(last - first)} points since session 1</GainChip>}
-            {firstProficient && <GainChip size="lg">proficient band reached at session {firstProficient}</GainChip>}
-            <GainChip size="lg" tone="neutral" to={null}>
-              {data.length} analysed sessions
-            </GainChip>
+          <div className="flex flex-wrap gap-x-8 gap-y-2">
+            {first !== undefined && last !== undefined && <GainChip size="lg" to={null}>{signed(last - first)} points since session 1</GainChip>}
+            {firstProficient && <GainChip size="lg" to={null}>proficient at session {firstProficient}</GainChip>}
           </div>
-          <section className="panel p-4">
+          <section className="panel p-6">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 10, right: 20, bottom: 18, left: 0 }}>
@@ -78,7 +70,7 @@ export default function PracticeProgress() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-1 text-body-sm text-on-surface-muted">Yellow = score per session; green dots = trench exercise. Bands: developing 40–65, proficient 65–85, expert-like ≥ 85.</p>
+            <p className="mt-2 text-body-sm text-on-surface-muted">Blue = score per session · green dots = trench exercise.</p>
           </section>
           <section className="panel">
             <table className="table-dense w-full">
@@ -87,7 +79,6 @@ export default function PracticeProgress() {
                   <th>#</th>
                   <th>Date</th>
                   <th>Exercise</th>
-                  <th>Cycles</th>
                   <th>Score</th>
                   <th>Band</th>
                   <th />
@@ -99,7 +90,6 @@ export default function PracticeProgress() {
                     <td className="tnum">{i + 1}</td>
                     <td>{fmtDate(s.created_ts ?? null)}</td>
                     <td>{exerciseLabel(s.exercise)}</td>
-                    <td className="tnum">{s.n_cycles ?? '—'}</td>
                     <td className="font-display text-label-lg tnum">{Math.round(s.overall_score as number)}</td>
                     <td>{s.score_band && <ScoreBandChip band={s.score_band} />}</td>
                     <td className="text-right">

@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { DataSourceChip } from '../../components/DataSourceChip';
-import { ProvenanceBadge, ProvenanceBadges } from '../../components/ProvenanceBadge';
+import { SourceNote } from '../../components/ProvenanceBadge';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
-import { Button, Chip, EmptyState, ErrorNote, Icon, Label, Loading, PageTitle, Panel, PanelHeader, Segmented, cx, toast } from '../../components/ui';
+import { SectionTitle } from '../../components/training/Details';
+import { Button, EmptyState, ErrorNote, Icon, Loading, PageTitle, Panel, Segmented, cx, toast } from '../../components/ui';
 import { cloud } from '../../lib/api';
 import { fmtClock, fmtDate } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
 import { DEMO_OPERATOR_ID } from '../../lib/persona';
 import type { Booking as BookingT, Instructor, InstructorSlot } from '../../lib/types';
-import { MODULES, competencyLabel } from '../../mocks/world';
+import { MODULES } from '../../mocks/world';
 
 type FormatFilter = 'any' | 'on_machine' | 'simulator' | 'video_call';
 
@@ -47,6 +47,8 @@ function slotWhen(s: InstructorSlot): string {
   return `${fmtDate(s.start_ts)} ${fmtClock(s.start_ts)}–${fmtClock(s.end_ts)}`;
 }
 
+const FIELD_LABEL = 'flex flex-col gap-1.5 text-body-sm text-on-surface-muted';
+
 // ------------------------------------------------------------------ slot chip
 function SlotChip({ slot, selected, taken, onSelect }: { slot: InstructorSlot; selected: boolean; taken: boolean; onSelect: () => void }) {
   const unavailable = slot.available === false || taken;
@@ -58,13 +60,13 @@ function SlotChip({ slot, selected, taken, onSelect }: { slot: InstructorSlot; s
       onClick={onSelect}
       title={unavailable ? 'Not available' : `${slotWhen(slot)} · ${slot.location ?? fmtLabel(slot.format)}`}
       className={cx(
-        'flex min-h-[56px] min-w-[150px] flex-col items-start justify-center gap-0.5 rounded border-2 px-3 py-1.5 text-left transition-colors duration-quick',
-        unavailable && 'cursor-not-allowed border-outline border-dashed bg-surface-container-lowest text-on-surface-muted',
-        !unavailable && selected && 'border-cat bg-cat/10 text-on-surface',
-        !unavailable && !selected && 'border-outline bg-surface-container-low text-on-surface hover:border-outline-strong hover:bg-surface-container-high',
+        'flex min-w-[132px] flex-col items-start justify-center gap-0.5 rounded border px-3 py-2 text-left transition-colors duration-quick',
+        unavailable && 'cursor-not-allowed border-dashed border-outline text-on-surface-muted',
+        !unavailable && selected && 'border-cat-border bg-cat/15 text-on-surface ring-1 ring-cat-border',
+        !unavailable && !selected && 'border-outline text-on-surface hover:border-outline-strong hover:bg-surface-container-low',
       )}
     >
-      <span className={cx('tnum font-display text-label-md', unavailable && 'line-through')}>
+      <span className={cx('tnum text-body-md font-semibold', unavailable && 'line-through')}>
         {fmtClock(slot.start_ts)}–{fmtClock(slot.end_ts)}
       </span>
       <span className="flex items-center gap-1 text-footnote text-on-surface-muted">
@@ -89,45 +91,39 @@ function InstructorCard({
   }, [slots]);
   const offersFormat = formatFilter === 'any' || instructor.formats.includes(formatFilter);
   return (
-    <Panel as="article">
-      <div className="flex flex-wrap items-start gap-4 border-b border-outline p-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-outline-strong bg-surface-container-highest font-display text-headline-sm text-on-surface" aria-hidden>
+    <Panel as="article" className="space-y-5 p-6">
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container-high font-display text-body-md font-bold text-on-surface" aria-hidden>
           {initialsOf(instructor).replace(/\./g, '')}
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-display text-headline-sm uppercase text-on-surface">{instructor.name}</h3>
-          <div className="mt-1 flex flex-wrap gap-1.5">
-            {instructor.specialties.map((s) => (
-              <Chip key={s}>{s}</Chip>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {instructor.formats.map((f) => (
-            <Chip key={f} icon={fmtIcon(f)} tone={formatFilter === f ? 'blue' : 'neutral'}>
-              {fmtLabel(f)}
-            </Chip>
-          ))}
+        <div className="min-w-0">
+          <h3 className="font-display text-headline-sm text-on-surface">{instructor.name}</h3>
+          <p className="text-body-sm text-on-surface-muted">
+            {instructor.specialties.join(' · ')}
+            {instructor.formats.length ? ` — ${instructor.formats.map(fmtLabel).join(', ')}` : ''}
+          </p>
         </div>
       </div>
-      <div className="space-y-3 p-4">
-        {!offersFormat ? (
-          <p className="text-body-sm text-on-surface-muted">{instructor.name} does not offer {fmtLabel(formatFilter).toLowerCase()} sessions.</p>
-        ) : days.length === 0 ? (
-          <p className="text-body-sm text-on-surface-muted">No open slots for these filters.</p>
-        ) : (
-          days.map((d) => (
+      {!offersFormat ? (
+        <p className="text-body-sm text-on-surface-muted">
+          {instructor.name} does not offer {fmtLabel(formatFilter).toLowerCase()} sessions.
+        </p>
+      ) : days.length === 0 ? (
+        <p className="text-body-sm text-on-surface-muted">No open slots for these filters.</p>
+      ) : (
+        <div className="space-y-3">
+          {days.map((d) => (
             <div key={dayKey(d[0].start_ts)} className="flex flex-wrap items-center gap-3">
-              <Label className="w-28">{fmtDate(d[0].start_ts)}</Label>
+              <span className="w-24 text-body-sm text-on-surface-muted">{fmtDate(d[0].start_ts)}</span>
               <div className="flex flex-wrap gap-2">
                 {d.map((s) => (
                   <SlotChip key={s.slot_id} slot={s} selected={selectedId === s.slot_id} taken={taken.has(s.slot_id)} onSelect={() => onSelect(s)} />
                 ))}
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </Panel>
   );
 }
@@ -187,6 +183,7 @@ export default function Booking() {
   }, [slots]);
 
   const visible = slots.filter((s) => (format === 'any' || s.format === format) && (day === 'any' || dayKey(s.start_ts) === day));
+  const openCount = visible.filter((s) => s.available !== false && !taken.has(s.slot_id)).length;
   const slot = slots.find((s) => s.slot_id === selectedId) ?? null;
   const slotInstructor = slot ? instructors.find((i) => i.instructor_id === slot.instructor_id) : undefined;
   const topic = topics.find((t) => t.competency_id === topicId) ?? { competency_id: 'C04', module_id: 'MOD-SWING-APPROACH', label: 'Approach & Swing Control' };
@@ -210,78 +207,59 @@ export default function Booking() {
   const loading = (insRes.loading && !insRes.data) || (slotRes.loading && !slotRes.data);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <TrainingTabs />
-      <PageTitle
-        kicker="Training · instructor & simulator"
-        title="Book an instructor"
-        sub="Pick a slot with an instructor for on-machine coaching, a simulator session or a video call."
-        right={
-          <>
-            <ProvenanceBadge kind="MOCK" />
-            <DataSourceChip endpoints={['/instructors', '/bookings']} />
-          </>
-        }
-      />
+      <PageTitle title="Book an instructor" sub="On-machine coaching, a simulator session or a video call." />
 
-      {/* filters */}
-      <Panel className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="flex min-w-[280px] flex-col gap-1.5">
-            <Label>Topic</Label>
-            <select className="select" value={topicId} onChange={(e) => setTopicId(e.target.value)}>
-              {topics.map((t) => (
-                <option key={t.competency_id} value={t.competency_id}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex flex-col gap-1.5">
-            <Label>Format</Label>
-            <Segmented<FormatFilter>
-              value={format}
-              onChange={setFormat}
-              options={[
-                { value: 'any', label: 'Any' },
-                { value: 'on_machine', label: 'On machine' },
-                { value: 'simulator', label: 'Simulator' },
-                { value: 'video_call', label: 'Video call' },
-              ]}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label>Date</Label>
-          <div className="flex flex-wrap gap-1.5">
-            {[['any', 0] as [string, number], ...days].map(([k, ts]) => (
-              <button
-                key={k}
-                type="button"
-                aria-pressed={day === k}
-                onClick={() => setDay(k)}
-                className={cx(
-                  'h-11 rounded border px-3 font-display text-label-sm uppercase transition-colors duration-quick',
-                  day === k ? 'border-cat bg-cat/10 text-on-surface' : 'border-outline bg-surface-container-low text-on-surface-muted hover:border-outline-strong hover:text-on-surface',
-                )}
-              >
-                {k === 'any' ? 'Any date' : fmtDate(ts)}
-              </button>
+      {/* filters — one row */}
+      <div className="flex flex-wrap items-end gap-6">
+        <label className={cx(FIELD_LABEL, 'min-w-[260px]')}>
+          Topic
+          <select className="select h-11" value={topicId} onChange={(e) => setTopicId(e.target.value)}>
+            {topics.map((t) => (
+              <option key={t.competency_id} value={t.competency_id}>
+                {t.label}
+              </option>
             ))}
-          </div>
+          </select>
+        </label>
+        <div className={FIELD_LABEL}>
+          Format
+          <Segmented<FormatFilter>
+            value={format}
+            onChange={setFormat}
+            options={[
+              { value: 'any', label: 'Any', tone: 'neutral' },
+              { value: 'on_machine', label: 'On machine', tone: 'neutral' },
+              { value: 'simulator', label: 'Simulator', tone: 'neutral' },
+              { value: 'video_call', label: 'Video call', tone: 'neutral' },
+            ]}
+          />
         </div>
-      </Panel>
+        <label className={cx(FIELD_LABEL, 'min-w-[180px]')}>
+          Date
+          <select className="select h-11" value={day} onChange={(e) => setDay(e.target.value)}>
+            <option value="any">Any date</option>
+            {days.map(([k, ts]) => (
+              <option key={k} value={k}>
+                {fmtDate(ts)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
         <div className="space-y-4 xl:col-span-2">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 font-display text-headline-sm uppercase text-on-surface">
-              <Icon name="school" size={24} className="text-cat-text" /> Instructors
-            </h2>
-            <span className="text-body-sm text-on-surface-muted">
-              <span className="tnum">{visible.filter((s) => s.available !== false && !taken.has(s.slot_id)).length}</span> open slots
-            </span>
-          </div>
+          <SectionTitle
+            right={
+              <span className="text-body-sm text-on-surface-muted">
+                <span className="tnum">{openCount}</span> open slot{openCount === 1 ? '' : 's'}
+              </span>
+            }
+          >
+            Instructors
+          </SectionTitle>
           {loading ? (
             <Loading label="Loading instructors" />
           ) : instructors.length === 0 ? (
@@ -309,37 +287,35 @@ export default function Booking() {
 
         {/* confirmation */}
         <aside>
-          <Panel className="xl:sticky xl:top-4">
-            <span className="absolute left-0 right-0 top-0 h-1 bg-cat" />
-            <PanelHeader icon="event_available" title={booking ? 'Booking confirmed' : 'Your booking'} right={<ProvenanceBadge kind="MOCK" />} />
+          <Panel className="space-y-5 p-6 xl:sticky xl:top-4">
+            <SectionTitle>{booking ? 'Booking confirmed' : 'Your booking'}</SectionTitle>
             {booking ? (
-              <div className="space-y-4 p-4">
-                <div className="flex items-start gap-3 border-2 border-success bg-success/10 p-4" role="status">
-                  <Icon name="check_circle" size={32} fill className="text-success-text" />
+              <>
+                <div className="flex items-start gap-3" role="status">
+                  <Icon name="check_circle" size={28} fill className="text-success-text" />
                   <div>
-                    <div className="font-display text-label-lg uppercase text-on-surface">Booked. Added to your shift calendar.</div>
-                    <div className="mt-1 text-body-sm text-on-surface-variant">
-                      Booking <span className="tnum font-semibold text-on-surface">{booking.booking_id}</span> · {booking.status}
+                    <div className="font-semibold text-on-surface">Booked. Added to your shift calendar.</div>
+                    <div className="text-body-sm text-on-surface-muted">
+                      Booking <span className="tnum">{booking.booking_id}</span> · {booking.status}
                     </div>
                   </div>
                 </div>
                 {slot && (
-                  <dl className="space-y-2 text-body-sm">
+                  <dl className="space-y-3 text-body-md">
                     <div>
-                      <dt className="font-display text-label-sm uppercase text-on-surface-muted">When</dt>
+                      <dt className="text-body-sm text-on-surface-muted">When</dt>
                       <dd className="tnum text-on-surface">{slotWhen(slot)}</dd>
                     </div>
                     <div>
-                      <dt className="font-display text-label-sm uppercase text-on-surface-muted">With</dt>
+                      <dt className="text-body-sm text-on-surface-muted">With</dt>
                       <dd className="text-on-surface">
                         {slotInstructor?.name ?? slot.instructor_id} · {slot.location ?? fmtLabel(slot.format)}
                       </dd>
                     </div>
                   </dl>
                 )}
-                <ProvenanceBadges kinds={booking.provenance?.length ? booking.provenance : ['MOCK']} />
-                <p className="text-footnote text-on-surface-muted">Calendar integration is a placeholder (MOCK). No invite is sent.</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-body-sm text-on-surface-muted">Calendar integration is a placeholder — no invite is sent.</p>
+                <div className="flex flex-wrap items-center gap-3">
                   <Link
                     to="/training"
                     className="inline-flex h-12 items-center justify-center gap-2 rounded border-2 border-outline-strong bg-surface-container-high px-4 font-display text-label-md font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-highest"
@@ -356,56 +332,37 @@ export default function Booking() {
                     Book another
                   </Button>
                 </div>
-              </div>
+              </>
             ) : !slot ? (
-              <div className="p-4">
-                <EmptyState icon="touch_app" title="Pick a time slot">
-                  Choose an open slot on the left to see the summary here.
-                </EmptyState>
-              </div>
+              <p className="text-body-md text-on-surface-muted">Pick an open slot to see the summary here.</p>
             ) : (
-              <div className="space-y-4 p-4">
+              <>
                 <div>
-                  <Label>Selected slot</Label>
-                  <div className="mt-1 font-display text-headline-sm text-on-surface">
-                    <span className="tnum">{slotWhen(slot)}</span>
-                  </div>
-                  <div className="font-display text-label-md uppercase text-on-surface-variant">{slot.location ?? fmtLabel(slot.format)}</div>
+                  <div className="tnum font-display text-headline-sm text-on-surface">{slotWhen(slot)}</div>
+                  <div className="text-body-sm text-on-surface-muted">{slot.location ?? fmtLabel(slot.format)}</div>
                 </div>
-                <dl className="space-y-3 border-y border-outline py-3 text-body-sm">
+                <dl className="space-y-3 border-y border-outline py-4 text-body-md">
                   <div className="flex justify-between gap-3">
-                    <dt className="font-display text-label-sm uppercase text-on-surface-muted">Instructor</dt>
+                    <dt className="text-on-surface-muted">Instructor</dt>
                     <dd className="text-right text-on-surface">{slotInstructor?.name ?? slot.instructor_id}</dd>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <dt className="font-display text-label-sm uppercase text-on-surface-muted">Format</dt>
-                    <dd className="flex items-center gap-1 text-right text-on-surface">
-                      <Icon name={fmtIcon(slot.format)} size={16} /> {fmtLabel(slot.format)}
-                    </dd>
+                    <dt className="text-on-surface-muted">Format</dt>
+                    <dd className="text-right text-on-surface">{fmtLabel(slot.format)}</dd>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <dt className="font-display text-label-sm uppercase text-on-surface-muted">Topic</dt>
+                    <dt className="text-on-surface-muted">Topic</dt>
                     <dd className="text-right text-on-surface">{topic.label}</dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="font-display text-label-sm uppercase text-on-surface-muted">Competency</dt>
-                    <dd className="text-right text-on-surface-variant">{competencyLabel(topic.competency_id)}</dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="font-display text-label-sm uppercase text-on-surface-muted">Operator</dt>
-                    <dd className="text-right text-on-surface-variant">Ravi Kumar · {DEMO_OPERATOR_ID}</dd>
                   </div>
                 </dl>
                 <p className="text-body-sm text-on-surface-muted">Your instructor sees the linked module and the evidence behind the recommendation — nothing else from your shifts.</p>
                 {error !== undefined && <ErrorNote error={error} />}
-                <div className="flex items-center gap-2">
-                  <Button variant="primary" size="lg" block icon="event_available" disabled={busy || slot.available === false || taken.has(slot.slot_id)} onClick={confirm}>
-                    {busy ? 'Booking…' : 'Confirm booking'}
-                  </Button>
-                  <ProvenanceBadge kind="MOCK" />
-                </div>
-              </div>
+                <Button variant="primary" size="lg" block icon="event_available" disabled={busy || slot.available === false || taken.has(slot.slot_id)} onClick={confirm}>
+                  {busy ? 'Booking…' : 'Confirm booking'}
+                </Button>
+              </>
             )}
+            <SourceNote kinds={booking?.provenance?.length ? booking.provenance : ['MOCK']} />
           </Panel>
         </aside>
       </div>

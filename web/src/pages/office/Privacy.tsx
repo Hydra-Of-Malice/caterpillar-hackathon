@@ -1,13 +1,12 @@
 /**
  * /privacy — "Privacy & Data" (screen 21). What is recorded, what is not, who sees what,
  * retention (example values), optional research opt-in (default OFF, stored in this browser),
- * a client-side "Download my data" (MOCK fixture) and a link to dispute an alert.
+ * a client-side "Download my data" (sample fixture) and a link to dispute an alert.
  */
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { DEMO_OPERATOR_ID, PERSONAS } from '../../lib/persona';
-import { ProvenanceBadge } from '../../components/ProvenanceBadge';
-import { Button, Chip, Icon, Label, PageTitle, Panel, PanelHeader, Toggle, toast } from '../../components/ui';
+import { Button, Icon, PageTitle, Panel, Toggle, toast } from '../../components/ui';
 
 const RESEARCH_KEY = 'sentinel.privacy.researchOptIn';
 
@@ -55,18 +54,41 @@ const RETENTION: Array<{ what: string; period: string; detail: string }> = [
 ];
 
 function AccessCell({ a }: { a: Access }) {
-  if (a === 'yes')
-    return (
-      <span className="inline-flex items-center gap-1.5 text-success-text">
-        <Icon name="check_circle" size={22} fill />
-        <span className="font-display text-label-sm uppercase">Can see</span>
-      </span>
-    );
-  return (
-    <span className="inline-flex items-center gap-1.5 text-on-surface-muted">
-      <Icon name="cancel" size={22} />
-      <span className="font-display text-label-sm uppercase">Cannot see</span>
+  return a === 'yes' ? (
+    <span className="inline-flex items-center text-success-text" title="Can see">
+      <Icon name="check" size={22} />
+      <span className="sr-only">Can see</span>
     </span>
+  ) : (
+    <span className="inline-flex items-center text-on-surface-muted" title="Cannot see">
+      <span aria-hidden>—</span>
+      <span className="sr-only">Cannot see</span>
+    </span>
+  );
+}
+
+function SectionTitle({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
+  return (
+    <div className="mb-5">
+      <h2 className="font-display text-headline-sm text-on-surface">{children}</h2>
+      {sub && <p className="mt-1 text-body-sm text-on-surface-muted">{sub}</p>}
+    </div>
+  );
+}
+
+function ItemList({ items, iconClass }: { items: Array<{ icon: string; title: string; detail: string }>; iconClass: string }) {
+  return (
+    <ul className="space-y-5">
+      {items.map((r) => (
+        <li key={r.title} className="flex items-start gap-4">
+          <Icon name={r.icon} size={22} className={iconClass} />
+          <div>
+            <div className="text-body-md font-semibold text-on-surface">{r.title}</div>
+            <div className="mt-0.5 text-body-md text-on-surface-variant">{r.detail}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -98,7 +120,7 @@ function downloadMyData(optIn: boolean): void {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast('Sample data file created (MOCK)', 'ok');
+    toast('Sample data file created', 'ok');
   } catch {
     toast('Could not create the file in this browser', 'error');
   }
@@ -114,64 +136,41 @@ export default function Privacy() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageTitle
-        kicker="Your data"
-        title="Privacy & Data"
-        sub="What CAT Sentinel records while you work, who can see it, and how long it is kept."
-        right={
-          <Chip tone="neutral" icon="badge">
-            {PERSONAS.operator.name} · {DEMO_OPERATOR_ID}
-          </Chip>
-        }
-      />
-
-      <div className="flex items-center gap-3 border-2 border-success bg-success/10 px-4 py-3">
-        <Icon name="volunteer_activism" size={28} className="text-success-text" />
-        <p className="font-display text-label-lg uppercase text-on-surface">These notes are for your coaching. They are not used for pay or discipline.</p>
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <PageTitle title="Privacy & data" sub="What CAT Sentinel records while you work, who can see it, and how long it is kept." />
+        <p className="flex items-center gap-2 text-body-md text-on-surface">
+          <Icon name="volunteer_activism" size={22} className="text-success-text" />
+          These notes are for your coaching. They are not used for pay or discipline.
+        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel accent="green">
-          <PanelHeader icon="radio_button_checked" title="What is recorded" sub="Only while you are on shift" />
-          <ul className="divide-y divide-outline">
-            {RECORDED.map((r) => (
-              <li key={r.title} className="flex items-start gap-3 px-4 py-3 pl-5">
-                <Icon name={r.icon} className="mt-0.5 text-on-surface-variant" />
-                <div>
-                  <div className="font-display text-label-md uppercase text-on-surface">{r.title}</div>
-                  <div className="text-body-sm text-on-surface-variant">{r.detail}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
+      {/* ---------------------------------------------------- recorded / not recorded */}
+      <Panel className="p-6">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <section>
+            <SectionTitle sub="Only while you are on shift">What is recorded</SectionTitle>
+            <ItemList items={RECORDED} iconClass="mt-0.5 text-on-surface-muted" />
+          </section>
+          <section>
+            <SectionTitle sub="Never, on or off shift">What is not recorded</SectionTitle>
+            <ItemList items={NOT_RECORDED} iconClass="mt-0.5 text-danger-text" />
+          </section>
+        </div>
+      </Panel>
 
-        <Panel accent="red">
-          <PanelHeader icon="block" title="What is NOT recorded" />
-          <ul className="divide-y divide-outline">
-            {NOT_RECORDED.map((r) => (
-              <li key={r.title} className="flex items-start gap-3 px-4 py-3 pl-5">
-                <Icon name={r.icon} className="mt-0.5 text-danger-text" />
-                <div>
-                  <div className="font-display text-label-md uppercase text-on-surface">{r.title}</div>
-                  <div className="text-body-sm text-on-surface-variant">{r.detail}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
-
-      <Panel>
-        <PanelHeader icon="visibility" title="Who can see what" sub="No leaderboards. Fleet managers see team totals only." />
+      {/* ---------------------------------------------------- who sees what */}
+      <Panel className="p-6">
+        <SectionTitle sub="No leaderboards. Fleet managers see team totals only.">Who can see what</SectionTitle>
         <div className="overflow-x-auto">
-          <table className="table-dense w-full min-w-[820px]">
+          <table className="table-dense w-full min-w-[640px]">
             <thead>
               <tr>
-                <th className="w-[30%]">Information</th>
+                <th className="w-[40%]">Information</th>
                 {AUDIENCES.map((a) => (
-                  <th key={a}>{a}</th>
+                  <th key={a} className="text-center">
+                    {a}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -179,11 +178,11 @@ export default function Privacy() {
               {WHO.map((w) => (
                 <tr key={w.what}>
                   <td>
-                    <div className="font-display text-label-md uppercase text-on-surface">{w.what}</div>
-                    <div className="text-footnote text-on-surface-muted">{w.detail}</div>
+                    <div className="font-semibold text-on-surface">{w.what}</div>
+                    <div className="text-on-surface-muted">{w.detail}</div>
                   </td>
                   {w.access.map((a, i) => (
-                    <td key={AUDIENCES[i]}>
+                    <td key={AUDIENCES[i]} className="text-center">
                       <AccessCell a={a} />
                     </td>
                   ))}
@@ -194,57 +193,52 @@ export default function Privacy() {
         </div>
       </Panel>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel>
-          <PanelHeader icon="schedule" title="Retention" right={<Chip tone="neutral">Example values</Chip>} />
-          <div className="grid gap-3 p-4 sm:grid-cols-2">
-            {RETENTION.map((r) => (
-              <div key={r.what} className="border border-outline bg-surface-container-low p-4">
-                <Label>{r.what}</Label>
-                <div className="mt-1 font-display text-headline-lg text-on-surface tnum">{r.period}</div>
-                <div className="text-body-sm text-on-surface-variant">{r.detail}</div>
-              </div>
-            ))}
-          </div>
-          <p className="border-t border-outline px-4 py-2 text-footnote text-on-surface-muted">Example values for the prototype. A real site sets these in its data policy.</p>
-        </Panel>
-
-        <Panel>
-          <PanelHeader icon="science" title="Optional research" right={<ProvenanceBadge kind="MOCK" />} />
-          <div className="space-y-3 p-4">
+      {/* ---------------------------------------------------- retention + research */}
+      <Panel className="p-6">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <section>
+            <SectionTitle sub="Example values for the prototype. A real site sets these in its data policy.">How long it is kept</SectionTitle>
+            <div className="grid gap-6 sm:grid-cols-2">
+              {RETENTION.map((r) => (
+                <div key={r.what}>
+                  <div className="text-body-sm text-on-surface-muted">{r.what}</div>
+                  <div className="mt-1 font-display text-headline-lg text-on-surface tnum">{r.period}</div>
+                  <div className="text-body-sm text-on-surface-variant">{r.detail}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+          <section>
+            <SectionTitle sub="Off unless you turn it on">Optional research</SectionTitle>
             <Toggle on={optIn} onChange={changeOptIn} label="Share break-time alertness ratings with the study team" />
-            <p className="text-body-sm text-on-surface-variant">
-              At a break you can rate how alert you feel. If you switch this on, those ratings are shared with the study team without your name. It is off unless you turn it on, and you can turn it off any time.
-            </p>
-            <p className="text-footnote text-on-surface-muted">Prototype: this choice is stored in this browser only. Status: {optIn ? 'ON — sharing' : 'OFF — not shared'}.</p>
-          </div>
-        </Panel>
-      </div>
+            <p className="mt-4 text-body-md text-on-surface-variant">At a break you can rate how alert you feel. If you switch this on, those ratings are shared with the study team without your name. You can turn it off any time.</p>
+            <p className="mt-2 text-body-sm text-on-surface-muted">Prototype: this choice is stored in this browser only.</p>
+          </section>
+        </div>
+      </Panel>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel>
-          <PanelHeader icon="download" title="Download my data" right={<ProvenanceBadge kind="MOCK" />} />
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4">
-            <p className="max-w-md text-body-sm text-on-surface-variant">Get a copy of what is recorded about you as a JSON file. In the prototype this is a small sample file, made in your browser.</p>
+      {/* ---------------------------------------------------- your data + dispute */}
+      <Panel className="p-6">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <section>
+            <SectionTitle>Download my data</SectionTitle>
+            <p className="mb-5 text-body-md text-on-surface-variant">Get a copy of what is recorded about you. In the prototype this is a small sample file made in your browser.</p>
             <Button variant="primary" icon="download" onClick={() => downloadMyData(optIn)}>
               Download my data
             </Button>
-          </div>
-        </Panel>
-
-        <Panel>
-          <PanelHeader icon="gavel" title="Dispute an alert" />
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4">
-            <p className="max-w-md text-body-sm text-on-surface-variant">Think an alert or incident was wrong? Add your side of the story. Your note stays with the record.</p>
+          </section>
+          <section>
+            <SectionTitle>Dispute an alert</SectionTitle>
+            <p className="mb-5 text-body-md text-on-surface-variant">Think an alert or incident was wrong? Add your side of the story. Your note stays with the record.</p>
             <Link
               to={`/incidents?operator_id=${DEMO_OPERATOR_ID}`}
-              className="inline-flex h-12 items-center gap-2 rounded border-2 border-outline-strong bg-surface-container-high px-4 font-display text-label-md font-bold uppercase tracking-wider text-on-surface hover:border-on-surface-muted hover:bg-surface-container-highest"
+              className="inline-flex h-12 items-center gap-2 rounded border border-outline-strong bg-surface-container px-4 font-display text-label-md font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-low"
             >
               <Icon name="flag" size={22} /> Dispute an alert
             </Link>
-          </div>
-        </Panel>
-      </div>
+          </section>
+        </div>
+      </Panel>
     </div>
   );
 }

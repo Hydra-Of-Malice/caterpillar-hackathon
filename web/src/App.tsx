@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { DemoControlPanel } from './components/DemoControlPanel';
+import { StatusPill } from './components/StatusPill';
 import { CabLayout } from './components/layout/CabLayout';
 import { OfficeLayout } from './components/layout/OfficeLayout';
 import { Toaster } from './components/ui';
@@ -72,6 +73,7 @@ export default function App() {
         </Route>
       </Routes>
       <DemoControlPanel />
+      <StatusPill />
       <Toaster />
     </>
   );

@@ -5,7 +5,6 @@ import { useNow } from '../../lib/hooks';
 import { liveNow, useLive } from '../../lib/live';
 import { useShift } from '../../lib/shift';
 import { setCabDay, useCabDay } from '../../lib/theme';
-import { DemoRibbon, MockIndicator } from '../DemoRibbon';
 import { Icon, Wordmark, cx } from '../ui';
 
 type Tone = 'plain' | 'ok' | 'bad' | 'badfill' | 'warn' | 'off';
@@ -52,9 +51,9 @@ export function TopStatusRail() {
   return (
     <header className="theme-dark shrink-0 select-none">
       <div className="h-1 w-full bg-cat" />
-      <div className="flex h-[72px] items-center gap-8 bg-black px-6">
+      <div className="flex h-[72px] items-center gap-6 bg-black px-6">
         <Wordmark />
-        <div className="flex min-w-0 flex-1 items-center gap-7 overflow-hidden">
+        <div className="flex min-w-0 flex-1 items-center gap-6 overflow-hidden whitespace-nowrap">
           <Item icon="precision_manufacturing">{shift?.machine.machine_id ?? live.machineId}</Item>
           <Item icon="schedule" title="Shift clock · continuous operation">
             {fmtClock(liveNow())}
@@ -73,9 +72,7 @@ export function TopStatusRail() {
             {cloudOffline ? `Offline · ${backlog} queued` : edgeOnline ? 'Online' : 'Edge offline'}
           </Item>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <MockIndicator />
-          <DemoRibbon />
+        <div className="flex shrink-0 items-center">
           <button
             type="button"
             onClick={() => setCabDay(!day)}

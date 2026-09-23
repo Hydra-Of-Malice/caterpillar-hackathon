@@ -25,12 +25,11 @@ import {
 import { practice } from '../../lib/api';
 import { useResource } from '../../lib/hooks';
 import type { CohortArm, CohortSim } from '../../lib/types';
-import { DataSourceChip } from '../../components/DataSourceChip';
 import { GainChip, signed } from '../../components/GainChip';
-import { KpiTile } from '../../components/KpiTile';
-import { ProvenanceBadge } from '../../components/ProvenanceBadge';
+import { SourceNote } from '../../components/ProvenanceBadge';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
-import { Button, ErrorNote, Icon, Label, Loading, Panel, PageTitle, PanelHeader, Segmented, cx } from '../../components/ui';
+import { Details, DetailsButton, SectionTitle } from '../../components/training/Details';
+import { Button, ErrorNote, Loading, Panel, PageTitle, Segmented } from '../../components/ui';
 
 // ------------------------------------------------------------------ constants
 const SESSIONS = 12;
@@ -43,7 +42,7 @@ const TICK = { fill: 'var(--chart-tick)', fontSize: 12 };
 const TIP_STYLE = { background: 'var(--chart-tip-bg)', border: '1px solid var(--chart-tip-border)', borderRadius: 4 };
 const C_NAME = 'Coached — ML coaching tips';
 const K_NAME = 'Control — practice without feedback';
-const DEFAULT_CAVEAT = 'SIMULATED cohort — learning effect is an assumption to be validated in a pilot';
+const DEFAULT_CAVEAT = 'Simulated cohort — learning effect is an assumption to be validated in a pilot.';
 
 type CohortSize = '10' | '20' | '50';
 
@@ -159,13 +158,13 @@ function BarSwatch({ color }: { color: string }) {
 
 function SeriesLegend({ kind }: { kind: 'curve' | 'bars' }) {
   const item = (swatch: ReactNode, text: string) => (
-    <span className="inline-flex items-center gap-2 font-display text-label-sm uppercase text-on-surface-variant">
+    <span className="inline-flex items-center gap-2 text-body-sm text-on-surface-variant">
       {swatch}
       {text}
     </span>
   );
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-4 pt-3">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       {kind === 'curve' ? (
         <>
           {item(<LineSwatch color={C_COLOR} />, C_NAME)}
@@ -182,7 +181,7 @@ function SeriesLegend({ kind }: { kind: 'curve' | 'bars' }) {
         <>
           {item(<BarSwatch color={C_COLOR} />, C_NAME)}
           {item(<BarSwatch color={K_COLOR} />, K_NAME)}
-          {item(<span className="inline-block h-3 w-0 border-l-2 border-dashed border-on-surface-muted" />, 'Dashed = arm median')}
+          {item(<span className="inline-block h-3 w-0 border-l-2 border-dashed border-on-surface-muted" />, 'Dashed = group median')}
         </>
       )}
     </div>
@@ -193,8 +192,8 @@ function TipLine({ color, dashed, label, p50, band }: { color: string; dashed?: 
   return (
     <div className="flex items-center gap-2 py-0.5">
       <LineSwatch color={color} dashed={dashed} />
-      <span className="w-16 font-display text-label-sm uppercase text-on-surface-variant">{label}</span>
-      <span className="tnum font-display text-label-md text-on-surface">{typeof p50 === 'number' ? p50.toFixed(0) : '—'}</span>
+      <span className="w-16 text-body-sm text-on-surface-variant">{label}</span>
+      <span className="tnum text-body-sm font-semibold text-on-surface">{typeof p50 === 'number' ? p50.toFixed(0) : '—'}</span>
       {band && (
         <span className="tnum text-footnote text-on-surface-muted">
           ({band[0].toFixed(0)}–{band[1].toFixed(0)})
@@ -230,7 +229,7 @@ function LearningCurve({ d, g }: { d: CohortSim; g: Gains }) {
   };
 
   return (
-    <div className="h-[380px] w-full px-2 pb-2">
+    <div className="h-[360px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={rows} margin={{ top: 16, right: 104, bottom: 24, left: 8 }}>
           <CartesianGrid stroke={GRID} vertical={false} />
@@ -278,7 +277,7 @@ function LearningCurve({ d, g }: { d: CohortSim; g: Gains }) {
               const r = payload[0].payload as CurveRow;
               return (
                 <div style={TIP_STYLE} className="px-3 py-2">
-                  <div className="mb-1 font-display text-label-sm uppercase text-on-surface-muted">Session {r.session}</div>
+                  <div className="mb-1 text-body-sm font-semibold text-on-surface">Session {r.session}</div>
                   <TipLine color={C_COLOR} label="Coached" p50={r.c_p50} band={r.c_band} />
                   <TipLine color={K_COLOR} dashed label="Control" p50={r.k_p50} band={r.k_band} />
                   <div className="mt-1 text-footnote text-on-surface-muted">Median (middle 90% of simulated trainees)</div>
@@ -296,7 +295,7 @@ function LearningCurve({ d, g }: { d: CohortSim; g: Gains }) {
             strokeWidth={2}
             strokeDasharray="6 4"
             dot={false}
-            activeDot={{ r: 5, stroke: '#1E1E1E', strokeWidth: 2, fill: K_COLOR }}
+            activeDot={{ r: 5, stroke: 'var(--chart-tip-bg)', strokeWidth: 2, fill: K_COLOR }}
             animationDuration={350}
           >
             <LabelList dataKey="k_p50" content={(p) => endLabel(p, 'CONTROL', last?.k_p50, close ? 8 : 0)} />
@@ -308,13 +307,13 @@ function LearningCurve({ d, g }: { d: CohortSim; g: Gains }) {
             stroke={C_COLOR}
             strokeWidth={3}
             dot={false}
-            activeDot={{ r: 5, stroke: '#1E1E1E', strokeWidth: 2, fill: C_COLOR }}
+            activeDot={{ r: 5, stroke: 'var(--chart-tip-bg)', strokeWidth: 2, fill: C_COLOR }}
             animationDuration={350}
           >
             <LabelList dataKey="c_p50" content={(p) => endLabel(p, 'COACHED', last?.c_p50, close ? -8 : 0)} />
           </Line>
-          {kDot !== null && <ReferenceDot x={kDot} y={prof} r={6} fill={K_COLOR} stroke="#1E1E1E" strokeWidth={2} ifOverflow="visible" />}
-          {cDot !== null && <ReferenceDot x={cDot} y={prof} r={6} fill={C_COLOR} stroke="#1E1E1E" strokeWidth={2} ifOverflow="visible" />}
+          {kDot !== null && <ReferenceDot x={kDot} y={prof} r={6} fill={K_COLOR} stroke="var(--chart-tip-bg)" strokeWidth={2} ifOverflow="visible" />}
+          {cDot !== null && <ReferenceDot x={cDot} y={prof} r={6} fill={C_COLOR} stroke="var(--chart-tip-bg)" strokeWidth={2} ifOverflow="visible" />}
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -327,7 +326,7 @@ function ProficiencyHistogram({ d, g }: { d: CohortSim; g: Gains }) {
   const rows = useMemo(() => histRows(d, n), [d, n]);
   const inRange = (v: number | null) => v !== null && v >= 1 && v <= n;
   return (
-    <div className="h-[300px] w-full px-2 pb-2">
+    <div className="h-[280px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} margin={{ top: 16, right: 16, bottom: 24, left: 8 }} barGap={2} barCategoryGap="22%">
           <CartesianGrid stroke={GRID} vertical={false} />
@@ -337,7 +336,6 @@ function ProficiencyHistogram({ d, g }: { d: CohortSim; g: Gains }) {
             tick={TICK}
             tickLine={false}
             interval={0}
-            tickFormatter={(v: string) => (v === 'Not reached' ? 'NOT REACHED' : v)}
             label={{ value: 'First session held in the proficient band', position: 'insideBottom', offset: -14, fill: 'var(--chart-tick)', fontSize: 12 }}
           />
           <YAxis
@@ -351,7 +349,7 @@ function ProficiencyHistogram({ d, g }: { d: CohortSim; g: Gains }) {
           <Tooltip
             cursor={{ fill: 'var(--svg-text)', fillOpacity: 0.04 }}
             contentStyle={TIP_STYLE}
-            labelStyle={{ color: 'var(--chart-tick)', fontFamily: "'Roboto Condensed', sans-serif", textTransform: 'uppercase', fontSize: 12 }}
+            labelStyle={{ color: 'var(--svg-text)', fontWeight: 600, fontSize: 12 }}
             itemStyle={{ color: 'var(--svg-text)', fontSize: 12 }}
             labelFormatter={(b: string) => (b === 'Not reached' ? `Not proficient within ${n} sessions` : `Proficient from session ${b}`)}
             formatter={(v: number | string, name: string) => [`${v} trainee${Number(v) === 1 ? '' : 's'}`, name]}
@@ -394,13 +392,13 @@ function FirstLastTable({ d, g }: { d: CohortSim; g: Gains }) {
     <table className="w-full text-body-sm">
       <thead>
         <tr className="border-b border-outline">
-          <th className="px-4 py-2 text-left font-display text-label-sm uppercase text-on-surface-muted">Metric</th>
-          <th className="px-4 py-2 text-left font-display text-label-sm uppercase text-on-surface-muted">
+          <th className="px-3 py-2 text-left text-body-sm font-normal text-on-surface-muted">Metric</th>
+          <th className="px-3 py-2 text-left text-body-sm font-normal text-on-surface-muted">
             <span className="inline-flex items-center gap-2">
               <BarSwatch color={C_COLOR} /> Coached
             </span>
           </th>
-          <th className="px-4 py-2 text-left font-display text-label-sm uppercase text-on-surface-muted">
+          <th className="px-3 py-2 text-left text-body-sm font-normal text-on-surface-muted">
             <span className="inline-flex items-center gap-2">
               <BarSwatch color={K_COLOR} /> Control
             </span>
@@ -410,12 +408,12 @@ function FirstLastTable({ d, g }: { d: CohortSim; g: Gains }) {
       <tbody>
         {rows.map((r) => (
           <tr key={r.label} className="border-b border-outline last:border-b-0">
-            <td className="px-4 py-2.5">
+            <td className="px-3 py-2.5">
               <div className="text-on-surface">{r.label}</div>
               {r.unit && <div className="text-footnote text-on-surface-muted">{r.unit}</div>}
             </td>
-            <td className="px-4 py-2.5 text-on-surface">{r.c}</td>
-            <td className="px-4 py-2.5 text-on-surface-variant">{r.k}</td>
+            <td className="px-3 py-2.5 text-on-surface">{r.c}</td>
+            <td className="px-3 py-2.5 text-on-surface-variant">{r.k}</td>
           </tr>
         ))}
       </tbody>
@@ -425,245 +423,181 @@ function FirstLastTable({ d, g }: { d: CohortSim; g: Gains }) {
 
 // ------------------------------------------------------------------ assumptions (effect slider + cohort size)
 function Assumptions({
-  effect, setEffect, n, setN, d, busy,
-}: { effect: number; setEffect: (v: number) => void; n: CohortSize; setN: (v: CohortSize) => void; d: CohortSim; busy: boolean }) {
+  effect, setEffect, n, setN, busy,
+}: { effect: number; setEffect: (v: number) => void; n: CohortSize; setN: (v: CohortSize) => void; busy: boolean }) {
   const e = effect.toFixed(1);
   return (
-    <Panel className="flex h-full flex-col">
-      <PanelHeader icon="tune" title="Simulation assumptions" right={<ProvenanceBadge kind="SIMULATED" />} />
-      <div className="flex flex-1 flex-col gap-5 px-4 py-4">
-        <div>
-          <div className="flex items-baseline justify-between gap-2">
-            <Label>Coaching effect (learning-rate multiplier)</Label>
-            <span className="tnum font-display text-headline-lg text-on-surface">×{e}</span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={1.8}
-            step={0.1}
-            value={effect}
-            onChange={(ev) => setEffect(Math.round(Number(ev.target.value) * 10) / 10)}
-            aria-label="Coaching effect multiplier"
-            className="mt-2 h-2 w-full cursor-pointer"
-            style={{ accentColor: '#FFCD11', colorScheme: 'light' }}
-          />
-          <div className="mt-1 flex justify-between font-display text-label-sm text-on-surface-muted tnum">
-            {['1.0', '1.2', '1.4', '1.6', '1.8'].map((t) => (
-              <span key={t}>×{t}</span>
-            ))}
-          </div>
-          <p className="mt-3 border-l-4 border-prov-sim bg-surface-container-low px-3 py-2 text-body-sm text-on-surface-variant">
-            {effect <= 1.0 ? (
-              <>
-                <span className="tnum font-semibold text-on-surface">effect ×1.0</span> = no coaching benefit: both arms learn at the same rate (null check — remaining gaps are simulation noise).
-              </>
-            ) : (
-              <>
-                <span className="tnum font-semibold text-on-surface">effect ×{e}</span> = coached trainees learn {e}× faster per session <span className="text-on-surface-muted">(assumption)</span>.
-              </>
-            )}
-          </p>
+    <Panel className="flex h-full flex-col gap-6 p-6">
+      <SectionTitle sub="Move the slider to re-run the simulation">Assumptions</SectionTitle>
+      <div>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-body-sm text-on-surface-muted">Coaching effect</span>
+          <span className="tnum font-display text-headline-lg text-on-surface">×{e}</span>
         </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Label>Simulated trainees per arm</Label>
-          <Segmented<CohortSize>
-            value={n}
-            onChange={setN}
-            options={[
-              { value: '10', label: '10' },
-              { value: '20', label: '20' },
-              { value: '50', label: '50' },
-            ]}
-          />
+        <input
+          type="range"
+          min={1}
+          max={1.8}
+          step={0.1}
+          value={effect}
+          onChange={(ev) => setEffect(Math.round(Number(ev.target.value) * 10) / 10)}
+          aria-label="Coaching effect multiplier"
+          className="mt-2 h-2 w-full cursor-pointer"
+          style={{ accentColor: '#FFCD11', colorScheme: 'light' }}
+        />
+        <div className="tnum mt-1 flex justify-between text-footnote text-on-surface-muted">
+          {['1.0', '1.2', '1.4', '1.6', '1.8'].map((t) => (
+            <span key={t}>×{t}</span>
+          ))}
         </div>
+        <p className="mt-3 text-body-sm text-on-surface-variant">
+          {effect <= 1.0
+            ? '×1.0 = no coaching benefit: both groups learn at the same rate (null check — any gap left is simulation noise).'
+            : `Coached trainees learn ${e}× faster per session (assumption).`}
+        </p>
+      </div>
 
-        <dl className="space-y-3 border-t border-outline pt-4 text-body-sm">
-          <div className="flex gap-3">
-            <dt className="pt-2">
-              <LineSwatch color={C_COLOR} />
-            </dt>
-            <dd>
-              <div className="font-display text-label-md uppercase text-on-surface">{C_NAME}</div>
-              <div className="text-on-surface-muted">Phase-level tips from the Expert Motion Model after every practice session.</div>
-            </dd>
-          </div>
-          <div className="flex gap-3">
-            <dt className="pt-2">
-              <LineSwatch color={K_COLOR} dashed />
-            </dt>
-            <dd>
-              <div className="font-display text-label-md uppercase text-on-surface">{K_NAME}</div>
-              <div className="text-on-surface-muted">Same exercises and number of sessions, no tips.</div>
-            </dd>
-          </div>
-        </dl>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-body-sm text-on-surface-muted">Trainees per group</span>
+        <Segmented<CohortSize>
+          value={n}
+          onChange={setN}
+          options={[
+            { value: '10', label: '10', tone: 'neutral' },
+            { value: '20', label: '20', tone: 'neutral' },
+            { value: '50', label: '50', tone: 'neutral' },
+          ]}
+        />
+      </div>
 
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-outline pt-3 text-footnote text-on-surface-muted">
-          <span className="tnum">
-            {d.n} trainees per arm · {d.sessions} sessions · effect ×{Number(d.effect).toFixed(1)}
-          </span>
-          <span className="flex items-center gap-2">
-            {busy && (
-              <span className="flex items-center gap-1.5 font-display text-label-sm uppercase text-on-surface-variant">
-                <span className="h-1.5 w-1.5 animate-pulse bg-cat" /> Re-simulating
-              </span>
-            )}
-            {d.model_version && <span className="font-mono">{d.model_version}</span>}
-            {effect !== DEFAULT_EFFECT && (
-              <button type="button" onClick={() => setEffect(DEFAULT_EFFECT)} className="font-display text-label-sm uppercase text-notice-dark hover:underline">
-                Reset ×{DEFAULT_EFFECT.toFixed(1)}
-              </button>
-            )}
-          </span>
-        </div>
+      <div className="mt-auto flex min-h-[20px] flex-wrap items-center justify-between gap-2 text-body-sm text-on-surface-muted">
+        <span>{busy ? 'Re-simulating…' : ''}</span>
+        {effect !== DEFAULT_EFFECT && (
+          <button type="button" onClick={() => setEffect(DEFAULT_EFFECT)} className="font-semibold text-notice-dark hover:underline">
+            Reset to ×{DEFAULT_EFFECT.toFixed(1)}
+          </button>
+        )}
       </div>
     </Panel>
   );
 }
 
 // ------------------------------------------------------------------ how it works
-const STEPS: Array<{ icon: string; title: string; detail: string; badges?: string[]; link?: { to: string; label: string } }> = [
-  { icon: 'joystick', title: 'Trainee control input', detail: 'Joystick samples streamed from a practice session.', link: { to: '/training/practice', label: 'Open a live session' } },
-  { icon: 'model_training', title: 'Expert Motion Model', detail: 'Trained on SIMULATED, safety-filtered expert operators; compares every cycle to the expert band.', badges: ['ML', 'SIMULATED'] },
-  { icon: 'tips_and_updates', title: 'Phase-level coaching tips', detail: 'Dig · swing loaded · dump · swing empty — one clear fix per phase.' },
-  { icon: 'event_repeat', title: 'Next practice session', detail: 'The trainee practises again with the tips in hand.' },
-  { icon: 'trending_up', title: 'Improvement measured', detail: 'Expert-likeness score trend across sessions.', link: { to: '/training/practice/progress', label: 'See progress' } },
+const STEPS: Array<{ title: string; detail: string; link?: { to: string; label: string } }> = [
+  { title: 'Control input', detail: 'Joystick samples from a practice session.', link: { to: '/training/practice', label: 'Open a session' } },
+  { title: 'Expert Motion Model', detail: 'Compares every cycle to simulated expert operators.' },
+  { title: 'Coaching tips', detail: 'One clear fix per phase: dig, swing, dump, return.' },
+  { title: 'Practise again', detail: 'The trainee repeats the exercise with the tips.' },
+  { title: 'Measure', detail: 'Expert-likeness score across sessions.', link: { to: '/training/practice/progress', label: 'See progress' } },
 ];
 
 function HowItWorks() {
   return (
-    <Panel>
-      <PanelHeader icon="account_tree" title="How the ML coaching loop works" sub="The coached arm above repeats this loop after every session; the control arm skips steps 2–3." />
-      <ol className="flex flex-col items-stretch gap-2 p-4 xl:flex-row">
+    <section className="space-y-5">
+      <SectionTitle sub="The coached group repeats this loop after every session; the control group skips steps 2–3.">How the coaching loop works</SectionTitle>
+      <ol className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-5">
         {STEPS.map((s, i) => (
-          <li key={s.title} className="flex flex-1 flex-col items-stretch gap-2 xl:flex-row">
-            <div className={cx('flex flex-1 flex-col gap-2 border bg-surface-container-low p-4', s.badges ? 'border-prov-ml' : 'border-outline')}>
-              <div className="flex items-center justify-between gap-2">
-                <span className="tnum font-display text-label-sm uppercase text-on-surface-muted">Step {String(i + 1).padStart(2, '0')}</span>
-                <Icon name={s.icon} size={26} className={s.badges ? 'text-prov-ml' : 'text-on-surface'} />
-              </div>
-              <div className="font-display text-label-lg uppercase text-on-surface">{s.title}</div>
-              <p className="text-body-sm text-on-surface-variant">{s.detail}</p>
-              {s.badges && (
-                <div className="flex gap-1">
-                  {s.badges.map((b) => (
-                    <ProvenanceBadge key={b} kind={b} />
-                  ))}
-                </div>
-              )}
-              {s.link && (
-                <Link to={s.link.to} className="mt-auto inline-flex items-center gap-1 pt-1 font-display text-label-sm uppercase text-notice-dark hover:underline">
-                  {s.link.label}
-                  <Icon name="arrow_forward" size={16} />
-                </Link>
-              )}
+          <li key={s.title} className="space-y-1 border-t-2 border-outline pt-3">
+            <div className="font-semibold text-on-surface">
+              <span className="tnum mr-2 text-on-surface-muted">{i + 1}</span>
+              {s.title}
             </div>
-            {i < STEPS.length - 1 && (
-              <div className="flex items-center justify-center text-on-surface-muted" aria-hidden>
-                <Icon name="arrow_forward" size={22} className="rotate-90 xl:rotate-0" />
-              </div>
+            <p className="text-body-sm text-on-surface-muted">{s.detail}</p>
+            {s.link && (
+              <Link to={s.link.to} className="inline-block text-body-sm font-semibold text-notice-dark hover:underline">
+                {s.link.label}
+              </Link>
             )}
           </li>
         ))}
       </ol>
-    </Panel>
+      <SourceNote kinds={['ML', 'SIMULATED']}>Expert Motion Model trained on simulated, safety-filtered expert operators</SourceNote>
+    </section>
   );
 }
 
 // ------------------------------------------------------------------ KPI row
+function Kpi({ label, value, unit, sub, gain }: { label: string; value: ReactNode; unit?: string; sub: ReactNode; gain?: ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <div className="text-body-sm text-on-surface-muted">{label}</div>
+      <div className="flex items-baseline gap-1.5">
+        <span className="tnum font-display text-headline-lg text-on-surface">{value}</span>
+        {unit && <span className="text-body-md text-on-surface-muted">{unit}</span>}
+      </div>
+      <div className="text-body-sm text-on-surface-muted">{sub}</div>
+      {gain}
+    </div>
+  );
+}
+
 function GainsRow({ d, g }: { d: CohortSim; g: Gains }) {
   const n = d.arms.coached.curve?.length || d.sessions || SESSIONS;
   const perArm = d.arms.coached.sessions_to_proficient?.length || d.n;
   const sessDiff = g.cMed !== null && g.kMed !== null ? g.cMed - g.kMed : null;
-  const shareDiffPts = (g.shC - g.shK) * 100;
   const extraTrainees = Math.round(g.shC * perArm) - Math.round(g.shK * perArm);
   const outDiff = typeof g.outC === 'number' && typeof g.outK === 'number' ? g.outC - g.outK : null;
   const fsDiffPts = typeof g.fsC === 'number' && typeof g.fsK === 'number' ? (g.fsC - g.fsK) * 100 : null;
-  const chipTitle = 'Gain in the SIMULATED cohort — assumption to validate in a pilot';
-  const tone = (good: boolean | null) => (good === null ? 'neutral' : good ? 'green' : 'neutral');
+  const chipTitle = 'Gain in the simulated cohort — assumption to validate in a pilot';
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <KpiTile
-        label="Reaches proficiency in"
-        icon="school"
-        tone={tone(sessDiff === null ? null : sessDiff < 0)}
-        value={g.cMed ?? '—'}
-        unit={g.cMed !== null ? (g.cMed === 1 ? 'session' : 'sessions') : undefined}
-        provenance={['SIMULATED']}
-        sub={
-          <div className="flex flex-wrap items-center gap-2">
-            <span>vs {g.kMed !== null ? `${g.kMed} without feedback` : `not reached in ${n} without feedback`} (median)</span>
-            {sessDiff !== null && sessDiff !== 0 && (
+    <Panel className="p-6">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi
+          label="Reaches proficiency in"
+          value={g.cMed ?? '—'}
+          unit={g.cMed !== null ? (g.cMed === 1 ? 'session' : 'sessions') : undefined}
+          sub={`vs ${g.kMed !== null ? g.kMed : `not reached in ${n}`} without feedback (median)`}
+          gain={
+            sessDiff !== null && sessDiff !== 0 ? (
               <GainChip size="sm" to={null} title={chipTitle}>
                 {signed(sessDiff)} sessions
               </GainChip>
-            )}
-          </div>
-        }
-      />
-      <KpiTile
-        label={`Output at session ${n}`}
-        icon="speed"
-        tone={tone(g.outPct === null ? null : g.outPct > 0)}
-        value={g.outPct !== null ? signed(g.outPct) : '—'}
-        unit={g.outPct !== null ? '%' : undefined}
-        provenance={['SIMULATED']}
-        sub={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="tnum">
-              {typeof g.outC === 'number' ? g.outC.toFixed(0) : '—'} vs {typeof g.outK === 'number' ? g.outK.toFixed(0) : '—'} m³/h, coached vs control
-            </span>
-            {outDiff !== null && Math.round(outDiff) !== 0 && (
+            ) : undefined
+          }
+        />
+        <Kpi
+          label={`Output at session ${n}`}
+          value={g.outPct !== null ? signed(g.outPct) : '—'}
+          unit={g.outPct !== null ? '%' : undefined}
+          sub={`${typeof g.outC === 'number' ? g.outC.toFixed(0) : '—'} vs ${typeof g.outK === 'number' ? g.outK.toFixed(0) : '—'} m³/h, coached vs control`}
+          gain={
+            outDiff !== null && Math.round(outDiff) !== 0 ? (
               <GainChip size="sm" to={null} title={chipTitle}>
                 {signed(outDiff)} m³/h
               </GainChip>
-            )}
-          </div>
-        }
-      />
-      <KpiTile
-        label="Fast swings near truck"
-        icon="health_and_safety"
-        tone={tone(g.fsPct === null ? null : g.fsPct < 0)}
-        value={g.fsPct !== null ? signed(g.fsPct) : '—'}
-        unit={g.fsPct !== null ? '%' : undefined}
-        provenance={['SIMULATED']}
-        sub={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="tnum">
-              {pct(g.fsC)} vs {pct(g.fsK)} of cycles at session {n}
-            </span>
-            {fsDiffPts !== null && Math.abs(fsDiffPts) >= 0.5 && (
+            ) : undefined
+          }
+        />
+        <Kpi
+          label="Fast swings near truck"
+          value={g.fsPct !== null ? signed(g.fsPct) : '—'}
+          unit={g.fsPct !== null ? '%' : undefined}
+          sub={`${pct(g.fsC)} vs ${pct(g.fsK)} of cycles at session ${n}`}
+          gain={
+            fsDiffPts !== null && Math.abs(fsDiffPts) >= 0.5 ? (
               <GainChip size="sm" to={null} title={chipTitle}>
                 {signed(fsDiffPts, 1)} pts
               </GainChip>
-            )}
-          </div>
-        }
-      />
-      <KpiTile
-        label="Proficient by session 8"
-        icon="groups"
-        tone={tone(shareDiffPts > 0)}
-        value={(g.shC * 100).toFixed(0)}
-        unit="%"
-        bar={g.shC * 100}
-        provenance={['SIMULATED']}
-        sub={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="tnum">vs {pct(g.shK)} without feedback</span>
-            {extraTrainees !== 0 && (
+            ) : undefined
+          }
+        />
+        <Kpi
+          label="Proficient by session 8"
+          value={(g.shC * 100).toFixed(0)}
+          unit="%"
+          sub={`vs ${pct(g.shK)} without feedback`}
+          gain={
+            extraTrainees !== 0 ? (
               <GainChip size="sm" to={null} title={chipTitle}>
                 {signed(extraTrainees)} of {perArm} trainees
               </GainChip>
-            )}
-          </div>
-        }
-      />
-    </div>
+            ) : undefined
+          }
+        />
+      </div>
+      <SourceNote kinds={['SIMULATED', 'ESTIMATE']} />
+    </Panel>
   );
 }
 
@@ -673,6 +607,7 @@ export default function TrainingEffectiveness() {
   const [effect, setEffect] = useState(DEFAULT_EFFECT);
   const [effectQ, setEffectQ] = useState(DEFAULT_EFFECT);
   const [n, setN] = useState<CohortSize>('20');
+  const [showMethod, setShowMethod] = useState(false);
 
   useEffect(() => {
     const id = setTimeout(() => setEffectQ(effect), 250);
@@ -682,32 +617,37 @@ export default function TrainingEffectiveness() {
   const res = useResource(() => practice.cohortSim(Number(n), SESSIONS, effectQ), [n, effectQ]);
   const d = res.data;
   const g = useMemo(() => (d ? gains(d) : null), [d]);
-  const caveat = d?.caveat || DEFAULT_CAVEAT;
+  const caveat = (d?.caveat || DEFAULT_CAVEAT).replace(/^SIMULATED\b/, 'Simulated').replace(/([^.])$/, '$1.');
   const sooner = g && g.cMed !== null && g.kMed !== null ? g.kMed - g.cMed : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <TrainingTabs />
       <PageTitle
-        kicker="Practice Analyser · Expert Motion Model"
         title="Training effectiveness"
-        sub="What phase-level ML coaching does to a trainee's learning curve: a simulated cohort coached by the Expert Motion Model vs the same practice without feedback."
+        sub="Simulated cohort: trainees coached by the Expert Motion Model vs the same practice without feedback."
         right={
-          <>
-            <ProvenanceBadge kind="ML" />
-            <ProvenanceBadge kind="SIMULATED" />
-            <DataSourceChip endpoints={['/practice/cohort-sim']} modelBacked />
-          </>
+          <Button variant="primary" icon="play_arrow" onClick={() => navigate('/training/practice')}>
+            Run a demo trainee
+          </Button>
         }
       />
 
-      <div className="stripes-sim flex flex-wrap items-center gap-3 border-2 border-prov-sim px-4 py-3" role="note">
-        <Icon name="science" size={24} className="text-prov-sim-text" />
-        <span className="flex-1 font-display text-label-lg uppercase text-on-surface">{caveat}</span>
-        {d && (
-          <span className="tnum bg-surface-container-lowest/70 px-2 py-1 font-display text-label-sm uppercase text-prov-sim-text">
-            {d.n} simulated trainees per arm · {d.sessions} sessions
+      {/* one caveat line; method behind Details */}
+      <div className="-mt-2 space-y-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm text-on-surface-muted">
+          <span>
+            {caveat}
+            {d ? ` ${d.n} trainees per group · ${d.sessions} sessions.` : ''}
           </span>
+          <DetailsButton open={showMethod} onClick={() => setShowMethod((v) => !v)} label="Method" />
+        </div>
+        {showMethod && (
+          <p className="max-w-4xl animate-fade-up text-body-sm text-on-surface-variant">
+            The cohort is simulated from a learning-curve model (start score, ceiling and per-session learning rate vary per trainee, plus session noise). The control group is the same practice without
+            feedback; the coached group&apos;s learning rate is multiplied by the effect assumption. Output and fast-swing figures are derived from the simulated score, not measured on machines. The real
+            effect is to be validated in a pilot with an instructor.
+          </p>
         )}
       </div>
 
@@ -728,69 +668,33 @@ export default function TrainingEffectiveness() {
         <>
           <GainsRow d={d} g={g} />
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-            <Panel className="xl:col-span-8">
-              <PanelHeader
-                icon="show_chart"
-                title={sooner !== null && sooner > 0 ? `Coached trainees reach proficient ${sooner} session${sooner === 1 ? '' : 's'} sooner` : 'Learning curve — coached vs control'}
-                sub="Median expert-likeness score per session; dots mark each arm's median session to proficient."
-                right={<ProvenanceBadge kind="SIMULATED" />}
-              />
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+            <Panel className="space-y-4 p-6 xl:col-span-8">
+              <SectionTitle sub="Median expert-likeness score per session; dots mark each group's median session to proficient.">
+                {sooner !== null && sooner > 0 ? `Coached trainees reach proficient ${sooner} session${sooner === 1 ? '' : 's'} sooner` : 'Learning curve — coached vs control'}
+              </SectionTitle>
               <SeriesLegend kind="curve" />
               <LearningCurve d={d} g={g} />
             </Panel>
             <div className="xl:col-span-4">
-              <Assumptions effect={effect} setEffect={setEffect} n={n} setN={setN} d={d} busy={res.loading || effect !== effectQ} />
+              <Assumptions effect={effect} setEffect={setEffect} n={n} setN={setN} busy={res.loading || effect !== effectQ} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-            <Panel className="xl:col-span-7">
-              <PanelHeader
-                icon="bar_chart"
-                title="Sessions to proficiency"
-                sub={`Simulated trainees per arm by the first session they hold ≥ ${d.bands?.proficient ?? 65}.`}
-                right={<ProvenanceBadge kind="SIMULATED" />}
-              />
-              <SeriesLegend kind="bars" />
-              <ProficiencyHistogram d={d} g={g} />
-            </Panel>
-            <Panel className="xl:col-span-5">
-              <PanelHeader icon="table_chart" title={`Session 1 → session ${d.arms.coached.curve?.length || d.sessions}`} sub="Same numbers as the charts, as a table." right={<ProvenanceBadge kind="SIMULATED" />} />
-              <FirstLastTable d={d} g={g} />
-            </Panel>
-          </div>
+          <Panel className="space-y-4 p-6">
+            <SectionTitle sub={`Trainees per group by the first session they hold ≥ ${d.bands?.proficient ?? 65}.`}>Sessions to proficiency</SectionTitle>
+            <SeriesLegend kind="bars" />
+            <ProficiencyHistogram d={d} g={g} />
+            <Details label="Session 1 vs last session, as a table">
+              <div className="max-w-3xl">
+                <FirstLastTable d={d} g={g} />
+              </div>
+            </Details>
+          </Panel>
         </>
       )}
 
       <HowItWorks />
-
-      <Panel accent="yellow" className="flex flex-wrap items-center justify-between gap-4 py-5 pl-6 pr-5">
-        <div>
-          <div className="font-display text-headline-sm uppercase text-on-surface">See the coaching on one trainee</div>
-          <p className="text-body-sm text-on-surface-variant">Run a demo trainee through the Practice Analyser and read the phase-level report the coached arm receives.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="primary" icon="play_arrow" onClick={() => navigate('/training/practice')}>
-            Run a demo trainee
-          </Button>
-          <Button variant="secondary" icon="description" onClick={() => navigate('/training/practice')}>
-            See a report
-          </Button>
-          <Button variant="ghost" iconRight="arrow_forward" onClick={() => navigate('/value')}>
-            Business value
-          </Button>
-        </div>
-      </Panel>
-
-      <p className="flex items-start gap-2 border-t border-outline pt-4 text-footnote text-on-surface-muted">
-        <Icon name="info" size={16} className="mt-px" />
-        <span>
-          The cohort is simulated from a learning-curve model (start score, ceiling and per-session learning rate vary per trainee, plus session noise). The control arm is the same practice without
-          feedback; the coached arm&apos;s learning rate is multiplied by the effect assumption above. Output and fast-swing figures are derived from the simulated score, not measured on machines. The real
-          effect is to be validated in a pilot with an instructor.
-        </span>
-      </p>
     </div>
   );
 }

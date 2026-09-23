@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { DemoRibbon, MockIndicator } from '../../components/DemoRibbon';
 import { Button, Checkbox, Icon, Wordmark, cx } from '../../components/ui';
 import { edge } from '../../lib/api';
 import { fmtClock } from '../../lib/format';
@@ -57,8 +56,6 @@ export default function ShiftStart() {
         <div className="flex items-center justify-between">
           <Wordmark />
           <div className="flex items-center gap-3">
-            <MockIndicator />
-            <DemoRibbon />
             <button type="button" onClick={() => setCabDay(!day)} className="flex h-12 items-center gap-2 border border-outline-variant px-3 font-display text-label-md uppercase hover:bg-surface-container-high">
               <Icon name={day ? 'dark_mode' : 'light_mode'} size={22} /> {day ? 'Night' : 'Day'}
             </button>

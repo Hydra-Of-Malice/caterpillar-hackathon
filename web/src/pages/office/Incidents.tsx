@@ -1,7 +1,7 @@
 /**
- * Screen 15 — Incident Log (R2). Filterable log of rule, ML and manual entries with a detail drawer:
- * ±30 s sensor timeline, why it was flagged, auto-attached context, the operator's note and review actions.
- * Operational units only (no money on this page).
+ * Screen 15 — Incident Log (R2). Filterable log of rule, model and manual entries. The table stays short
+ * (time, unit, signal word, type, status); context, source and the operator's note live in the detail drawer
+ * with the ±30 s sensor timeline and review actions. Operational units only (no money on this page).
  */
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -12,12 +12,13 @@ import { useNow, useResource } from '../../lib/hooks';
 import { liveNow } from '../../lib/live';
 import type { Incident } from '../../lib/types';
 import { COMPETENCY_MODULE, OPERATORS, competencyLabel } from '../../mocks/world';
-import { DataSourceChip } from '../../components/DataSourceChip';
 import { ExplanationBars } from '../../components/ExplanationBars';
-import { ProvenanceBadge, ProvenanceBadges } from '../../components/ProvenanceBadge';
+import { SourceNote } from '../../components/ProvenanceBadge';
 import { SignalWordChip, normaliseSignalWord } from '../../components/SignalWordChip';
+import { SupervisorTabs } from '../../components/office/TrainingTabs';
 import { AXIS, GRID, TOOLTIP } from '../../components/ops/chartTheme';
-import { Button, Chip, Drawer, EmptyState, ErrorNote, Icon, Label, Loading, Modal, PageTitle, Panel, PanelHeader, Segmented, Toggle, cx, toast } from '../../components/ui';
+import { Card, Caveat, Details, FieldLabel, Stat, TABLE, TableWrap } from '../../components/ops/layout';
+import { Button, Drawer, EmptyState, ErrorNote, Icon, Loading, Modal, PageTitle, Segmented, Toggle, cx, toast } from '../../components/ui';
 
 // ------------------------------------------------------------------ filter vocabularies
 type DateRange = 'today' | 'yesterday' | '7d';
@@ -29,7 +30,11 @@ const DATE_OPTIONS: Array<{ value: DateRange; label: string }> = [
 ];
 
 const SIGNAL_OPTIONS = ['DANGER', 'WARNING', 'CAUTION', 'NOTICE'];
-const SOURCE_OPTIONS = ['RULE', 'ML', 'MANUAL'];
+const SOURCE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'RULE', label: 'Safety rule' },
+  { value: 'ML', label: 'Model' },
+  { value: 'MANUAL', label: 'Manual entry' },
+];
 const STATUS_OPTIONS: Array<{ value: Incident['status']; label: string }> = [
   { value: 'open', label: 'Open' },
   { value: 'reviewed', label: 'Reviewed' },
@@ -49,7 +54,8 @@ const TYPE_GROUPS: Array<{ value: string; label: string; types: string[] }> = [
 const MANUAL_TYPES = ['near_miss', 'person_too_close', 'machine_fault', 'ground_slope', 'damage', 'other'];
 const BASE_UNITS = ['EX-07', 'EX-09', 'EX-04', 'EX-11'];
 
-const STATUS_TONE: Record<Incident['status'], 'orange' | 'blue' | 'green'> = { open: 'orange', reviewed: 'blue', closed: 'green' };
+const STATUS_DOT: Record<Incident['status'], string> = { open: 'bg-warning', reviewed: 'bg-notice', closed: 'bg-success' };
+const STATUS_LABEL: Record<Incident['status'], string> = { open: 'Open', reviewed: 'Reviewed', closed: 'Closed' };
 
 const CONTEXT_LABEL: Record<string, string> = {
   task: 'Task',
@@ -73,6 +79,12 @@ const opName = (id: string) => OPERATORS[id]?.name ?? id;
 function provenanceOf(i: Incident): string[] {
   if (i.provenance?.length) return i.provenance;
   return i.source === 'manual' ? ['MANUAL'] : ['RULE'];
+}
+
+function sourceLabel(i: Incident): string {
+  if (i.source === 'manual') return 'Manual entry from the cab';
+  const p = provenanceOf(i);
+  return p.includes('ML') ? 'Model (decision support)' : 'Fixed safety rule';
 }
 
 function startOfDay(ts: number): number {
@@ -99,11 +111,6 @@ function fmtContextValue(v: unknown): string | null {
   if (typeof v === 'boolean') return v ? 'Yes' : 'No';
   if (typeof v === 'number' || typeof v === 'string') return String(v);
   return null; // nested objects are not shown (no developer JSON on this page)
-}
-
-function contextLine(i: Incident): string {
-  const c = i.context ?? {};
-  return [c.task, c.zone].filter((x) => typeof x === 'string' && x).join(' · ') || '—';
 }
 
 function csvCell(v: unknown): string {
@@ -163,6 +170,8 @@ export default function Incidents() {
     status: (params.get('status') ?? '').toLowerCase(),
   };
   const selectedId = params.get('incident');
+  const moreActive = !!(f.operator_id || f.source || f.type);
+  const [moreOpen, setMoreOpen] = useState(moreActive);
 
   const setParam = (k: string, v: string | null) => {
     const next = new URLSearchParams(params);
@@ -223,15 +232,14 @@ export default function Incidents() {
   const updateRow = (inc: Incident) => setData((data ?? []).map((i) => (i.incident_id === inc.incident_id ? inc : i)));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <SupervisorTabs />
       <PageTitle
-        kicker="R2 · Incident log"
-        title="Incident Log"
-        sub="Rule, model and manual entries with their context. Reviewed before any coaching."
+        title="Incident log"
+        sub="Rule, model and manual entries. Reviewed before any coaching."
         right={
           <>
-            <DataSourceChip endpoints={['/incidents']} />
-            <Button variant="secondary" icon="download" onClick={() => (rows.length ? exportCsv(rows) : toast('No rows to export', 'info'))}>
+            <Button variant="ghost" icon="download" onClick={() => (rows.length ? exportCsv(rows) : toast('No rows to export', 'info'))}>
               Export CSV
             </Button>
             <Button variant="primary" icon="add" onClick={() => setNewOpen(true)}>
@@ -241,128 +249,106 @@ export default function Incidents() {
         }
       />
 
-      {/* summary chips — operational counts only */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <SummaryStat icon="task_alt" tone="green" value={summary.resolved} label="Risk events resolved" sub="Reviewed or closed" />
-        <SummaryStat icon="pending_actions" tone="orange" value={summary.open} label="Open for review" sub="Awaiting supervisor review" />
-        <SummaryStat icon="edit_note" tone="blue" value={summary.nearMiss} label={summary.nearMiss === 1 ? 'Near-miss logged' : 'Near-misses logged'} sub="Manual entries from the cab" />
-        <SummaryStat icon="flag" tone="orange" value={summary.disputed} label="Disputed" sub="Operator added a different view" />
+      {/* key numbers — operational counts only */}
+      <div className="grid grid-cols-2 gap-6 xl:grid-cols-4">
+        <Stat label="Open for review" tone={summary.open > 0 ? 'orange' : 'neutral'} value={summary.open} />
+        <Stat label="Reviewed or closed" value={summary.resolved} />
+        <Stat label={summary.nearMiss === 1 ? 'Near-miss logged' : 'Near-misses logged'} value={summary.nearMiss} />
+        <Stat label="Disputed by operator" value={summary.disputed} />
       </div>
 
-      {/* filter bar */}
-      <Panel className="p-4">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+      <Card>
+        {/* filters: the common four visible, the rest behind "More filters" */}
+        <div className="flex flex-wrap items-end gap-4">
           <FilterSelect label="Date" value={f.date} onChange={(v) => setParam('date', v === '7d' ? null : v)} options={DATE_OPTIONS} />
           <FilterSelect label="Unit" value={f.machine_id} onChange={(v) => setParam('machine_id', v)} options={[{ value: '', label: 'All units' }, ...Array.from(seen.current.units).sort().map((u) => ({ value: u, label: u }))]} />
-          <FilterSelect label="Operator" value={f.operator_id} onChange={(v) => setParam('operator_id', v)} options={[{ value: '', label: 'All operators' }, ...Array.from(seen.current.ops).sort().map((o) => ({ value: o, label: `${opName(o)} · ${o}` }))]} />
-          <FilterSelect label="Signal word" value={f.signal_word} onChange={(v) => setParam('signal_word', v)} options={[{ value: '', label: 'All' }, ...SIGNAL_OPTIONS.map((s) => ({ value: s, label: s }))]} />
-          <FilterSelect label="Source" value={f.source} onChange={(v) => setParam('source', v)} options={[{ value: '', label: 'All sources' }, ...SOURCE_OPTIONS.map((s) => ({ value: s, label: s }))]} />
-          <FilterSelect label="Type" value={f.type} onChange={(v) => setParam('type', v)} options={[{ value: '', label: 'All types' }, ...TYPE_GROUPS.map((t) => ({ value: t.value, label: t.label }))]} />
+          <FilterSelect label="Signal word" value={f.signal_word} onChange={(v) => setParam('signal_word', v)} options={[{ value: '', label: 'All' }, ...SIGNAL_OPTIONS.map((s) => ({ value: s, label: titleCase(s) }))]} />
           <FilterSelect label="Status" value={f.status} onChange={(v) => setParam('status', v)} options={[{ value: '', label: 'Any status' }, ...STATUS_OPTIONS]} />
+          <button type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((o) => !o)} className="inline-flex h-10 items-center gap-1 text-body-sm font-semibold text-notice-dark hover:underline">
+            <Icon name={moreOpen ? 'expand_less' : 'tune'} size={18} />
+            {moreOpen ? 'Fewer filters' : 'More filters'}
+          </button>
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="font-display text-label-sm uppercase text-on-surface-muted">
+        {moreOpen && (
+          <div className="mt-4 flex flex-wrap items-end gap-4">
+            <FilterSelect label="Operator" value={f.operator_id} onChange={(v) => setParam('operator_id', v)} options={[{ value: '', label: 'All operators' }, ...Array.from(seen.current.ops).sort().map((o) => ({ value: o, label: opName(o) }))]} />
+            <FilterSelect label="Source" value={f.source} onChange={(v) => setParam('source', v)} options={[{ value: '', label: 'All sources' }, ...SOURCE_OPTIONS]} />
+            <FilterSelect label="Type" value={f.type} onChange={(v) => setParam('type', v)} options={[{ value: '', label: 'All types' }, ...TYPE_GROUPS.map((t) => ({ value: t.value, label: t.label }))]} />
+          </div>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-body-sm text-on-surface-muted">
+          <span>
             {rows.length} {rows.length === 1 ? 'entry' : 'entries'}
             {activeFilters > 0 && ` · ${activeFilters} filter${activeFilters > 1 ? 's' : ''} on`}
           </span>
           {activeFilters > 0 && (
-            <Button variant="ghost" size="sm" icon="filter_alt_off" onClick={clearFilters}>
+            <button type="button" onClick={clearFilters} className="font-semibold text-notice-dark hover:underline">
               Clear filters
-            </Button>
+            </button>
           )}
         </div>
-      </Panel>
 
-      {/* table */}
-      <Panel>
-        <PanelHeader icon="assignment_late" title="Entries" sub="Select a row for the timeline, context and review actions" right={<ProvenanceBadges kinds={['RULE', 'ML', 'MANUAL', 'SIMULATED']} />} />
-        {error && !data && (
-          <div className="p-4">
-            <ErrorNote error={error} />
-          </div>
-        )}
-        {loading && !data ? (
-          <Loading label="Loading incident log" />
-        ) : rows.length === 0 ? (
-          <div className="p-4">
+        {/* table */}
+        <div className="mt-6">
+          {error && !data && <ErrorNote error={error} />}
+          {loading && !data ? (
+            <Loading label="Loading incident log" />
+          ) : rows.length === 0 ? (
             <EmptyState icon="search_off" title="No entries match these filters">
               Try a wider date range or clear the filters.
             </EmptyState>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="table-dense w-full min-w-[1100px]">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Unit</th>
-                  <th>Operator</th>
-                  <th>Signal word</th>
-                  <th>Type</th>
-                  <th>Source</th>
-                  <th>Context (task, zone)</th>
-                  <th>Operator note</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((i) => {
-                  const isSel = i.incident_id === selectedId;
-                  const isToday = i.ts >= dayStart;
-                  return (
-                    <tr
-                      key={i.incident_id}
-                      tabIndex={0}
-                      onClick={() => setParam('incident', i.incident_id)}
-                      onKeyDown={(e) => e.key === 'Enter' && setParam('incident', i.incident_id)}
-                      className={cx('cursor-pointer transition-colors duration-quick hover:bg-surface-container-high', isSel && 'bg-surface-container-high shadow-[inset_4px_0_0_#FFCD11]')}
-                    >
-                      <td className="whitespace-nowrap">
-                        <div className="font-display text-label-md tnum">{fmtClock(i.ts)}</div>
-                        <div className="text-footnote text-on-surface-muted">{isToday ? 'Today' : fmtDate(i.ts)}</div>
-                      </td>
-                      <td className="whitespace-nowrap font-display text-label-md">{i.machine_id}</td>
-                      <td className="whitespace-nowrap">
-                        <div>{opName(i.operator_id)}</div>
-                        <div className="text-footnote text-on-surface-muted">{i.operator_id}</div>
-                      </td>
-                      <td>
-                        <SignalWordChip word={i.signal_word} size="sm" />
-                      </td>
-                      <td className="whitespace-nowrap">{typeLabel(i.type)}</td>
-                      <td>
-                        <ProvenanceBadges kinds={provenanceOf(i)} />
-                      </td>
-                      <td className="max-w-[220px] truncate text-on-surface-variant">{contextLine(i)}</td>
-                      <td className="max-w-[260px]">
-                        {i.operator_note ? (
-                          <span className="flex items-center gap-1.5">
+          ) : (
+            <TableWrap>
+              <table className={cx(TABLE, 'min-w-[640px]')}>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Unit</th>
+                    <th>Signal word</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((i) => {
+                    const isSel = i.incident_id === selectedId;
+                    const isToday = i.ts >= dayStart;
+                    return (
+                      <tr
+                        key={i.incident_id}
+                        tabIndex={0}
+                        onClick={() => setParam('incident', i.incident_id)}
+                        onKeyDown={(e) => e.key === 'Enter' && setParam('incident', i.incident_id)}
+                        className={cx('cursor-pointer transition-colors duration-quick hover:bg-surface-container-low', isSel && 'bg-surface-container-low shadow-[inset_3px_0_0_#FFCD11]')}
+                      >
+                        <td className="whitespace-nowrap tnum">
+                          {fmtClock(i.ts)} <span className="text-body-sm text-on-surface-muted">{isToday ? 'Today' : fmtDate(i.ts)}</span>
+                        </td>
+                        <td className="whitespace-nowrap font-semibold">{i.machine_id}</td>
+                        <td>
+                          <SignalWordChip word={i.signal_word} size="sm" />
+                        </td>
+                        <td className="whitespace-nowrap">{typeLabel(i.type)}</td>
+                        <td className="whitespace-nowrap">
+                          <span className="inline-flex items-center gap-2">
+                            <span className={cx('h-2 w-2 rounded-full', STATUS_DOT[i.status] ?? 'bg-on-surface-muted')} aria-hidden />
+                            {STATUS_LABEL[i.status] ?? titleCase(i.status)}
                             {i.dispute_status === 'disputed' && <Icon name="flag" size={18} className="text-warning-text" title="Disputed by the operator" />}
                             {i.dispute_status === 'resolved' && <Icon name="handshake" size={18} className="text-success-text" title="Dispute resolved" />}
-                            <span className="truncate">“{i.operator_note}”</span>
                           </span>
-                        ) : i.note ? (
-                          <span className="block truncate text-on-surface-muted">{i.note}</span>
-                        ) : (
-                          <span className="text-on-surface-muted">—</span>
-                        )}
-                      </td>
-                      <td>
-                        <Chip tone={STATUS_TONE[i.status] ?? 'neutral'}>{i.status}</Chip>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Panel>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </TableWrap>
+          )}
+        </div>
+        <SourceNote kinds={['RULE', 'ML', 'MANUAL', 'SIMULATED']}>Demo entries</SourceNote>
+      </Card>
 
-      <p className="flex items-center gap-2 text-body-sm text-on-surface-muted">
-        <Icon name="info" size={18} />
-        Entries are SIMULATED demo data. Operators see and can comment on every entry about them. Nothing here ranks operators.
-      </p>
+      <Caveat>Select a row for the timeline, context and review actions. Operators see and can comment on every entry about them. Nothing here ranks operators.</Caveat>
 
       {selected && <IncidentDrawer incident={selected} onClose={() => setParam('incident', null)} onUpdated={updateRow} onTraining={(m) => navigate(`/training/module/${m}`)} />}
 
@@ -381,27 +367,11 @@ export default function Incidents() {
 }
 
 // ------------------------------------------------------------------ pieces
-function SummaryStat({ icon, value, label, sub, tone }: { icon: string; value: number; label: string; sub: string; tone: 'green' | 'orange' | 'blue' }) {
-  const color = { green: 'text-success-text', orange: 'text-warning-text', blue: 'text-notice-dark' }[tone];
-  return (
-    <div className="flex items-center gap-3 border border-outline bg-surface-container px-4 py-3">
-      <Icon name={icon} size={28} className={color} />
-      <div className="min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className={cx('font-display text-headline-md tnum', color)}>{value}</span>
-          <span className="truncate font-display text-label-md uppercase text-on-surface">{label}</span>
-        </div>
-        <div className="truncate text-footnote text-on-surface-muted">{sub}</div>
-      </div>
-    </div>
-  );
-}
-
 function FilterSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: Array<{ value: string; label: string }> }) {
   return (
-    <label className="flex min-w-0 flex-col gap-1">
-      <Label>{label}</Label>
-      <select className="select h-10 text-body-sm" value={value} onChange={(e) => onChange(e.target.value)}>
+    <label className="flex min-w-[160px] flex-col gap-1">
+      <FieldLabel>{label}</FieldLabel>
+      <select className="select h-10 rounded text-body-sm" value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => (
           <option key={o.value || 'all'} value={o.value}>
             {o.label}
@@ -412,16 +382,10 @@ function FilterSelect({ label, value, onChange, options }: { label: string; valu
   );
 }
 
-function Section({ title, icon, right, children }: { title: string; icon: string; right?: React.ReactNode; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2 border-t border-outline pt-4 first:border-t-0 first:pt-0">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 font-display text-label-md uppercase text-on-surface">
-          <Icon name={icon} size={18} className="text-cat-text" />
-          {title}
-        </h3>
-        {right}
-      </div>
+    <section className="space-y-3">
+      <h3 className="text-body-md font-semibold text-on-surface">{title}</h3>
       {children}
     </section>
   );
@@ -449,10 +413,12 @@ function IncidentDrawer({ incident: i, onClose, onUpdated, onTraining }: { incid
   }
 
   const ctxRows = [
-    ['Unit', i.machine_id],
-    ['Operator', `${opName(i.operator_id)} · ${i.operator_id}`],
+    ['Operator', opName(i.operator_id)],
+    ['Source', sourceLabel(i)],
+    ['Severity', titleCase(i.severity)],
     ...(i.shift_id ? [['Shift', i.shift_id]] : []),
     ...Object.entries(i.context ?? {})
+      .filter(([k]) => k !== 'rule_version')
       .map(([k, v]) => [CONTEXT_LABEL[k] ?? titleCase(k), fmtContextValue(v)] as const)
       .filter((r): r is readonly [string, string] => r[1] !== null),
   ] as Array<readonly [string, string]>;
@@ -463,14 +429,10 @@ function IncidentDrawer({ incident: i, onClose, onUpdated, onTraining }: { incid
       onClose={onClose}
       title={
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <SignalWordChip word={i.signal_word} />
-            <ProvenanceBadges kinds={provenanceOf(i)} />
-            {i.simulated && <ProvenanceBadge kind="SIMULATED" />}
-          </div>
-          <h2 className="font-display text-headline-sm uppercase text-on-surface">{typeLabel(i.type)}</h2>
+          <SignalWordChip word={i.signal_word} />
+          <h2 className="font-display text-headline-sm text-on-surface">{typeLabel(i.type)}</h2>
           <p className="text-body-sm text-on-surface-muted">
-            {fmtDateTime(i.ts)} · {i.machine_id} · {opName(i.operator_id)}
+            {fmtDateTime(i.ts)} · {i.machine_id} · {STATUS_LABEL[i.status] ?? titleCase(i.status)}
           </p>
         </div>
       }
@@ -482,38 +444,57 @@ function IncidentDrawer({ incident: i, onClose, onUpdated, onTraining }: { incid
           <Button variant="secondary" size="sm" icon="check_circle" disabled={i.status === 'closed' || !!busy} onClick={() => patch({ status: 'closed' }, 'Entry closed')}>
             Close
           </Button>
-          <Button variant="primary" size="sm" icon="school" onClick={() => onTraining(moduleId)}>
+          <Button variant="ghost" size="sm" icon="school" onClick={() => onTraining(moduleId)}>
             Link to training
           </Button>
         </>
       }
     >
-      <div className="space-y-5">
+      <div className="space-y-8">
         {err !== null && <ErrorNote error={err} />}
-        <div className="flex items-center gap-2">
-          <Label>Status</Label>
-          <Chip tone={STATUS_TONE[i.status] ?? 'neutral'}>{i.status}</Chip>
-          <span className="text-footnote text-on-surface-muted">Severity {i.severity}</span>
-        </div>
 
-        <Section title="Timeline · 30 s either side" icon="timeline" right={<ProvenanceBadge kind="SIMULATED" />}>
+        <Section title="Timeline · 30 s either side">
           <SnapshotTimeline incident={i} />
         </Section>
 
-        <Section title="Why flagged" icon="help" right={<ProvenanceBadges kinds={provenanceOf(i)} />}>
+        <Section title="Why flagged">
           {i.explanation?.length ? (
             <ExplanationBars items={i.explanation} compact bandLabel="this operator's usual band for the task" />
           ) : i.source === 'manual' ? (
             <p className="text-body-sm text-on-surface-variant">Logged by a person from the cab. No automatic check involved.</p>
           ) : (
-            <p className="text-body-sm text-on-surface-variant">
-              Fixed safety rule{typeof i.context?.rule_id === 'string' ? ` ${i.context.rule_id}` : ''} was met — a yes/no check, no model involved.
-            </p>
+            <p className="text-body-sm text-on-surface-variant">A fixed safety rule was met — a yes/no check, no model involved.</p>
           )}
         </Section>
 
-        <Section title="Auto-attached context" icon="dataset">
-          <dl className="grid grid-cols-[150px_1fr] gap-x-3 gap-y-1.5 text-body-sm">
+        <Section title="Operator's note">
+          {i.operator_note ? (
+            <div className={cx('border-l-4 pl-3', i.dispute_status === 'disputed' ? 'border-warning' : 'border-outline-variant')}>
+              <p className="text-body-md text-on-surface">“{i.operator_note}”</p>
+              {i.dispute_status === 'disputed' && (
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-body-sm">
+                  <span className="inline-flex items-center gap-1 text-warning-text">
+                    <Icon name="flag" size={16} /> Disputed by operator
+                  </span>
+                  <button type="button" disabled={!!busy} onClick={() => patch({ dispute_status: 'resolved' }, 'Dispute marked resolved')} className="font-semibold text-notice-dark hover:underline disabled:opacity-50">
+                    Mark dispute resolved
+                  </button>
+                </div>
+              )}
+              {i.dispute_status === 'resolved' && (
+                <div className="mt-2 inline-flex items-center gap-1 text-body-sm text-success-text">
+                  <Icon name="handshake" size={16} /> Dispute resolved
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-body-sm text-on-surface-muted">No note from the operator yet.</p>
+          )}
+          {i.note && <p className="text-body-sm text-on-surface-variant">Entry note: {i.note}</p>}
+        </Section>
+
+        <Section title="Context">
+          <dl className="grid grid-cols-[140px_1fr] gap-x-3 gap-y-2 text-body-sm">
             {ctxRows.map(([k, v]) => (
               <div key={k} className="contents">
                 <dt className="text-on-surface-muted">{k}</dt>
@@ -523,75 +504,45 @@ function IncidentDrawer({ incident: i, onClose, onUpdated, onTraining }: { incid
           </dl>
         </Section>
 
-        <Section title="Operator's note" icon="record_voice_over">
-          {i.operator_note ? (
-            <div className={cx('border-l-4 bg-surface-container-low px-3 py-2', i.dispute_status === 'disputed' ? 'border-warning' : 'border-outline-variant')}>
-              <p className="text-body-md text-on-surface">“{i.operator_note}”</p>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {i.dispute_status === 'disputed' && (
-                  <Chip tone="orange" icon="flag">
-                    Disputed by operator
-                  </Chip>
-                )}
-                {i.dispute_status === 'resolved' && (
-                  <Chip tone="green" icon="handshake">
-                    Dispute resolved
-                  </Chip>
-                )}
-                {i.dispute_status === 'disputed' && (
-                  <Button variant="ghost" size="sm" disabled={!!busy} onClick={() => patch({ dispute_status: 'resolved' }, 'Dispute marked resolved')}>
-                    Mark dispute resolved
-                  </Button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <p className="text-body-sm text-on-surface-muted">No note from the operator yet.</p>
-          )}
-          {i.note && (
-            <p className="text-body-sm text-on-surface-variant">
-              <span className="font-display text-label-sm uppercase text-on-surface-muted">Entry note · </span>
-              {i.note}
-            </p>
-          )}
-        </Section>
+        <Details label="Attachments and linked competency">
+          <div className="space-y-6">
+            <Section title="Attachments">
+              {i.attachments?.length ? (
+                <ul className="space-y-2">
+                  {i.attachments.map((a, idx) => (
+                    <li key={idx} className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-body-sm">
+                        <Icon name={a.kind === 'voice' ? 'mic' : 'photo_camera'} size={20} className="text-on-surface-variant" />
+                        {a.label}
+                      </span>
+                      <Button variant="ghost" size="sm" icon={a.kind === 'voice' ? 'play_arrow' : 'visibility'} onClick={() => toast('Attachment playback is a placeholder in the prototype', 'info')}>
+                        {a.kind === 'voice' ? 'Play' : 'View'}
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-body-sm text-on-surface-muted">No attachments.</p>
+              )}
+            </Section>
+            <Section title="Linked competency">
+              {competencies.length ? (
+                <ul className="space-y-1.5">
+                  {competencies.map((c) => (
+                    <li key={c} className="flex items-center gap-2 text-body-sm">
+                      <Icon name="school" size={18} className="text-notice-dark" />
+                      <span className="text-on-surface">{competencyLabel(c)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-body-sm text-on-surface-muted">No competency linked.</p>
+              )}
+            </Section>
+          </div>
+        </Details>
 
-        <Section title="Attachments" icon="attach_file">
-          {i.attachments?.length ? (
-            <ul className="space-y-2">
-              {i.attachments.map((a, idx) => (
-                <li key={idx} className="flex items-center justify-between gap-2 border border-outline bg-surface-container-low px-3 py-2">
-                  <span className="flex items-center gap-2 text-body-sm">
-                    <Icon name={a.kind === 'voice' ? 'mic' : 'photo_camera'} size={20} className="text-on-surface-variant" />
-                    {a.label}
-                    {a.mock !== false && <ProvenanceBadge kind="MOCK" />}
-                  </span>
-                  <Button variant="secondary" size="sm" icon={a.kind === 'voice' ? 'play_arrow' : 'visibility'} onClick={() => toast('Attachment playback is a MOCK in the prototype', 'info')}>
-                    {a.kind === 'voice' ? 'Play' : 'View'}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-body-sm text-on-surface-muted">No attachments.</p>
-          )}
-        </Section>
-
-        <Section title="Linked competency" icon="workspace_premium">
-          {competencies.length ? (
-            <ul className="space-y-1.5">
-              {competencies.map((c) => (
-                <li key={c} className="flex items-center gap-2 text-body-sm">
-                  <Icon name="school" size={18} className="text-notice-dark" />
-                  <span className="text-on-surface">{competencyLabel(c)}</span>
-                  <span className="text-footnote text-on-surface-muted">{c}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-body-sm text-on-surface-muted">No competency linked.</p>
-          )}
-        </Section>
+        <SourceNote kinds={[...provenanceOf(i), ...(i.simulated ? ['SIMULATED'] : []), ...(i.attachments?.some((a) => a.mock !== false) ? ['MOCK'] : [])]} />
       </div>
     </Drawer>
   );
@@ -619,7 +570,7 @@ function channelsFor(type: string): { channels: Channel[]; primary: Channel['key
     { key: 'travel', label: 'Travel speed', unit: 'km/h', color: '#1AC69E', threshold: 0.5, thresholdLabel: 'Moving > 0.5 km/h' },
     { key: 'prox', label: person ? 'Person distance' : 'Truck distance', unit: 'm', color: '#6852BE', threshold: person ? 5 : 3, thresholdLabel: person ? 'Danger zone 5 m' : 'Close to truck 3 m' },
   ];
-  const primary: Channel['key'] = type === 'seatbelt_unfastened_moving' ? 'travel' : person ? 'prox' : type === 'fast_swing_near_truck' ? 'swing' : 'swing';
+  const primary: Channel['key'] = type === 'seatbelt_unfastened_moving' ? 'travel' : person ? 'prox' : 'swing';
   return { channels, primary };
 }
 
@@ -629,27 +580,23 @@ function SnapshotTimeline({ incident }: { incident: Incident }) {
     .filter((r): r is { t: number; swing: number | null; travel: number | null; prox: number | null } => r.t !== null)
     .sort((a, b) => a.t - b.t);
   if (series.length < 2) {
-    return (
-      <EmptyState icon="show_chart" title="No sensor snapshot attached">
-        Manual entries and synced summaries may not carry the ±30 s window.
-      </EmptyState>
-    );
+    return <p className="text-body-sm text-on-surface-muted">No sensor snapshot attached. Manual entries and synced summaries may not carry the ±30 s window.</p>;
   }
   const { channels, primary } = channelsFor(incident.type);
   return (
-    <div className="space-y-1">
+    <div className="space-y-3">
       {channels.map((c, idx) => {
         const isPrimary = c.key === primary;
         const last = idx === channels.length - 1;
         const hasData = series.some((r) => r[c.key] !== null);
         return (
-          <div key={c.key} className={cx('border bg-surface-container-low px-2 pt-1', isPrimary ? 'border-outline-variant' : 'border-outline')}>
-            <div className="flex items-center justify-between px-1">
-              <span className={cx('font-display text-label-sm uppercase', isPrimary ? 'text-on-surface' : 'text-on-surface-muted')}>
-                <span className="mr-1.5 inline-block h-2 w-2" style={{ background: c.color }} />
+          <div key={c.key}>
+            <div className="flex items-center justify-between text-body-sm">
+              <span className={isPrimary ? 'font-semibold text-on-surface' : 'text-on-surface-muted'}>
+                <span className="mr-1.5 inline-block h-2 w-2 rounded-full" style={{ background: c.color }} />
                 {c.label} ({c.unit})
               </span>
-              {isPrimary && <span className="font-display text-[11px] uppercase text-warning-text">{c.thresholdLabel}</span>}
+              {isPrimary && <span className="text-on-surface-muted">{c.thresholdLabel}</span>}
             </div>
             {hasData ? (
               <ResponsiveContainer width="100%" height={last ? 96 : 76}>
@@ -658,18 +605,18 @@ function SnapshotTimeline({ incident }: { incident: Incident }) {
                   <XAxis dataKey="t" type="number" domain={['dataMin', 'dataMax']} ticks={[-30, -20, -10, 0, 10, 20, 30]} {...AXIS} hide={!last} tickFormatter={(v: number) => `${v > 0 ? '+' : ''}${v} s`} height={last ? 22 : 0} />
                   <YAxis {...AXIS} width={40} tickCount={3} domain={[0, 'auto']} />
                   <Tooltip {...TOOLTIP} labelFormatter={(v) => `t ${Number(v) > 0 ? '+' : ''}${v} s`} formatter={(v) => [`${v} ${c.unit}`, c.label]} />
-                  <ReferenceLine y={c.threshold} stroke={isPrimary ? '#E56C00' : 'var(--chart-tip-border)'} strokeDasharray="5 4" />
-                  <ReferenceLine x={0} stroke="#C52320" strokeWidth={1.5} label={idx === 0 ? { value: 'EVENT', position: 'insideTopRight', fill: '#FFCD11', fontSize: 11 } : undefined} />
+                  <ReferenceLine y={c.threshold} stroke={isPrimary ? '#E56C00' : 'var(--chart-axis)'} strokeDasharray="5 4" />
+                  <ReferenceLine x={0} stroke="#C52320" strokeWidth={1.5} label={idx === 0 ? { value: 'Event', position: 'insideTopRight', fill: 'var(--svg-text)', fontSize: 11 } : undefined} />
                   <Line type="monotone" dataKey={c.key} stroke={c.color} strokeWidth={isPrimary ? 2.5 : 1.5} dot={false} isAnimationActive={false} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="px-1 py-3 text-footnote text-on-surface-muted">Not recorded for this entry.</div>
+              <div className="py-2 text-body-sm text-on-surface-muted">Not recorded for this entry.</div>
             )}
           </div>
         );
       })}
-      <p className="pt-1 text-footnote text-on-surface-muted">Yellow line = moment of the event. Dashed line = rule threshold.</p>
+      <p className="text-body-sm text-on-surface-muted">Red line = moment of the event. Dashed line = rule threshold.</p>
     </div>
   );
 }
@@ -726,11 +673,11 @@ function NewEntryModal({ open, onClose, onSaved }: { open: boolean; onClose: () 
         </>
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
         {err !== null && <ErrorNote error={err} />}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-5">
           <label className="flex flex-col gap-1">
-            <Label>Type</Label>
+            <FieldLabel>Type</FieldLabel>
             <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
               {MANUAL_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -740,7 +687,7 @@ function NewEntryModal({ open, onClose, onSaved }: { open: boolean; onClose: () 
             </select>
           </label>
           <div className="flex flex-col gap-1">
-            <Label>Severity</Label>
+            <FieldLabel>Severity</FieldLabel>
             <Segmented
               value={severity}
               onChange={setSeverity}
@@ -752,7 +699,7 @@ function NewEntryModal({ open, onClose, onSaved }: { open: boolean; onClose: () 
             />
           </div>
           <label className="flex flex-col gap-1">
-            <Label>Unit</Label>
+            <FieldLabel>Unit</FieldLabel>
             <select className="select" value={unit} onChange={(e) => setUnit(e.target.value)}>
               {BASE_UNITS.map((u) => (
                 <option key={u} value={u}>
@@ -762,25 +709,23 @@ function NewEntryModal({ open, onClose, onSaved }: { open: boolean; onClose: () 
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <Label>Operator</Label>
+            <FieldLabel>Operator</FieldLabel>
             <select className="select" value={operator} onChange={(e) => setOperator(e.target.value)}>
               {Object.values(OPERATORS).map((o) => (
                 <option key={o.operator_id} value={o.operator_id}>
-                  {o.name} · {o.operator_id}
+                  {o.name}
                 </option>
               ))}
             </select>
           </label>
         </div>
         <label className="flex flex-col gap-1">
-          <Label>What happened</Label>
+          <FieldLabel>What happened</FieldLabel>
           <textarea className="input h-28 resize-none py-2" maxLength={400} placeholder="e.g. Light vehicle entered the loading zone without a radio call" value={note} onChange={(e) => setNote(e.target.value)} />
         </label>
-        <div className="flex items-center justify-between gap-3">
-          <Toggle on={voice} onChange={setVoice} label="Attach voice note" />
-          <ProvenanceBadge kind="MOCK" />
-        </div>
-        <p className="text-footnote text-on-surface-muted">Task, zone and machine state are attached automatically from the edge. The entry is stored on the machine first and synced to the cloud when online.</p>
+        <Toggle on={voice} onChange={setVoice} label="Attach voice note" />
+        <p className="text-body-sm text-on-surface-muted">Task, zone and machine state are attached automatically. The entry is stored on the machine first and synced when online.</p>
+        <SourceNote kinds={['MANUAL', 'MOCK']}>Voice note is a placeholder</SourceNote>
       </div>
     </Modal>
   );

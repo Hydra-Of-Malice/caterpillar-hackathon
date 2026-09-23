@@ -45,13 +45,13 @@ export function BandScale({ score }: { score: number }) {
   ];
   return (
     <div className="w-full">
-      <div className="relative flex h-4 w-full border border-outline">
+      <div className="relative flex h-3 w-full">
         {segs.map(([a, b, cls]) => (
           <div key={a} className={cls} style={{ width: `${b - a}%` }} />
         ))}
-        <div className="absolute -bottom-1.5 -top-1.5 w-1.5 bg-white" style={{ left: `calc(${Math.max(0, Math.min(100, score))}% - 3px)` }} />
+        <div className="absolute -bottom-1.5 -top-1.5 w-1.5 bg-on-surface" style={{ left: `calc(${Math.max(0, Math.min(100, score))}% - 3px)` }} />
       </div>
-      <div className="mt-1 flex font-display text-[11px] uppercase text-on-surface-muted">
+      <div className="mt-2 flex text-body-sm text-on-surface-muted">
         {segs.map(([a, b, , l]) => (
           <span key={a} style={{ width: `${b - a}%` }}>
             {l}
@@ -69,9 +69,9 @@ export function PhaseTimelineBar({ trainee, expert }: { trainee: Record<string, 
   const eTot = phases.reduce((a, p) => a + (expert[p] ?? 0), 0);
   const max = Math.max(tTot, eTot, 1);
   const Row = ({ label, d, tot }: { label: string; d: Record<string, number>; tot: number }) => (
-    <div className="grid grid-cols-[110px_1fr_70px] items-center gap-3">
-      <span className="font-display text-label-md uppercase text-on-surface-variant">{label}</span>
-      <div className="flex h-9 w-full bg-surface-container-lowest">
+    <div className="grid grid-cols-[110px_1fr_70px] items-center gap-4">
+      <span className="text-body-md text-on-surface-variant">{label}</span>
+      <div className="flex h-9 w-full bg-surface-container-high">
         <div className="flex h-full" style={{ width: `${(tot / max) * 100}%` }}>
           {phases.map((p) => (
             <div key={p} className="flex h-full items-center justify-center overflow-hidden border-r border-black font-display text-[11px] font-bold text-white" style={{ width: `${((d[p] ?? 0) / (tot || 1)) * 100}%`, background: PHASE_COLOR[p] }} title={`${PHASE_LABEL[p]} ${(d[p] ?? 0).toFixed(1)} s`}>
@@ -80,14 +80,14 @@ export function PhaseTimelineBar({ trainee, expert }: { trainee: Record<string, 
           ))}
         </div>
       </div>
-      <span className="text-right font-display text-label-lg tnum">{tot.toFixed(1)} s</span>
+      <span className="text-right text-body-md tnum">{tot.toFixed(1)} s</span>
     </div>
   );
   return (
     <div className="space-y-2">
       <Row label="You" d={trainee} tot={tTot} />
       <Row label="Expert P50" d={expert} tot={eTot} />
-      <div className="flex flex-wrap gap-3 pl-[122px] font-display text-label-sm uppercase text-on-surface-muted">
+      <div className="flex flex-wrap gap-4 pl-[126px] text-body-sm text-on-surface-muted">
         {phases.map((p) => (
           <span key={p} className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5" style={{ background: PHASE_COLOR[p] }} /> {PHASE_LABEL[p]}
@@ -116,24 +116,23 @@ export function MetricCard({ m }: { m: CycleMetric }) {
   const unit = m.unit === 'deg/s' ? '°/s' : m.unit === 'ratio' ? '' : m.unit;
   const fmt = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
   return (
-    <div className="flex flex-col gap-2 border border-outline bg-surface-container p-4">
+    <div className="panel flex flex-col gap-3 p-5">
       <div className="flex items-start justify-between gap-2">
-        <span className="font-display text-label-md uppercase text-on-surface-variant">{m.label}</span>
-        <span className={cx('inline-flex items-center gap-1 border px-1.5 py-0.5 font-display text-[11px] font-bold uppercase', st.cls)}>
-          <Icon name={st.icon} size={13} /> {st.label}
+        <span className="text-body-md text-on-surface-variant">{m.label}</span>
+        <span className={cx('inline-flex items-center gap-1 font-display text-label-sm uppercase', st.cls)}>
+          <Icon name={st.icon} size={14} /> {st.label}
         </span>
       </div>
       <div className="font-display text-headline-lg tnum">
         {fmt(m.value)} <span className="text-headline-sm text-on-surface-muted">{unit}</span>
       </div>
-      <div className="relative h-4 border border-outline bg-surface-container-lowest">
-        <div className="absolute bottom-0 top-0 bg-white/15" style={{ left: pos(m.expert_p10), width: `calc(${pos(m.expert_p90)} - ${pos(m.expert_p10)})` }} />
+      <div className="relative h-3 bg-surface-container-high">
+        <div className="absolute bottom-0 top-0 bg-on-surface/15" style={{ left: pos(m.expert_p10), width: `calc(${pos(m.expert_p90)} - ${pos(m.expert_p10)})` }} />
         <div className="absolute -bottom-1 -top-1 w-0.5 bg-on-surface-muted" style={{ left: pos(m.expert_p50) }} />
         <div className={cx('absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black', m.status === 'expert_like' ? 'bg-success-text' : m.status === 'near' ? 'bg-caution' : 'bg-warning')} style={{ left: pos(m.value) }} />
       </div>
-      <div className="flex justify-between font-display text-[11px] uppercase text-on-surface-muted">
-        <span>Expert P10–P90 {fmt(m.expert_p10)}–{fmt(m.expert_p90)} {unit}</span>
-        <span>{m.better === 'higher' ? 'higher is better' : m.better === 'lower' ? 'lower is better' : 'stay in band'}</span>
+      <div className="text-body-sm text-on-surface-muted">
+        Expert {fmt(m.expert_p10)}–{fmt(m.expert_p90)} {unit} · {m.better === 'higher' ? 'higher is better' : m.better === 'lower' ? 'lower is better' : 'stay in band'}
       </div>
     </div>
   );
@@ -144,10 +143,10 @@ export function TrajectoryChart({ ch, height = 170 }: { ch: OverlayChannel; heig
   const data = ch.t.map((t, i) => ({ t: Math.round(t), band: [ch.p10[i], ch.p90[i]] as [number, number], p50: ch.p50[i], you: ch.trainee[i] }));
   const unit = ch.unit === '-1..1' ? '' : ch.unit === 'deg/s' ? '°/s' : ch.unit;
   return (
-    <div className="border border-outline bg-surface-container-low p-2">
-      <div className="mb-1 flex items-center justify-between px-1">
-        <span className="font-display text-label-md uppercase">{ch.label}</span>
-        {ch.exitFrac !== undefined && <span className={cx('font-display text-[11px] uppercase', ch.exitFrac > 0.3 ? 'text-warning-text' : 'text-on-surface-muted')}>{Math.round(ch.exitFrac * 100)}% outside band</span>}
+    <div className="panel p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-display text-headline-sm">{ch.label}</span>
+        {ch.exitFrac !== undefined && <span className={cx('text-body-sm', ch.exitFrac > 0.3 ? 'text-warning-text' : 'text-on-surface-muted')}>{Math.round(ch.exitFrac * 100)}% outside band</span>}
       </div>
       <div style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -200,26 +199,24 @@ export function TipCard({ tip, rank, report }: { tip: CoachingTip; rank: number;
   const outside = tip.evidence?.cycles_outside_band as number | undefined;
   const n = tip.evidence?.n_cycles as number | undefined;
   return (
-    <article className="flex gap-4 border border-outline bg-surface-container p-4">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-surface-container-highest font-display text-headline-md">{rank}</span>
+    <article className="panel flex gap-6 p-6">
+      <span className="w-6 shrink-0 font-display text-headline-md text-on-surface-muted">{rank}</span>
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={cx('px-1.5 py-0.5 font-display text-[11px] font-bold uppercase', sev.cls)}>{sev.label}</span>
+        <div className="flex flex-wrap items-center gap-3">
           {tip.phase && <PhaseChip phase={tip.phase} size="sm" />}
-          {tip.competency_id && <span className="border border-outline-variant px-1.5 py-0.5 font-display text-[11px] uppercase text-on-surface-variant">{tip.competency_id} · {competencyLabel(tip.competency_id)}</span>}
-          {outside !== undefined && n !== undefined && <span className="font-display text-[11px] uppercase text-on-surface-muted">{outside} of {n} cycles outside the expert band</span>}
+          {tip.severity === 'priority' && <span className={cx('px-1.5 py-0.5 font-display text-[11px] font-bold uppercase', sev.cls)}>{sev.label}</span>}
+          <h3 className="font-display text-headline-sm">{tip.title}</h3>
         </div>
-        <h3 className="mt-1 font-display text-headline-sm">{tip.title}</h3>
-        <p className="text-body-md text-on-surface-variant">{tip.detail}</p>
-        {gain !== undefined && gain >= 0.5 && (
-          <div className="mt-2">
-            <GainChip>fixing this ≈ +{gain.toFixed(0)} m³/shift</GainChip>
-          </div>
-        )}
+        <p className="mt-2 text-body-md text-on-surface-variant">{tip.detail}</p>
+        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-body-sm text-on-surface-muted">
+          {gain !== undefined && gain >= 0.5 && <GainChip>fixing this ≈ +{gain.toFixed(0)} m³/shift</GainChip>}
+          {outside !== undefined && n !== undefined && <span>{outside} of {n} cycles outside the expert band</span>}
+          {tip.competency_id && <span>{competencyLabel(tip.competency_id)}</span>}
+        </div>
       </div>
       {moduleId && (
         <Link to={`/training/module/${moduleId}`} className="shrink-0 self-center">
-          <Button variant="primary" size="md" icon="play_circle">
+          <Button variant="secondary" size="md" icon="play_circle">
             Start module
           </Button>
         </Link>

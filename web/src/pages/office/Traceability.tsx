@@ -1,11 +1,12 @@
 /**
  * /traceability — "How CAT Sentinel meets the brief" (screen 20).
- * Requirement → problem → feature → data → method → where to see it → success measure, with an
- * honest Built / Simulated / Mocked status. No compliance claims, no scores.
+ * Requirement → feature → where to see it → honest status. Problem, data, method and success
+ * measure open per row; the real / rule / simulated / mocked breakdown sits behind Details.
+ * No compliance claims, no scores.
  */
+import { Fragment, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ProvenanceBadge, ProvenanceBadges } from '../../components/ProvenanceBadge';
-import { Chip, Icon, Label, PageTitle, Panel, PanelHeader, cx } from '../../components/ui';
+import { Icon, PageTitle, Panel, cx } from '../../components/ui';
 
 type Status = 'Built' | 'Simulated' | 'Mocked';
 
@@ -28,7 +29,7 @@ const ROWS: TraceRow[] = [
     requirement: 'Daily task dashboard',
     problem: 'The shift starts from a verbal or paper briefing; priorities, progress and conditions are scattered.',
     feature: 'Cab home with today’s tasks, progress bars and a P10–P90 time range; pre-shift checklist that gates “Start shift”; conditions card; supervisor crew view.',
-    data: 'Shift plan and tasks (fixture), progress from cycle counts (SIMULATED), weather (MOCKED feed).',
+    data: 'Shift plan and tasks (fixture), progress from cycle counts (simulated), weather (mocked feed).',
     methods: ['RULE', 'ML', 'SIMULATED', 'MOCK'],
     links: [
       { to: '/cab/home', label: 'Cab home' },
@@ -42,8 +43,8 @@ const ROWS: TraceRow[] = [
     id: 'R2',
     requirement: 'Safety — seatbelt, proximity, incident log, working conditions',
     problem: 'Unbelted operation and people entering the swing radius are the highest-severity risks; near-misses go unreported and context is lost.',
-    feature: 'Deterministic seatbelt and proximity rules published over MQTT (DANGER banner even if the edge API is down); heartbeat watchdog → PROTECTION DEGRADED; incident log with telemetry snapshot and dispute; break and conditions reminders.',
-    data: 'Seat switch, travel speed (Tier B, SIMULATED); person / truck distance (Tier C, SIMULATED, optional hardware); shift clock and break log; weather (MOCKED).',
+    feature: 'Deterministic seatbelt and proximity rules published over MQTT (DANGER banner even if the edge API is down); heartbeat watchdog → protection degraded; incident log with telemetry snapshot and dispute; break and conditions reminders.',
+    data: 'Seat switch, travel speed (Tier B, simulated); person / truck distance (Tier C, simulated, optional hardware); shift clock and break log; weather (mocked).',
     methods: ['RULE', 'SIMULATED', 'MOCK'],
     links: [
       { to: '/cab/operate', label: 'Operate' },
@@ -59,14 +60,14 @@ const ROWS: TraceRow[] = [
     requirement: 'Training hub (+ Practice Analyser with Expert Motion Model)',
     problem: 'Training is generic and not tied to what the operator actually did on the machine; instructor time is hard to schedule.',
     feature: 'Competency gaps from observed events (evidence first); cited micro-modules and quiz; instructor booking; Practice Analyser comparing trainee motion with an Expert Motion Model; before/after re-assessment.',
-    data: 'Alert and event history (SIMULATED); practice joystick and phase samples (SIMULATED); team-authored SAMPLE SOPs; instructor calendar (MOCKED).',
+    data: 'Alert and event history (simulated); practice joystick and phase samples (simulated); team-authored sample SOPs; instructor calendar (mocked).',
     methods: ['ML', 'RULE', 'SIMULATED', 'MOCK'],
     links: [
       { to: '/training', label: 'Training hub' },
       { to: '/training/practice', label: 'Practice' },
       { to: '/training/effectiveness', label: 'Effectiveness' },
     ],
-    success: 'Gap → module → re-assessment loop closes; every published sentence traces to a source; practice score reaches the proficient band in fewer sessions (SIMULATED cohort).',
+    success: 'Gap → module → re-assessment loop closes; every published sentence traces to a source; practice score reaches the proficient band in fewer sessions (simulated cohort).',
     status: ['Built', 'Simulated', 'Mocked'],
     statusNote: 'LMS and booking mocked',
   },
@@ -75,13 +76,13 @@ const ROWS: TraceRow[] = [
     requirement: 'Unusual behaviour & idle',
     problem: 'Unusual control patterns go unnoticed, idling is hard to separate from legitimate waiting, and machine faults get blamed on operators.',
     feature: 'Isolation Forest per task type with a plain “why” (robust-z); machine-vs-operator attribution; context-aware idle rule with the waiting-for-truck gate.',
-    data: 'Swing rate, joystick commands, hydraulic pressure (Tier B, SIMULATED); idle hours and fuel (Tier A, SIMULATED).',
+    data: 'Swing rate, joystick commands, hydraulic pressure (Tier B, simulated); idle hours and fuel (Tier A, simulated).',
     methods: ['ML', 'RULE', 'SIMULATED'],
     links: [
       { to: '/anomaly', label: 'Unusual & idle' },
       { to: '/cab/operate', label: 'Operate' },
     ],
-    success: 'In-cab alerts per operating hour within the 1.0 budget; event precision / recall on injected events (SIMULATED); unexplained idle minutes per shift.',
+    success: 'In-cab alerts per operating hour within the 1.0 budget; event precision / recall on injected events (simulated); unexplained idle minutes per shift.',
     status: ['Built', 'Simulated'],
   },
   {
@@ -89,7 +90,7 @@ const ROWS: TraceRow[] = [
     requirement: 'Task-time estimation',
     problem: 'Planners and operators get single-point guesses with no uncertainty, and estimates go stale mid-shift.',
     feature: 'LightGBM quantile P10 / P50 / P90 with conformal calibration (CQR); drivers of the estimate; live remaining-time update from observed progress.',
-    data: 'Task history (SIMULATED), task type, material, operator experience, conditions.',
+    data: 'Task history (simulated), task type, material, operator experience, conditions.',
     methods: ['ML', 'SIMULATED'],
     links: [
       { to: '/tasks', label: 'Tasks' },
@@ -99,11 +100,11 @@ const ROWS: TraceRow[] = [
     status: ['Built', 'Simulated'],
   },
   {
-    id: 'VAL',
+    id: 'Value',
     requirement: 'Business value',
     problem: 'A buyer needs to see what the features could be worth, and which assumptions drive the number.',
     feature: 'Editable lever model — productivity, idle fuel, training time, safety expected value, wear, planning — with scenarios and a sensitivity chart.',
-    data: 'Customer inputs, public reference prices (example values), team assumptions, SIMULATED prototype gaps.',
+    data: 'Customer inputs, public reference prices (example values), team assumptions, simulated prototype gaps.',
     methods: ['ESTIMATE', 'SIMULATED'],
     links: [{ to: '/value', label: 'Business value' }],
     success: 'Every dollar traces to an editable assumption; return on investment to be proven in a pilot.',
@@ -112,190 +113,179 @@ const ROWS: TraceRow[] = [
   },
 ];
 
-type ClassKind = 'REAL MODEL' | 'REAL' | 'RULE' | 'SIMULATED INPUT' | 'MOCKED INTEGRATION' | 'SAMPLE CONTENT';
-
-const REALITY: Array<{ element: string; cls: ClassKind; detail: string }> = [
-  { element: 'Isolation Forest (4 models), ECDF percentiles, alert-budget thresholds', cls: 'REAL MODEL', detail: 'Trained and calibrated on SIMULATED windows; live inference' },
-  { element: 'LightGBM P10 / P50 / P90 + CQR', cls: 'REAL MODEL', detail: 'Trained on SIMULATED task history, or supplied logs if usable' },
-  { element: 'Expert Motion Model (Practice Analyser)', cls: 'REAL MODEL', detail: 'Expert envelopes built from SIMULATED, safety-filtered expert sessions' },
-  { element: 'Robust-z explainer; TreeSHAP post-shift', cls: 'REAL', detail: 'Deterministic statistic / real SHAP' },
-  { element: 'Embedding + BM25 retrieval, LLM generation, citation verifier', cls: 'REAL', detail: 'LLM is a live API call; extractive fallback is real' },
-  { element: 'Gamma–Poisson gap evidence, re-assessment rate ratio', cls: 'REAL', detail: 'Real statistics, run on SIMULATED events' },
-  { element: 'Seatbelt, inner proximity zone, over-speed, sensor health', cls: 'RULE', detail: 'rules.yaml, versioned' },
-  { element: 'Excessive idle + context gate; procedural rules', cls: 'RULE', detail: 'Versioned rules' },
-  { element: 'Fusion, in-cab gate, tiering, rate limits, escalation', cls: 'RULE', detail: 'Hand-set weights, inspectable' },
-  { element: 'Event → competency map, recurrence floor, attribution', cls: 'RULE', detail: 'Versioned YAML' },
-  { element: 'Tier B signals, Tier C distances, GPS, truck presence', cls: 'SIMULATED INPUT', detail: 'Seeded generator' },
-  { element: 'Tier A (hour meter, fuel, idle hours, fault codes)', cls: 'SIMULATED INPUT', detail: 'Unless a supplied dataset provides them' },
-  { element: 'Operators, shift seeds, improvement between shifts, expert envelopes', cls: 'SIMULATED INPUT', detail: 'Improvement is a generator parameter change' },
-  { element: 'CAN / J1939 gateway, Product Link / AEMP API, Cat Detect hardware', cls: 'MOCKED INTEGRATION', detail: 'Adapter interfaces + fixtures' },
-  { element: 'Weather API, LMS, instructor / simulator booking, expert videos, notifications, SSO / roles', cls: 'MOCKED INTEGRATION', detail: 'Placeholders; role switcher' },
-  { element: 'Training corpus', cls: 'SAMPLE CONTENT', detail: 'Team-authored SAMPLE SOPs, watermarked; not official Caterpillar content' },
-];
-
-/** Provenance badge where the class maps cleanly; REAL statistics and SAMPLE content get a plain chip. */
-const CLASS_BADGE: Record<ClassKind, string | null> = {
-  'REAL MODEL': 'ML',
-  REAL: null,
-  RULE: 'RULE',
-  'SIMULATED INPUT': 'SIMULATED',
-  'MOCKED INTEGRATION': 'MOCK',
-  'SAMPLE CONTENT': null,
+const METHOD_WORD: Record<string, string> = {
+  RULE: 'Deterministic rules',
+  ML: 'Trained model (decision support)',
+  SIMULATED: 'Simulated data',
+  MOCK: 'Mocked integration',
+  ESTIMATE: 'Business estimate',
 };
 
-function StatusChips({ status }: { status: Status[] }) {
+type ClassKind = 'Real model' | 'Real' | 'Rule' | 'Simulated input' | 'Mocked integration' | 'Sample content';
+
+const REALITY: Array<{ element: string; cls: ClassKind; detail: string }> = [
+  { element: 'Isolation Forest (4 models), ECDF percentiles, alert-budget thresholds', cls: 'Real model', detail: 'Trained and calibrated on simulated windows; live inference' },
+  { element: 'LightGBM P10 / P50 / P90 + CQR', cls: 'Real model', detail: 'Trained on simulated task history, or supplied logs if usable' },
+  { element: 'Expert Motion Model (Practice Analyser)', cls: 'Real model', detail: 'Expert envelopes built from simulated, safety-filtered expert sessions' },
+  { element: 'Robust-z explainer; TreeSHAP post-shift', cls: 'Real', detail: 'Deterministic statistic / real SHAP' },
+  { element: 'Embedding + BM25 retrieval, LLM generation, citation verifier', cls: 'Real', detail: 'LLM is a live API call; extractive fallback is real' },
+  { element: 'Gamma–Poisson gap evidence, re-assessment rate ratio', cls: 'Real', detail: 'Real statistics, run on simulated events' },
+  { element: 'Seatbelt, inner proximity zone, over-speed, sensor health', cls: 'Rule', detail: 'Versioned rule file' },
+  { element: 'Excessive idle + context gate; procedural rules', cls: 'Rule', detail: 'Versioned rules' },
+  { element: 'Fusion, in-cab gate, tiering, rate limits, escalation', cls: 'Rule', detail: 'Hand-set weights, inspectable' },
+  { element: 'Event → competency map, recurrence floor, attribution', cls: 'Rule', detail: 'Versioned rule file' },
+  { element: 'Tier B signals, Tier C distances, GPS, truck presence', cls: 'Simulated input', detail: 'Seeded generator' },
+  { element: 'Tier A (hour meter, fuel, idle hours, fault codes)', cls: 'Simulated input', detail: 'Unless a supplied dataset provides them' },
+  { element: 'Operators, shift seeds, improvement between shifts, expert envelopes', cls: 'Simulated input', detail: 'Improvement is a generator parameter change' },
+  { element: 'CAN / J1939 gateway, Product Link / AEMP API, Cat Detect hardware', cls: 'Mocked integration', detail: 'Adapter interfaces + fixtures' },
+  { element: 'Weather API, LMS, instructor / simulator booking, expert videos, notifications, SSO / roles', cls: 'Mocked integration', detail: 'Placeholders; role switcher' },
+  { element: 'Training corpus', cls: 'Sample content', detail: 'Team-authored sample SOPs, watermarked; not official Caterpillar content' },
+];
+
+function StatusText({ status, note }: { status: Status[]; note?: string }) {
+  const rest = status.filter((s) => s !== 'Built').map((s) => (s === 'Simulated' ? 'simulated data' : 'mocked parts'));
   return (
-    <span className="flex flex-col items-start gap-1">
-      {status.map((s) =>
-        s === 'Built' ? (
-          <Chip key={s} tone="green" icon="check">
-            Built
-          </Chip>
-        ) : s === 'Simulated' ? (
-          <span key={s} className="inline-flex items-center gap-1 whitespace-nowrap rounded border border-prov-sim px-2 py-0.5 font-display text-label-sm uppercase text-prov-sim-text stripes-sim">
-            <Icon name="science" size={14} /> Simulated data
-          </span>
-        ) : (
-          <span key={s} className="inline-flex items-center gap-1 whitespace-nowrap rounded border border-dashed border-prov-mock px-2 py-0.5 font-display text-label-sm uppercase text-prov-mock">
-            <Icon name="extension" size={14} /> Mocked parts
-          </span>
-        ),
+    <div>
+      {status.includes('Built') && (
+        <span className="inline-flex items-center gap-1.5 text-success-text">
+          <Icon name="check_circle" size={18} /> Built
+        </span>
       )}
-    </span>
+      {rest.length > 0 && <div className="text-on-surface-muted">On {rest.join(' · ')}</div>}
+      {note && <div className="text-on-surface-muted">{note}</div>}
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <div className="text-body-sm text-on-surface-muted">{label}</div>
+      <div className="mt-1 text-body-sm text-on-surface-variant">{children}</div>
+    </div>
   );
 }
 
 export default function Traceability() {
+  const [open, setOpen] = useState<string | null>(null);
+  const [showReality, setShowReality] = useState(false);
+
   return (
-    <div className="space-y-6">
-      <PageTitle
-        kicker="For judges · requirement traceability"
-        title="How CAT Sentinel meets the brief"
-        sub="Each Caterpillar requirement traced to the operator problem, the feature, the data it uses, the method and where to see it working."
-        right={
-          <>
-            <ProvenanceBadges kinds={['RULE', 'ML', 'SIMULATED', 'MOCK']} />
-            <Link to="/tour" className="inline-flex h-9 items-center gap-1.5 rounded border border-cat-border bg-cat px-3 font-display text-label-sm font-bold uppercase tracking-wider text-black hover:bg-cat-hover">
-              <Icon name="play_circle" size={18} /> Demo tour
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <PageTitle
+          title="How CAT Sentinel meets the brief"
+          sub="Each Caterpillar requirement, the feature that answers it, and where to see it working."
+          right={
+            <Link to="/tour" className="inline-flex h-10 items-center gap-2 rounded border border-cat-border bg-cat px-4 font-display text-label-md font-bold uppercase tracking-wider text-black hover:bg-cat-hover">
+              <Icon name="play_circle" size={20} /> Demo tour
             </Link>
-          </>
-        }
-      />
-
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border border-outline bg-surface-container-low px-4 py-2.5 text-body-sm text-on-surface-variant">
-        <Label>Method key</Label>
-        <span className="flex items-center gap-1.5">
-          <ProvenanceBadge kind="RULE" /> deterministic, versioned rule
-        </span>
-        <span className="flex items-center gap-1.5">
-          <ProvenanceBadge kind="ML" /> trained model, decision support only
-        </span>
-        <span className="flex items-center gap-1.5">
-          <ProvenanceBadge kind="SIMULATED" /> simulated telemetry or results
-        </span>
-        <span className="flex items-center gap-1.5">
-          <ProvenanceBadge kind="MOCK" /> placeholder integration
-        </span>
-        <span className="flex items-center gap-1.5">
-          <ProvenanceBadge kind="ESTIMATE" /> business estimate
-        </span>
+          }
+        />
+        <p className="flex items-center gap-2 text-body-sm text-on-surface-muted">
+          <Icon name="info" size={18} />
+          Prototype on simulated data. It has not been validated on Caterpillar operations and does not prove accident prevention.
+        </p>
       </div>
 
-      <Panel>
-        <PanelHeader icon="checklist" title="Requirement traceability" sub="Status is honest: what is built, what runs on simulated data, what is a mocked integration" />
+      <Panel className="p-6">
+        <div className="mb-6">
+          <h2 className="font-display text-headline-sm text-on-surface">Requirements</h2>
+          <p className="mt-1 text-body-sm text-on-surface-muted">Open a row for the operator problem, data, method and success measure.</p>
+        </div>
         <div className="overflow-x-auto">
-          <table className="table-dense w-full min-w-[1280px]">
+          <table className="table-dense w-full min-w-[820px]">
             <thead>
               <tr>
-                <th className="w-[12%]">Caterpillar requirement</th>
-                <th className="w-[15%]">Operator problem</th>
-                <th className="w-[19%]">Feature</th>
-                <th className="w-[15%]">Data used</th>
-                <th className="w-[8%]">Method</th>
-                <th className="w-[10%]">Where to see it</th>
-                <th className="w-[13%]">Success measure</th>
-                <th className="w-[8%]">Status</th>
+                <th className="w-[26%]">Requirement</th>
+                <th>Feature</th>
+                <th className="w-[16%]">Where to see it</th>
+                <th className="w-[16%]">Status</th>
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((r) => (
-                <tr key={r.id} className="align-top">
-                  <td className="!align-top">
-                    <span className={cx('mb-1 inline-block border px-1.5 py-0.5 font-mono text-[11px] font-bold', r.id === 'VAL' ? 'border-series-blue-light text-series-blue-light' : 'border-cat text-cat-text')}>{r.id === 'VAL' ? 'VALUE' : r.id}</span>
-                    <div className="font-display text-label-md uppercase text-on-surface">{r.requirement}</div>
-                  </td>
-                  <td className="!align-top text-on-surface-variant">{r.problem}</td>
-                  <td className="!align-top text-on-surface">{r.feature}</td>
-                  <td className="!align-top text-on-surface-variant">{r.data}</td>
-                  <td className="!align-top">
-                    <span className="flex flex-col items-start gap-1">
-                      {r.methods.map((m) => (
-                        <ProvenanceBadge key={m} kind={m} />
-                      ))}
-                    </span>
-                  </td>
-                  <td className="!align-top">
-                    <span className="flex flex-col items-start gap-1.5">
-                      {r.links.map((l) => (
-                        <Link key={l.to} to={l.to} className="inline-flex items-center gap-1 font-display text-label-sm uppercase text-notice-dark hover:underline">
-                          {l.label} <Icon name="arrow_forward" size={14} />
-                        </Link>
-                      ))}
-                      <span className="font-mono text-[11px] text-on-surface-muted">{r.links.map((l) => l.to).join(' · ')}</span>
-                    </span>
-                  </td>
-                  <td className="!align-top text-on-surface-variant">{r.success}</td>
-                  <td className="!align-top">
-                    <StatusChips status={r.status} />
-                    {r.statusNote && <div className="mt-1 text-footnote text-on-surface-muted">{r.statusNote}</div>}
-                  </td>
-                </tr>
-              ))}
+              {ROWS.map((r) => {
+                const isOpen = open === r.id;
+                return (
+                  <Fragment key={r.id}>
+                    <tr className={cx('align-top', isOpen && 'bg-surface-container-low')}>
+                      <td className="!align-top">
+                        <button type="button" onClick={() => setOpen(isOpen ? null : r.id)} aria-expanded={isOpen} className="flex w-full items-start gap-2 text-left">
+                          <Icon name="chevron_right" size={20} className={cx('mt-px text-on-surface-muted transition-transform', isOpen && 'rotate-90')} />
+                          <span>
+                            <span className="text-on-surface-muted">{r.id}</span>
+                            <span className="ml-2 font-semibold text-on-surface">{r.requirement}</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td className="!align-top text-on-surface-variant">{r.feature}</td>
+                      <td className="!align-top">
+                        <span className="flex flex-col items-start gap-1">
+                          {r.links.map((l) => (
+                            <Link key={l.to} to={l.to} className="inline-flex items-center gap-1 text-notice-dark hover:underline">
+                              {l.label} <Icon name="arrow_forward" size={14} />
+                            </Link>
+                          ))}
+                        </span>
+                      </td>
+                      <td className="!align-top">
+                        <StatusText status={r.status} note={r.statusNote} />
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="bg-surface-container-low">
+                        <td colSpan={4} className="!pb-6 !pl-10">
+                          <div className="grid gap-6 md:grid-cols-2">
+                            <Field label="Operator problem">{r.problem}</Field>
+                            <Field label="Data used">{r.data}</Field>
+                            <Field label="Method">{r.methods.map((m) => METHOD_WORD[m] ?? m).join(' · ')}</Field>
+                            <Field label="Success measure">{r.success}</Field>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </Panel>
 
-      <Panel>
-        <PanelHeader icon="rule" title="What is real, rule, simulated or mocked" sub="Said out loud in the pitch" />
-        <div className="overflow-x-auto">
-          <table className="table-dense w-full min-w-[900px]">
-            <thead>
-              <tr>
-                <th className="w-[45%]">Element</th>
-                <th>Class</th>
-                <th>Detail</th>
-              </tr>
-            </thead>
-            <tbody>
-              {REALITY.map((x) => (
-                <tr key={x.element}>
-                  <td className="text-on-surface">{x.element}</td>
-                  <td>
-                    <span className="flex items-center gap-2 whitespace-nowrap">
-                      {CLASS_BADGE[x.cls] ? (
-                        <ProvenanceBadge kind={CLASS_BADGE[x.cls]!} />
-                      ) : (
-                        <Chip tone={x.cls === 'REAL' ? 'teal' : 'neutral'}>{x.cls === 'REAL' ? 'Real' : 'Sample'}</Chip>
-                      )}
-                      <span className="font-display text-label-sm uppercase text-on-surface-variant">{x.cls}</span>
-                    </span>
-                  </td>
-                  <td className="text-on-surface-muted">{x.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <Panel className="p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-headline-sm text-on-surface">What is real, rule, simulated or mocked</h2>
+            <p className="mt-1 text-body-sm text-on-surface-muted">Said out loud in the pitch.</p>
+          </div>
+          <button type="button" onClick={() => setShowReality((v) => !v)} aria-expanded={showReality} className="inline-flex items-center gap-1 text-body-sm font-semibold text-notice-dark hover:underline">
+            {showReality ? 'Hide' : 'Details'}
+            <Icon name={showReality ? 'expand_less' : 'expand_more'} size={18} />
+          </button>
         </div>
+        {showReality && (
+          <div className="mt-6 overflow-x-auto">
+            <table className="table-dense w-full min-w-[720px]">
+              <thead>
+                <tr>
+                  <th className="w-[45%]">Element</th>
+                  <th className="w-[20%]">Class</th>
+                  <th>Detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {REALITY.map((x) => (
+                  <tr key={x.element}>
+                    <td className="text-on-surface">{x.element}</td>
+                    <td className="whitespace-nowrap text-on-surface-variant">{x.cls}</td>
+                    <td className="text-on-surface-muted">{x.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Panel>
-
-      <div className="flex flex-wrap items-center gap-4 border-2 border-outline-variant bg-surface-container-low px-4 py-3">
-        <Icon name="info" className="text-on-surface-variant" />
-        <p className="flex-1 text-body-md text-on-surface-variant">Prototype on simulated data. It has not been validated on Caterpillar operations and does not prove accident prevention.</p>
-        <Link to="/tour" className="inline-flex items-center gap-1 font-display text-label-md uppercase text-notice-dark hover:underline">
-          Demo tour <Icon name="arrow_forward" size={18} />
-        </Link>
-      </div>
     </div>
   );
 }

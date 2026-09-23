@@ -36,7 +36,7 @@ type Size = 'sm' | 'md' | 'lg' | 'cab' | 'xl';
 
 const VARIANT: Record<Variant, string> = {
   primary: 'bg-cat text-black border border-cat-border hover:bg-cat-hover active:bg-cat-active disabled:bg-outline disabled:text-on-surface-muted disabled:border-outline',
-  secondary: 'bg-surface-container-high text-on-surface border-2 border-outline-strong hover:bg-surface-container-highest hover:border-on-surface-muted disabled:text-on-surface-muted disabled:border-outline',
+  secondary: 'bg-transparent text-on-surface border border-outline-strong hover:bg-surface-container-high hover:border-on-surface-muted disabled:text-on-surface-muted disabled:border-outline',
   danger: 'bg-danger text-white border border-danger hover:bg-danger-hover disabled:opacity-50',
   ghost: 'bg-transparent text-notice-dark border border-transparent hover:underline disabled:text-on-surface-muted',
   notice: 'bg-notice text-white border border-notice hover:brightness-110',
@@ -46,7 +46,7 @@ const SIZE: Record<Size, string> = {
   sm: 'h-9 px-3 text-label-sm gap-1.5',
   md: 'h-12 px-4 text-label-md gap-2',
   lg: 'h-14 px-5 text-label-lg gap-2',
-  cab: 'h-16 min-w-[64px] px-6 text-headline-sm gap-3',
+  cab: 'h-16 min-w-[64px] px-6 text-headline-sm gap-3 border-2',
   xl: 'h-20 px-8 text-headline-md gap-3',
 };
 
@@ -92,11 +92,11 @@ export function Panel({ children, className, accent, as = 'section' }: { childre
 
 export function PanelHeader({ icon, title, right, className, sub }: { icon?: string; title: ReactNode; right?: ReactNode; className?: string; sub?: ReactNode }) {
   return (
-    <header className={cx('flex items-center justify-between gap-3 border-b border-outline px-4 py-3', className)}>
+    <header className={cx('flex items-center justify-between gap-3 px-6 pb-2 pt-5', className)}>
       <div className="flex min-w-0 items-center gap-2">
-        {icon && <Icon name={icon} size={22} className="text-cat-text" />}
+        {icon && <Icon name={icon} size={22} className="text-on-surface-muted" />}
         <div className="min-w-0">
-          <h2 className="truncate font-display text-headline-sm uppercase text-on-surface">{title}</h2>
+          <h2 className="truncate font-display text-headline-sm text-on-surface">{title}</h2>
           {sub && <p className="truncate text-body-sm text-on-surface-muted">{sub}</p>}
         </div>
       </div>
@@ -111,16 +111,13 @@ export function Label({ children, className }: { children: ReactNode; className?
 
 export function PageTitle({ kicker, title, sub, right }: { kicker?: ReactNode; title: ReactNode; sub?: ReactNode; right?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-outline pb-4">
-      <div className="flex items-stretch gap-3">
-        <span className="w-1.5 bg-cat" />
-        <div>
-          {kicker && <div className="font-display text-label-sm uppercase text-cat-text">{kicker}</div>}
-          <h1 className="font-display text-headline-lg uppercase text-on-surface">{title}</h1>
-          {sub && <p className="mt-0.5 text-body-md text-on-surface-variant">{sub}</p>}
-        </div>
+    <div className="flex flex-wrap items-end justify-between gap-6">
+      <div>
+        {kicker && <div className="mb-1 text-body-sm text-on-surface-muted">{kicker}</div>}
+        <h1 className="font-display text-headline-lg text-on-surface">{title}</h1>
+        {sub && <p className="mt-2 max-w-3xl text-body-md text-on-surface-variant">{sub}</p>}
       </div>
-      {right && <div className="flex flex-wrap items-center gap-2">{right}</div>}
+      {right && <div className="flex flex-wrap items-center gap-3">{right}</div>}
     </div>
   );
 }
@@ -148,7 +145,7 @@ export function Chip({ children, className, icon, tone = 'neutral' }: { children
 export function ProgressBar({ pct, tone = 'yellow', className, height = 'h-3' }: { pct: number; tone?: 'yellow' | 'green' | 'blue' | 'orange' | 'red' | 'teal'; className?: string; height?: string }) {
   const color = { yellow: 'bg-cat', green: 'bg-success', blue: 'bg-series-blue', orange: 'bg-warning', red: 'bg-danger', teal: 'bg-prov-ml' }[tone];
   return (
-    <div className={cx('w-full border border-outline bg-surface-container-lowest p-0.5', height, className)} role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+    <div className={cx('w-full bg-surface-container-high', height, className)} role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
       <div className={cx('h-full transition-all duration-long', color)} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
     </div>
   );
@@ -212,9 +209,9 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
 // ------------------------------------------------------------------ states
 export function EmptyState({ icon = 'inbox', title, children }: { icon?: string; title: string; children?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 border border-dashed border-outline-variant px-6 py-10 text-center">
+    <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
       <Icon name={icon} size={36} className="text-on-surface-muted" />
-      <div className="font-display text-label-lg uppercase text-on-surface-variant">{title}</div>
+      <div className="font-display text-headline-sm text-on-surface-variant">{title}</div>
       {children && <div className="max-w-md text-body-sm text-on-surface-muted">{children}</div>}
     </div>
   );
@@ -264,10 +261,9 @@ export function Modal({ open, onClose, title, children, width = 'max-w-[900px]',
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" onMouseDown={(e) => dismissible && e.target === e.currentTarget && onClose()}>
-      <div className={cx('flex max-h-[92vh] w-full animate-fade-up flex-col border-2 border-outline-variant bg-surface-container', width)}>
-        <div className="h-1 w-full bg-cat" />
-        <header className="flex items-center justify-between border-b border-outline px-6 py-4">
-          <h2 className="font-display text-headline-md uppercase">{title}</h2>
+      <div className={cx('panel flex max-h-[92vh] w-full animate-fade-up flex-col', width)} style={{ boxShadow: '0 15px 40px rgba(0,0,0,.25)' }}>
+        <header className="flex items-center justify-between px-6 pb-2 pt-5">
+          <h2 className="font-display text-headline-md">{title}</h2>
           {dismissible && (
             <button type="button" onClick={onClose} className="flex h-12 w-12 items-center justify-center border border-outline text-on-surface-variant hover:bg-surface-container-high" aria-label="Close">
               <Icon name="close" />
@@ -275,7 +271,7 @@ export function Modal({ open, onClose, title, children, width = 'max-w-[900px]',
           )}
         </header>
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
-        {footer && <footer className="flex items-center justify-end gap-3 border-t border-outline px-6 py-4">{footer}</footer>}
+        {footer && <footer className="flex items-center justify-end gap-3 px-6 pb-6 pt-2">{footer}</footer>}
       </div>
     </div>
   );
@@ -291,15 +287,15 @@ export function Drawer({ open, onClose, title, children, width = 'w-[480px]', fo
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[60] flex justify-end bg-black/60" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <aside className={cx('flex h-full max-w-full animate-slide-in flex-col border-l-2 border-outline-variant bg-surface-container', width)} role="dialog" aria-modal="true">
-        <header className="flex items-start justify-between gap-3 border-b border-outline px-5 py-4">
+      <aside className={cx('flex h-full max-w-full animate-slide-in flex-col border-l border-outline bg-surface-container', width)} style={{ boxShadow: '0 0 40px rgba(0,0,0,.2)' }} role="dialog" aria-modal="true">
+        <header className="flex items-start justify-between gap-3 px-6 pb-3 pt-5">
           <div className="min-w-0 flex-1">{title}</div>
           <button type="button" onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center border border-outline text-on-surface-variant hover:bg-surface-container-high" aria-label="Close">
             <Icon name="close" />
           </button>
         </header>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <footer className="flex flex-wrap items-center gap-2 border-t border-outline px-5 py-3">{footer}</footer>}
+        <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+        {footer && <footer className="flex flex-wrap items-center gap-2 border-t border-outline px-6 py-4">{footer}</footer>}
       </aside>
     </div>
   );
@@ -329,7 +325,7 @@ export function Toaster() {
         <div
           key={t.id}
           className={cx(
-            'pointer-events-auto flex animate-fade-up items-center gap-3 border-2 bg-surface-container-highest px-5 py-3 text-body-md',
+            'panel pointer-events-auto flex animate-fade-up items-center gap-3 border-l-4 px-5 py-3 text-body-md',
             t.tone === 'ok' && 'border-success',
             t.tone === 'info' && 'border-notice-dark',
             t.tone === 'error' && 'border-danger',

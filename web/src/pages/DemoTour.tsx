@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DataSourceChip } from '../components/DataSourceChip';
-import { GainsHero } from '../components/GainsHero';
-import { ProvenanceBadges } from '../components/ProvenanceBadge';
-import { Button, Icon, PageTitle, cx, toast } from '../components/ui';
+import { ProvenanceBadges, SourceNote } from '../components/ProvenanceBadge';
+import { Button, Icon, cx, toast } from '../components/ui';
 import { cloud, edge, practice, value } from '../lib/api';
 import { triggerFastForward, triggerInject, triggerWan, type TriggerResult } from '../lib/demo';
 import { localPreview, useLive } from '../lib/live';
+import { useShowSources } from '../lib/prefs';
 import type { DemoInjectKind } from '../lib/types';
 
 type Trigger = { kind: 'inject'; inject: DemoInjectKind } | { kind: 'wan' } | { kind: 'ff' } | { kind: 'hb' };
@@ -108,6 +108,7 @@ function loadSeen(): Record<string, boolean> {
 export default function DemoTour() {
   const nav = useNavigate();
   const live = useLive();
+  const showSources = useShowSources();
   const [seen, setSeen] = useState<Record<string, boolean>>(loadSeen);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -121,9 +122,9 @@ export default function DemoTour() {
     probes.forEach((p) => p.catch(() => undefined));
   }, []);
 
-  const mark = (id: string) =>
+  const mark = (id: string, value = true) =>
     setSeen((s) => {
-      const next = { ...s, [id]: true };
+      const next = { ...s, [id]: value };
       try {
         localStorage.setItem('sentinel.tour', JSON.stringify(next));
       } catch {
@@ -151,68 +152,60 @@ export default function DemoTour() {
   const safetyLive = live.mqtt === 'open' || live.edgeWs === 'open';
 
   return (
-    <div className="space-y-6">
-      <PageTitle
-        kicker="For judges"
-        title="Demo tour — every functional outcome"
-        sub="Each row: what it shows, how it is produced (RULE / ML / SIMULATED / MOCK), whether the data is LIVE right now, and a link or trigger."
-        right={
-          <>
-            <span className="font-display text-label-md uppercase text-on-surface-variant tnum">
-              {done} / {total} shown
-            </span>
-            <Button variant="secondary" size="sm" icon="restart_alt" onClick={() => { setSeen({}); try { localStorage.removeItem('sentinel.tour'); } catch { /* ignore */ } }}>
-              Reset
-            </Button>
-          </>
-        }
-      />
-      <GainsHero title="Headline gains (estimate)" />
-      <nav className="flex flex-wrap gap-2">
+    <div className="space-y-10">
+      <header className="flex items-end justify-between gap-6">
+        <div>
+          <h1 className="font-display text-headline-lg">Demo tour</h1>
+          <p className="mt-2 text-body-lg text-on-surface-variant">Every functional outcome, with a link to the screen and a trigger for live states.</p>
+        </div>
+        <div className="flex items-center gap-4 text-body-md text-on-surface-muted">
+          <span className="tnum">
+            {done} / {total} shown
+          </span>
+          <button type="button" className="hover:text-on-surface" onClick={() => { setSeen({}); try { localStorage.removeItem('sentinel.tour'); } catch { /* ignore */ } }}>
+            Reset
+          </button>
+        </div>
+      </header>
+      <nav className="flex flex-wrap gap-x-6 gap-y-2 text-body-md">
         {GROUPS.map((g) => (
-          <a key={g.id} href={`#${g.id}`} className="flex items-center gap-2 border border-outline bg-surface-container-low px-3 py-2 font-display text-label-md uppercase hover:border-cat">
-            <Icon name={g.icon} size={18} className="text-cat-text" /> {g.title}
+          <a key={g.id} href={`#${g.id}`} className="text-notice-dark hover:underline">
+            {g.title}
           </a>
         ))}
       </nav>
       {GROUPS.map((g) => (
-        <section key={g.id} id={g.id} className="panel scroll-mt-24">
-          <header className="flex items-center justify-between border-b border-outline px-4 py-3">
-            <h2 className="flex items-center gap-2 font-display text-headline-sm uppercase">
-              <Icon name={g.icon} className="text-cat-text" /> {g.title}
-            </h2>
-            <span className="font-display text-label-sm uppercase text-on-surface-muted">{g.rows.filter((r) => seen[r.id]).length} / {g.rows.length}</span>
-          </header>
-          <ul className="divide-y divide-outline">
+        <section key={g.id} id={g.id} className="scroll-mt-24">
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="font-display text-headline-md">{g.title}</h2>
+            <span className="text-body-md text-on-surface-muted tnum">
+              {g.rows.filter((r) => seen[r.id]).length} / {g.rows.length}
+            </span>
+          </div>
+          <ul className="panel divide-y divide-outline">
             {g.rows.map((row) => (
-              <li key={row.id} className="grid grid-cols-[32px_1fr_auto] items-center gap-4 px-4 py-3">
-                <button type="button" onClick={() => mark(row.id)} aria-label="Mark as shown" className={cx('flex h-7 w-7 items-center justify-center border-2', seen[row.id] ? 'border-success bg-success text-white' : 'border-outline-strong')}>
-                  {seen[row.id] && <Icon name="check" size={18} />}
+              <li key={row.id} className="grid grid-cols-[28px_1fr_auto] items-center gap-5 px-5 py-4">
+                <button type="button" onClick={() => mark(row.id, !seen[row.id])} aria-label={seen[row.id] ? 'Mark as not shown' : 'Mark as shown'} aria-pressed={!!seen[row.id]} className={cx('flex h-6 w-6 items-center justify-center border-2', seen[row.id] ? 'border-success bg-success text-white' : 'border-outline-strong')}>
+                  {seen[row.id] && <Icon name="check" size={16} />}
                 </button>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-label-lg uppercase">{row.title}</span>
-                    <ProvenanceBadges kinds={row.chips} />
-                    {row.liveSafety ? (
-                      <span className={cx('inline-flex h-6 items-center gap-1 border px-2 font-display text-[11px] font-bold uppercase tracking-[0.06em]', safetyLive ? 'border-success text-success-text' : 'border-dashed border-prov-mock text-prov-mock')}>
-                        {safetyLive ? '● LIVE' : 'MOCK ENGINE'}
-                      </span>
-                    ) : (
-                      row.endpoints && <DataSourceChip endpoints={row.endpoints} modelBacked={row.modelBacked} />
-                    )}
+                    <span className="text-body-md font-semibold text-on-surface">{row.title}</span>
+                    {showSources && <ProvenanceBadges kinds={row.chips} />}
+                    {showSources && (row.liveSafety
+                      ? <span className={cx('text-body-sm', safetyLive ? 'text-success-text' : 'text-on-surface-muted')}>{safetyLive ? '● live' : 'mock engine'}</span>
+                      : row.endpoints && <DataSourceChip endpoints={row.endpoints} modelBacked={row.modelBacked} />)}
                   </div>
-                  <p className="text-body-sm text-on-surface-variant">{row.desc}</p>
+                  <p className="text-body-sm text-on-surface-muted">{row.desc}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {row.trigger && (
-                    <Button variant="primary" size="sm" icon="bolt" disabled={busy === row.id} onClick={() => void run(row)}>
+                    <Button variant="secondary" size="sm" icon="bolt" disabled={busy === row.id} onClick={() => void run(row)}>
                       Trigger
                     </Button>
                   )}
-                  <Link to={row.to} onClick={() => mark(row.id)}>
-                    <Button variant="secondary" size="sm" iconRight="arrow_forward">
-                      Show me
-                    </Button>
+                  <Link to={row.to} onClick={() => mark(row.id)} className="flex h-9 items-center gap-1 px-2 font-display text-label-md uppercase text-notice-dark hover:underline">
+                    Show me <Icon name="arrow_forward" size={16} />
                   </Link>
                 </div>
               </li>
@@ -220,9 +213,7 @@ export default function DemoTour() {
           </ul>
         </section>
       ))}
-      <p className="text-body-sm text-on-surface-muted">
-        LIVE = served by the running edge/cloud services · MOCK = local fixture because a service is unreachable · DEMO FIXTURE = the service answered "not trained yet" (models train tomorrow). Prototype on SIMULATED data; it does not prove accident prevention.
-      </p>
+      <SourceNote kinds={['RULE', 'ML', 'SIMULATED', 'MOCK']}>live = served by the running services · mock = local fixture · demo fixture = model trains tomorrow</SourceNote>
     </div>
   );
 }

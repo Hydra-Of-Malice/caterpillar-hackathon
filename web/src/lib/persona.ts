@@ -21,6 +21,15 @@ export const PERSONAS: Record<Role, Persona> = {
   judge: { role: 'judge', name: 'Judge', id: 'JUDGE', title: 'Hackathon judge' },
 };
 
+/** Where each role lands when picked in the header switcher. */
+export const ROLE_HOME: Record<Role, string> = {
+  operator: '/cab/home',
+  trainee: '/training/practice',
+  instructor: '/instructor',
+  supervisor: '/supervisor',
+  judge: '/tour',
+};
+
 function load(): Role {
   try {
     const r = localStorage.getItem('sentinel.role') as Role | null;

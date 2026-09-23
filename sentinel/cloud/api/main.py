@@ -8,6 +8,7 @@ In DEMO_MODE the app seeds deterministic SIMULATED fixtures at startup so every 
 from __future__ import annotations
 
 import importlib
+import sys
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Callable
@@ -58,6 +59,9 @@ def create_app(db: Database | None = None, *, copilot: Copilot | None = None, se
                     log.info("demo seed: %s", seed_demo(s))
             except Exception:
                 log.exception("demo seed failed; continuing without fixtures")
+            warm = getattr(sys.modules.get("sentinel.practice.api"), "warm_cohort_cache", None)
+            if warm is not None:
+                warm()          # the Training Effectiveness page's default cohort, precomputed off-thread
         yield
 
     app = FastAPI(title="CAT Sentinel Cloud", version="0.1.0", lifespan=lifespan,

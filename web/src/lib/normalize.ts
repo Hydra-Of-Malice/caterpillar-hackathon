@@ -89,7 +89,14 @@ export function normModule(raw: unknown): TrainingModule {
     why_for_you: s(m.why_for_you) ?? null,
     status: s(m.status),
     safety_critical: m.safety_critical as boolean | undefined,
+    vr: normVr(o(m.expert_demo).vr),
   };
+}
+
+function normVr(raw: unknown): TrainingModule['vr'] {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const v = o(raw);
+  return { available: v.available === true, format: s(v.format), title: s(v.title), url: s(v.url) ?? null };
 }
 
 export function normModules(raw: unknown): TrainingModule[] {

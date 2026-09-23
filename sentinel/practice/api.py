@@ -17,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -206,7 +207,37 @@ def exercises() -> list[dict[str, Any]]:
 def cohort_sim(n: int = Query(20, ge=2, le=50), sessions: int = Query(12, ge=2, le=24),
                effect: float | None = Query(None, ge=1.0, le=3.0), seed: int = 0) -> dict[str, Any]:
     """Coached vs control cohort (SIMULATED + ASSUMPTION); needs no trained model."""
+    return _cohort_cached(n, sessions, None if effect is None else round(effect, 2), seed)
+
+
+@router.get("/motion-replay")
+def motion_replay(archetype: str = Query("expert"), exercise: str = Query(DEFAULT_EXERCISE),
+                  cycles: int = Query(2, ge=1, le=4)) -> dict[str, Any]:
+    """Animated side/top-view frames of a SIMULATED operator's cycles (the expert demonstration)."""
+    _check_exercise(exercise)
+    from sentinel.practice.replay import motion_replay as _replay     # imports the simulator lazily
+    try:
+        return _replay(archetype, exercise, cycles)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@lru_cache(maxsize=64)
+def _cohort_cached(n: int, sessions: int, effect: float | None, seed: int) -> dict[str, Any]:
+    """Deterministic by seed, so identical queries (e.g. the effect slider) are served from memory."""
     return compare_arms(n, sessions, effect, seed)
+
+
+def warm_cohort_cache() -> None:
+    """Precompute the UI's default cohort query in the background so the demo page opens instantly."""
+    def warm() -> None:
+        from sentinel.practice.replay import motion_replay as _replay
+        for a in ("expert", "novice"):
+            _replay(a, DEFAULT_EXERCISE, 2)
+        for e in (None, 1.4):
+            _cohort_cached(20, 12, e, 0)
+
+    threading.Thread(target=warm, daemon=True, name="cohort-warmup").start()
 
 
 @router.post("/sessions")

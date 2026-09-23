@@ -82,4 +82,9 @@ expert_demo:
   title: "Expert demonstration — swing approach to truck (placeholder video)"
   url: null
   note: "Placeholder. The validated expert envelope overlay is shown instead of raw expert control (05 §5.6)."
+  vr:                          # VR only for demonstrations recorded in 3D (stereoscopic)
+    available: true
+    format: stereo_180         # stereoscopic 180° capture from the operator's seat
+    title: "Operator's-eye view: slowing the swing near the truck"
+    url: null                  # recorded in the production phase; prototype shows a placeholder
 instructor_approved: {by: "INS-01 Marcus Lee", version: "1.2", date: "2026-08-12"}

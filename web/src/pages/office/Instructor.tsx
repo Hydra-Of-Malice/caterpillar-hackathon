@@ -1,11 +1,15 @@
+/**
+ * Instructor workspace (R3). Two tabs: Operators (competency heatmap → evidence → decision) and
+ * Content review (queue → text diff → approve). DEMONSTRATED is set only by an instructor, never by ML.
+ */
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { COMPETENCY_COLOR, CompetencyChip, competencyStateLabel } from '../../components/CompetencyChip';
-import { DataSourceChip } from '../../components/DataSourceChip';
-import { ProvenanceBadge, ProvenanceBadges } from '../../components/ProvenanceBadge';
+import { SourceNote } from '../../components/ProvenanceBadge';
 import { CitationTag } from '../../components/training/citations';
 import { ShiftRateChart, ShiftRateLegend, verdictText } from '../../components/training/rateCharts';
-import { Button, Chip, EmptyState, ErrorNote, Icon, Label, Loading, PageTitle, Panel, PanelHeader, cx, toast } from '../../components/ui';
+import { Card, Details, InlineTabs, TABLE, TableWrap } from '../../components/ops/layout';
+import { Button, EmptyState, ErrorNote, Icon, Loading, PageTitle, cx, toast } from '../../components/ui';
 import { ApiError, cloud } from '../../lib/api';
 import { fmtDate } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
@@ -23,6 +27,9 @@ const GLYPH: Record<CompetencyState, { icon: string; ink: string }> = {
   improving: { icon: 'trending_up', ink: '#000000' },
   demonstrated: { icon: 'check', ink: '#FFFFFF' },
 };
+
+const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+const stateLabel = (s: CompetencyState) => sentence(competencyStateLabel(s));
 
 function initialsOf(name: string): string {
   return (
@@ -44,20 +51,17 @@ function plainEvidence(e: string | null | undefined): string {
     .join(' · ');
 }
 
-/** 403/409 business errors from the API, shown with their status. */
+/** 403/409 business errors from the API, in plain words. */
 function ActionError({ error }: { error: unknown }) {
   if (error instanceof ApiError) {
+    const head = error.status === 403 ? 'Not allowed' : error.status === 409 ? 'Not possible right now' : 'Could not save';
     return (
-      <div className="flex items-start gap-2 border-2 border-danger bg-danger/10 px-3 py-2.5" role="alert">
-        <Icon name="block" size={20} className="mt-0.5 text-danger-text" />
-        <div>
-          <div className="font-display text-label-sm uppercase text-danger-text">
-            HTTP {error.status}
-            {error.status === 403 ? ' · Forbidden' : error.status === 409 ? ' · Conflict' : ''}
-          </div>
-          <div className="text-body-sm text-on-surface">{error.detail}</div>
-        </div>
-      </div>
+      <p className="flex items-start gap-2 text-body-sm text-danger-text" role="alert">
+        <Icon name="block" size={18} className="mt-0.5" />
+        <span>
+          <span className="font-semibold">{head}.</span> <span className="text-on-surface">{error.detail}</span>
+        </span>
+      </p>
     );
   }
   return <ErrorNote error={error} />;
@@ -72,7 +76,7 @@ function StateCell({ state, selected, title, onClick }: { state: CompetencyState
       title={title}
       aria-label={title}
       aria-pressed={selected}
-      className={cx('flex h-9 w-full min-w-[36px] items-center justify-center border border-surface transition-[filter] duration-quick hover:brightness-125', selected && 'outline outline-2 -outline-offset-2 outline-cat')}
+      className={cx('flex h-9 w-full min-w-[36px] items-center justify-center rounded-sm transition-[filter] duration-quick hover:brightness-110', selected && 'outline outline-2 outline-offset-1 outline-on-surface')}
       style={{ background: COMPETENCY_COLOR[state] ?? COMPETENCY_COLOR.unassessed }}
     >
       <span className="material-symbols-outlined" style={{ fontSize: 18, color: g.ink }} aria-hidden>
@@ -84,15 +88,11 @@ function StateCell({ state, selected, title, onClick }: { state: CompetencyState
 
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       {STATES.map((s) => (
-        <span key={s} className="inline-flex items-center gap-1.5 font-display text-label-sm uppercase text-on-surface-variant">
-          <span className="flex h-5 w-5 items-center justify-center border border-outline-variant" style={{ background: COMPETENCY_COLOR[s] }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 14, color: GLYPH[s].ink }} aria-hidden>
-              {GLYPH[s].icon}
-            </span>
-          </span>
-          {competencyStateLabel(s)}
+        <span key={s} className="inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+          <span className="h-3 w-3 rounded-sm" style={{ background: COMPETENCY_COLOR[s] }} aria-hidden />
+          {stateLabel(s)}
         </span>
       ))}
     </div>
@@ -148,7 +148,7 @@ function OperatorsTab({ persona }: { persona: Persona }) {
       await cloud.patchCompetency(selOp, selComp, { state, actor_role: persona.role });
       const initials = initialsOf(persona.name);
       setOverrides((o) => ({ ...o, [key]: { state, verified_by: state === 'demonstrated' ? initials : null } }));
-      toast(state === 'demonstrated' ? `Verified by ${initials}` : `${opName}: needs more practice — set to IN TRAINING`);
+      toast(state === 'demonstrated' ? `Verified by ${initials}` : `${opName}: needs more practice — set to in training`);
     } catch (e) {
       setActionError(e);
       toast(e instanceof ApiError ? e.detail : 'Could not update the competency', 'error');
@@ -167,22 +167,16 @@ function OperatorsTab({ persona }: { persona: Persona }) {
   }
 
   return (
-    <div className="space-y-6">
-      <Panel>
-        <PanelHeader
-          icon="grid_on"
-          title="Competency heatmap"
-          sub="Rows = your assigned operators · columns = 14 competencies · cells show state, never scores"
-          right={<DataSourceChip endpoints={['GET /instructor/operators']} />}
-        />
-        <div className="overflow-x-auto p-4">
-          <table className="w-full border-collapse">
+    <div className="space-y-8">
+      <Card title="Competencies" sub="Your assigned operators. Cells show state, never scores — select one to see the evidence.">
+        <div className="-mx-2 overflow-x-auto px-2 pb-1 pt-1">
+          <table className="w-full border-separate border-spacing-1">
             <thead>
               <tr>
-                <th className="min-w-[180px] pb-2 pr-3 text-left font-display text-label-sm uppercase text-on-surface-muted">Operator</th>
+                <th className="min-w-[160px] pb-1 text-left text-body-sm font-normal text-on-surface-muted">Operator</th>
                 {COMPETENCIES.map((c) => (
-                  <th key={c.id} className="px-0.5 pb-2 text-center" title={`${c.id} · ${c.label}${c.safety_critical ? ' (safety-critical)' : ''}`}>
-                    <span className={cx('font-display text-[11px] font-bold uppercase tracking-[0.04em]', selComp === c.id ? 'text-cat-text' : 'text-on-surface-muted')}>{c.id}</span>
+                  <th key={c.id} className="pb-1 text-center" title={`${c.id} · ${c.label}${c.safety_critical ? ' (safety-critical)' : ''}`}>
+                    <span className={cx('text-body-sm tnum', selComp === c.id ? 'font-semibold text-on-surface' : 'font-normal text-on-surface-muted')}>{c.id}</span>
                     {c.safety_critical && <Icon name="shield" size={12} className="ml-0.5 align-middle text-danger-text" />}
                   </th>
                 ))}
@@ -192,27 +186,24 @@ function OperatorsTab({ persona }: { persona: Persona }) {
               {rows.map((r) => {
                 const on = r.operator_id === selOp;
                 return (
-                  <tr key={r.operator_id} className={cx(on && 'bg-surface-container-high')}>
-                    <th scope="row" className="py-0.5 pr-3 text-left">
+                  <tr key={r.operator_id}>
+                    <th scope="row" className="pr-3 text-left">
                       <button type="button" onClick={() => setSelOp(r.operator_id)} className="flex w-full items-center gap-2 text-left" aria-pressed={on}>
-                        <span className={cx('h-8 w-1', on ? 'bg-cat' : 'bg-transparent')} />
+                        <span className={cx('h-8 w-[3px] rounded-full', on ? 'bg-cat' : 'bg-transparent')} />
                         <span>
-                          <span className="block font-display text-label-md uppercase text-on-surface">{r.name}</span>
-                          <span className="block text-footnote text-on-surface-muted">
-                            {r.operator_id}
-                            {r.level ? ` · ${r.level}` : ''}
-                          </span>
+                          <span className={cx('block text-body-md', on ? 'font-semibold text-on-surface' : 'font-normal text-on-surface')}>{r.name}</span>
+                          {r.level && <span className="block text-body-sm font-normal text-on-surface-muted">{r.level}</span>}
                         </span>
                       </button>
                     </th>
                     {COMPETENCIES.map((c) => {
                       const st = stateOf(r.operator_id, c.id);
                       return (
-                        <td key={c.id} className="p-0.5">
+                        <td key={c.id}>
                           <StateCell
                             state={st}
                             selected={on && selComp === c.id}
-                            title={`${r.name} · ${c.id} ${c.label}: ${competencyStateLabel(st)}`}
+                            title={`${r.name} · ${c.label}: ${stateLabel(st)}`}
                             onClick={() => {
                               setSelOp(r.operator_id);
                               setSelComp(c.id);
@@ -227,52 +218,42 @@ function OperatorsTab({ persona }: { persona: Persona }) {
             </tbody>
           </table>
         </div>
-        <div className="space-y-3 border-t border-outline px-4 py-3">
+        <div className="mt-5 space-y-3">
           <Legend />
           <p className="text-body-sm text-on-surface-muted">
             <Icon name="shield" size={14} className="mr-1 align-middle text-danger-text" />
-            Safety-critical. DEMONSTRATED is set only by an instructor (initials recorded) or a passed assessment — never by ML.
+            Safety-critical. Demonstrated is set only by an instructor (initials recorded) or a passed assessment — never by ML.
           </p>
-          <details className="text-body-sm text-on-surface-muted">
-            <summary className="cursor-pointer font-display text-label-sm uppercase text-on-surface-variant">Column key</summary>
-            <ul className="mt-2 grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2 lg:grid-cols-3">
+          <Details label="Column key">
+            <ul className="grid grid-cols-1 gap-x-6 gap-y-1 text-body-sm text-on-surface-variant sm:grid-cols-2 lg:grid-cols-3">
               {COMPETENCIES.map((c) => (
                 <li key={c.id}>
-                  <span className="font-display font-bold text-on-surface-variant">{c.id}</span> {c.label}
+                  <span className="font-semibold text-on-surface">{c.id}</span> {c.label}
                 </li>
               ))}
             </ul>
-          </details>
+          </Details>
         </div>
-      </Panel>
+      </Card>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[1fr_340px]">
         {/* evidence */}
-        <Panel className="xl:col-span-2">
-          <PanelHeader
-            icon="fact_check"
-            title={`${opName} — ${competencyLabel(selComp)}`}
-            sub="Evidence for the selected competency"
-            right={<CompetencyChip state={curState} verifiedBy={verifiedBy} />}
-          />
-          <div className="grid grid-cols-1 gap-0 divide-y divide-outline md:grid-cols-2 md:divide-x md:divide-y-0">
-            <div className="space-y-4 p-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <Label>Events</Label>
-                  {(evidence || reassValid) && <ProvenanceBadges kinds={['RULE', 'SIMULATED']} />}
-                </div>
+        <Card title={`${opName} — ${competencyLabel(selComp)}`} right={<CompetencyChip state={curState} verifiedBy={verifiedBy} />}>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-body-md font-semibold text-on-surface">Events</h3>
                 {profileRes.loading && !profileRes.data ? (
                   <Loading label="Loading evidence" />
                 ) : evidence || reassValid ? (
-                  <ul className="space-y-1 text-body-sm text-on-surface">
-                    {evidence && <li>{evidence}</li>}
+                  <ul className="space-y-1 text-body-sm text-on-surface-variant">
+                    {evidence && <li className="text-on-surface">{evidence}</li>}
                     {reassValid && reass && (
                       <>
-                        <li className="tnum text-on-surface-variant">
+                        <li className="tnum">
                           Before training: {reass.pre.events} fast swings near the truck in {reass.pre.opportunities} loading cycles
                         </li>
-                        <li className="tnum text-on-surface-variant">
+                        <li className="tnum">
                           After training: {reass.post.events} in {reass.post.opportunities} loading cycles
                         </li>
                       </>
@@ -282,8 +263,8 @@ function OperatorsTab({ persona }: { persona: Persona }) {
                   <p className="text-body-sm text-on-surface-muted">No logged events for this competency.</p>
                 )}
               </div>
-              <div className="space-y-1.5">
-                <Label>Training done</Label>
+              <div className="space-y-2">
+                <h3 className="text-body-md font-semibold text-on-surface">Training done</h3>
                 {history.length || (reassValid && reass?.training_completed) ? (
                   <ul className="space-y-1 text-body-sm text-on-surface">
                     {reassValid && reass?.training_completed && moduleId && (
@@ -305,30 +286,21 @@ function OperatorsTab({ persona }: { persona: Persona }) {
                 )}
               </div>
               {curState === 'demonstrated' && verifiedBy && (
-                <div className="flex items-center gap-2 border border-success bg-success/10 px-3 py-2 text-body-sm text-on-surface">
-                  <Icon name="verified" size={18} fill className="text-success-text" /> Verified by {verifiedBy}
-                </div>
+                <p className="flex items-center gap-2 text-body-sm text-success-text">
+                  <Icon name="verified" size={18} fill /> Verified by {verifiedBy}
+                </p>
               )}
             </div>
-            <div className="space-y-2 p-4">
-              <div className="flex items-center justify-between gap-2">
-                <Label>Before / after</Label>
-                <span className="flex items-center gap-1.5">
-                  <ProvenanceBadge kind="SIMULATED" />
-                  <DataSourceChip endpoints={['/reassessment']} showLive={false} />
-                </span>
-              </div>
+            <div className="space-y-3">
+              <h3 className="text-body-md font-semibold text-on-surface">Before / after training</h3>
               {reassRes.loading && !reassRes.data ? (
                 <Loading label="Loading" />
               ) : reassValid && reass ? (
                 <>
                   <ShiftRateChart data={reass} height={190} compact />
                   <ShiftRateLegend />
-                  <p className="tnum text-body-sm text-on-surface-variant">
-                    Rate ratio {Number.isFinite(reass.rr) ? reass.rr.toFixed(2) : '—'}
-                    {Array.isArray(reass.ci95) ? ` (95% interval ${reass.ci95[0].toFixed(2)}–${reass.ci95[1].toFixed(2)})` : ''} · {verdictText(reass.verdict, reass.ci95)}
-                  </p>
-                  <Link to="/training/effect" className="inline-flex items-center gap-1 font-display text-label-sm uppercase text-notice-dark hover:underline">
+                  <p className="text-body-sm text-on-surface-variant">{verdictText(reass.verdict, reass.ci95)}</p>
+                  <Link to="/training/effect" className="inline-flex items-center gap-1 text-body-sm font-semibold text-notice-dark hover:underline">
                     Full before / after view <Icon name="arrow_forward" size={16} />
                   </Link>
                 </>
@@ -337,72 +309,69 @@ function OperatorsTab({ persona }: { persona: Persona }) {
               )}
             </div>
           </div>
-        </Panel>
+          <SourceNote kinds={['RULE', 'SIMULATED']} />
+        </Card>
 
-        {/* actions */}
-        <Panel>
-          <span className="absolute left-0 right-0 top-0 h-1 bg-cat" />
-          <PanelHeader icon="how_to_reg" title="Instructor decision" />
-          <div className="space-y-4 p-4">
-            <div className="space-y-1 border border-outline bg-surface-container-low px-3 py-2.5">
-              <Label>Acting as</Label>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-display text-label-md uppercase text-on-surface">{persona.name}</span>
-                <Chip tone={persona.role === 'instructor' ? 'green' : 'orange'} icon="badge">
-                  role: {persona.role}
-                </Chip>
-                <ProvenanceBadge kind="MOCK" />
-              </div>
-              <p className="text-footnote text-on-surface-muted">
-                The role comes from the persona switcher (SSO is mocked) and is sent as actor_role. Non-instructor roles get 403 when setting DEMONSTRATED.
+        {/* decision */}
+        <Card title="Your decision">
+          <div className="space-y-5">
+            <p className="text-body-sm text-on-surface-muted">
+              Acting as <span className="font-semibold text-on-surface">{persona.name}</span> · {persona.role}
+            </p>
+            {persona.role !== 'instructor' && (
+              <p className="flex items-start gap-2 text-body-sm text-warning-text" role="note">
+                <Icon name="badge" size={18} className="mt-0.5" />
+                <span>Only an instructor can verify Demonstrated. Switch to Marcus Lee (Instructor) in the persona menu.</span>
               </p>
-            </div>
-            <div className="space-y-2">
-              <Button variant="primary" size="lg" block icon="verified" disabled={busy || curState === 'demonstrated'} onClick={() => act('demonstrated')}>
+            )}
+            <div className="space-y-3">
+              <Button variant="primary" block icon="verified" disabled={busy || curState === 'demonstrated'} onClick={() => act('demonstrated')}>
                 {curState === 'demonstrated' ? 'Already demonstrated' : 'Verify as demonstrated'}
               </Button>
               <Button variant="secondary" block icon="replay" disabled={busy || curState === 'in_training'} onClick={() => act('in_training')}>
                 Needs more practice
               </Button>
-              <Button variant="secondary" block icon="event" onClick={() => navigate(`/training/booking?topic=${encodeURIComponent(selComp)}`)}>
+              <Button variant="ghost" block icon="event" onClick={() => navigate(`/training/booking?topic=${encodeURIComponent(selComp)}`)}>
                 Book session
               </Button>
             </div>
             {actionError !== undefined && <ActionError error={actionError} />}
-            <p className="text-body-sm text-on-surface-muted">Verify only after observing {opName.split(' ')[0]} on the machine or simulator. Telemetry and ML suggest gaps; they never mark DEMONSTRATED.</p>
+            <p className="text-body-sm text-on-surface-muted">Verify only after observing {opName.split(' ')[0]} on the machine or simulator. Telemetry and ML suggest gaps; they never mark Demonstrated.</p>
+            <SourceNote kinds={['MOCK']}>Role comes from the persona switcher; sign-in is mocked</SourceNote>
           </div>
-        </Panel>
+        </Card>
       </div>
     </div>
   );
 }
 
 // ------------------------------------------------------------------ CONTENT REVIEW tab
-const STATUS_CHIP: Record<ContentReviewItem['status'], { label: string; tone: 'neutral' | 'blue' | 'green' | 'orange'; icon: string }> = {
-  draft: { label: 'Draft', tone: 'neutral', icon: 'edit_note' },
-  in_review: { label: 'In review', tone: 'blue', icon: 'rate_review' },
-  approved: { label: 'Approved', tone: 'green', icon: 'task_alt' },
-  changes_requested: { label: 'Changes requested', tone: 'orange', icon: 'undo' },
+const STATUS: Record<ContentReviewItem['status'], { label: string; dot: string }> = {
+  draft: { label: 'Draft', dot: 'bg-on-surface-muted' },
+  in_review: { label: 'In review', dot: 'bg-notice' },
+  approved: { label: 'Approved', dot: 'bg-success' },
+  changes_requested: { label: 'Changes requested', dot: 'bg-warning' },
 };
 
-function StatusChip({ status }: { status: ContentReviewItem['status'] }) {
-  const s = STATUS_CHIP[status] ?? STATUS_CHIP.draft;
+function StatusText({ status }: { status: ContentReviewItem['status'] }) {
+  const s = STATUS[status] ?? STATUS.draft;
   return (
-    <Chip tone={s.tone} icon={s.icon}>
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      <span className={cx('h-2 w-2 rounded-full', s.dot)} aria-hidden />
       {s.label}
-    </Chip>
+    </span>
   );
 }
 
-function CheckChip({ check }: { check: ContentReviewItem['citation_check'] }) {
+function CheckText({ check }: { check: ContentReviewItem['citation_check'] }) {
   return check === 'PASS' ? (
-    <Chip tone="green" icon="check">
-      Pass
-    </Chip>
+    <span className="inline-flex items-center gap-1 text-success-text">
+      <Icon name="check" size={18} /> Passed
+    </span>
   ) : (
-    <Chip tone="red" icon="close">
-      Fail
-    </Chip>
+    <span className="inline-flex items-center gap-1 text-danger-text">
+      <Icon name="close" size={18} /> Failed
+    </span>
   );
 }
 
@@ -445,17 +414,15 @@ function ContentTab({ items, loading, onStatus }: { items: ContentReviewItem[]; 
   }
 
   return (
-    <div className="space-y-6">
-      <Panel>
-        <PanelHeader icon="rule" title="Content review queue" sub="Every change must cite an approved source before it can be published" right={<DataSourceChip endpoints={['/instructor/content-review']} />} />
-        <div className="overflow-x-auto">
-          <table className="table-dense w-full">
+    <div className="space-y-8">
+      <Card title="Review queue" sub="Every change must cite an approved source before it can be published">
+        <TableWrap>
+          <table className={cx(TABLE, 'min-w-[640px]')}>
             <thead>
               <tr>
                 <th>Module</th>
                 <th>Version</th>
-                <th>Change summary</th>
-                <th className="text-right">Sources cited</th>
+                <th>Change</th>
                 <th>Citation check</th>
                 <th>Status</th>
               </tr>
@@ -464,67 +431,52 @@ function ContentTab({ items, loading, onStatus }: { items: ContentReviewItem[]; 
               {items.map((it) => {
                 const on = it.review_id === selId;
                 return (
-                  <tr key={it.review_id} onClick={() => setSelId(it.review_id)} className={cx('cursor-pointer transition-colors duration-quick', on ? 'bg-surface-container-high' : 'hover:bg-surface-container-low')}>
-                    <td>
-                      <button type="button" onClick={() => setSelId(it.review_id)} className="flex items-center gap-2 text-left" aria-pressed={on}>
-                        <span className={cx('h-6 w-1', on ? 'bg-cat' : 'bg-transparent')} />
-                        <span className="font-display text-label-md uppercase text-on-surface">{it.title}</span>
-                      </button>
-                    </td>
-                    <td className="font-display text-label-md">{it.version}</td>
+                  <tr
+                    key={it.review_id}
+                    tabIndex={0}
+                    onClick={() => setSelId(it.review_id)}
+                    onKeyDown={(e) => e.key === 'Enter' && setSelId(it.review_id)}
+                    aria-selected={on}
+                    className={cx('cursor-pointer transition-colors duration-quick hover:bg-surface-container-low', on && 'bg-surface-container-low shadow-[inset_3px_0_0_#FFCD11]')}
+                  >
+                    <td className="font-semibold text-on-surface">{it.title}</td>
+                    <td className="whitespace-nowrap tnum">{it.version}</td>
                     <td className="text-on-surface-variant">{it.change_summary}</td>
-                    <td className="text-right">{it.sources_cited}</td>
-                    <td>
-                      <CheckChip check={it.citation_check} />
+                    <td className="whitespace-nowrap">
+                      <CheckText check={it.citation_check} />
                     </td>
                     <td>
-                      <StatusChip status={it.status} />
+                      <StatusText status={it.status} />
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-        </div>
-      </Panel>
+        </TableWrap>
+      </Card>
 
       {sel && (
-        <Panel>
-          <PanelHeader
-            icon="difference"
-            title={`${sel.title} — ${sel.version}`}
-            sub={sel.change_summary}
-            right={
-              <>
-                <CheckChip check={sel.citation_check} />
-                <StatusChip status={sel.status} />
-              </>
-            }
-          />
-          <div className="space-y-4 p-4">
+        <Card title={`${sel.title} — ${sel.version}`} sub={`${sel.change_summary} · ${sel.sources_cited} ${sel.sources_cited === 1 ? 'source' : 'sources'} cited`} right={<StatusText status={sel.status} />}>
+          <div className="space-y-6">
             {sel.citation_check === 'FAIL' && (
-              <div className="flex items-start gap-2 border-2 border-danger bg-danger/10 px-3 py-2.5 text-body-sm text-on-surface" role="alert">
-                <Icon name="link_off" size={20} className="mt-0.5 text-danger-text" />
+              <p className="flex items-start gap-2 text-body-sm text-danger-text" role="alert">
+                <Icon name="link_off" size={18} className="mt-0.5" />
                 Citation check failed: at least one point cites a source that is not approved. Fix the citation before this version can be approved.
-              </div>
+              </p>
             )}
             {sel.diff?.length ? (
               <ol className="space-y-1" aria-label="Text changes">
                 {sel.diff.map((d, i) => (
                   <li
                     key={`${i}-${d.op}`}
-                    className={cx(
-                      'flex flex-wrap items-start gap-3 border-l-4 px-3 py-2',
-                      d.op === 'add' && 'border-success bg-success/15',
-                      d.op === 'del' && 'border-danger bg-danger/15',
-                      d.op === 'same' && 'border-outline bg-surface-container-low',
-                    )}
+                    className={cx('flex flex-wrap items-start gap-3 rounded-sm border-l-[3px] px-3 py-2', d.op === 'add' && 'border-success bg-success/10', d.op === 'del' && 'border-danger bg-danger/10', d.op === 'same' && 'border-transparent')}
                   >
                     <span className={cx('w-4 shrink-0 font-mono text-body-md font-bold', d.op === 'add' ? 'text-success-text' : d.op === 'del' ? 'text-danger-text' : 'text-on-surface-muted')} aria-hidden>
                       {d.op === 'add' ? '+' : d.op === 'del' ? '−' : ' '}
                     </span>
                     <span className="sr-only">{d.op === 'add' ? 'Added:' : d.op === 'del' ? 'Removed:' : 'Unchanged:'}</span>
-                    <span className={cx('min-w-0 flex-1 text-body-md', d.op === 'del' ? 'text-on-surface-muted line-through' : 'text-on-surface')}>{d.text}</span>
+                    <span className={cx('min-w-0 flex-1 text-body-md', d.op === 'del' ? 'text-on-surface-muted line-through' : d.op === 'same' ? 'text-on-surface-variant' : 'text-on-surface')}>{d.text}</span>
                     {d.citation && <CitationTag text={d.citation} tone={BAD_CITATION.test(d.citation) ? 'red' : 'neutral'} />}
                   </li>
                 ))}
@@ -533,36 +485,26 @@ function ContentTab({ items, loading, onStatus }: { items: ContentReviewItem[]; 
               <p className="text-body-sm text-on-surface-muted">No text changes recorded for this version.</p>
             )}
             {error !== undefined && <ActionError error={error} />}
-            <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
-              <Button
-                variant="primary"
-                size="lg"
-                icon="task_alt"
-                disabled={busy || sel.citation_check === 'FAIL' || sel.status === 'approved'}
-                title={sel.citation_check === 'FAIL' ? 'Citation check must pass before approval' : undefined}
-                onClick={approve}
-              >
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="primary" icon="task_alt" disabled={busy || sel.citation_check === 'FAIL' || sel.status === 'approved'} title={sel.citation_check === 'FAIL' ? 'Citation check must pass before approval' : undefined} onClick={approve}>
                 {sel.status === 'approved' ? `${sel.version} approved` : `Approve ${sel.version}`}
               </Button>
-              <span className="inline-flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  icon="undo"
-                  disabled={busy || sel.status === 'approved' || sel.status === 'changes_requested'}
-                  onClick={() => {
-                    onStatus(sel.review_id, 'changes_requested');
-                    toast(`Changes requested on ${sel.title} ${sel.version}. Sent back to the author.`, 'info');
-                  }}
-                >
-                  Request changes
-                </Button>
-                <ProvenanceBadge kind="MOCK" />
-              </span>
+              <Button
+                variant="secondary"
+                icon="undo"
+                disabled={busy || sel.status === 'approved' || sel.status === 'changes_requested'}
+                onClick={() => {
+                  onStatus(sel.review_id, 'changes_requested');
+                  toast(`Changes requested on ${sel.title} ${sel.version}. Sent back to the author.`, 'info');
+                }}
+              >
+                Request changes
+              </Button>
               {sel.citation_check === 'FAIL' && <span className="text-body-sm text-danger-text">Approval blocked by the citation check.</span>}
             </div>
+            <SourceNote kinds={['MOCK']}>Sending changes back to the author is a placeholder</SourceNote>
           </div>
-        </Panel>
+        </Card>
       )}
     </div>
   );
@@ -578,58 +520,19 @@ export default function Instructor() {
   const items = useMemo(() => (reviewsRes.data ?? []).map((r) => (statusOverride[r.review_id] ? { ...r, status: statusOverride[r.review_id] } : r)), [reviewsRes.data, statusOverride]);
   const pending = items.filter((i) => i.status === 'in_review' || i.status === 'draft').length;
 
-  const tabs: Array<{ id: Tab; label: string; icon: string; count?: number }> = [
-    { id: 'operators', label: 'Operators', icon: 'groups' },
-    { id: 'content', label: 'Content review', icon: 'rule', count: pending },
-  ];
-
   return (
-    <div className="space-y-6">
-      <PageTitle
-        kicker="Instructor · R3"
-        title="Instructor Workspace — Marcus Lee"
-        sub="Assigned operators, competency evidence and training-content review"
-        right={
-          <>
-            <Chip tone={persona.role === 'instructor' ? 'green' : 'orange'} icon="badge">
-              Viewing as {persona.name} · {persona.role}
-            </Chip>
-            <DataSourceChip endpoints={['/instructor/', '/competency/', '/reassessment']} />
-          </>
-        }
+    <div className="space-y-8">
+      <PageTitle title="Instructor workspace" sub="Marcus Lee · assigned operators, competency evidence and training-content review" />
+
+      <InlineTabs
+        label="Instructor workspace"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'operators', label: 'Operators' },
+          { value: 'content', label: pending ? `Content review (${pending})` : 'Content review' },
+        ]}
       />
-
-      {persona.role !== 'instructor' && (
-        <div className="flex items-start gap-3 border-2 border-warning bg-warning/10 px-4 py-3" role="note">
-          <Icon name="badge" size={24} className="text-warning-text" />
-          <p className="text-body-md text-on-surface">
-            You are viewing as <strong>{persona.name}</strong> ({persona.title}). Actions are sent with <span className="font-mono text-body-sm">actor_role="{persona.role}"</span>. Only an instructor may verify DEMONSTRATED, so the server will answer 403. Switch to Marcus Lee (Instructor) in the persona menu to verify.
-          </p>
-        </div>
-      )}
-
-      <nav className="flex gap-1 border-b border-outline" role="tablist" aria-label="Instructor workspace">
-        {tabs.map((t) => {
-          const on = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={on}
-              onClick={() => setTab(t.id)}
-              className={cx(
-                'relative flex items-center gap-2 px-5 py-3 font-display text-label-md uppercase transition-colors duration-quick',
-                on ? 'text-on-surface after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-1 after:bg-cat' : 'text-on-surface-muted hover:text-on-surface',
-              )}
-            >
-              <Icon name={t.icon} size={20} />
-              {t.label}
-              {t.count ? <span className="tnum border border-outline-variant px-1.5 text-label-sm">{t.count}</span> : null}
-            </button>
-          );
-        })}
-      </nav>
 
       {tab === 'operators' ? (
         <OperatorsTab persona={persona} />

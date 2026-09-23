@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Area, ComposedChart, Line, ResponsiveContainer, XAxis, YAxis, ReferenceLine } from 'recharts';
-import { DataSourceChip } from '../../components/DataSourceChip';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { CHANNEL_COLOR, PhaseChip, ScoreBandChip } from '../../components/practice/parts';
-import { ProvenanceBadges } from '../../components/ProvenanceBadge';
+import { SourceNote } from '../../components/ProvenanceBadge';
 import { Button, Icon, PageTitle, Segmented, cx, toast } from '../../components/ui';
 import { practice, practiceLiveWsUrl } from '../../lib/api';
 import { CHANNEL_LABEL, fmtDate } from '../../lib/format';
@@ -31,9 +30,9 @@ function StripChart({ data, ch, zMode }: { data: ChartPoint[]; ch: string; zMode
   const outside = v !== undefined && band ? v < band[0] || v > band[1] : false;
   const t0 = data[0]?.t ?? 0;
   return (
-    <div className="grid grid-cols-[120px_1fr] items-center gap-3 border-b border-outline py-1 last:border-0">
+    <div className="grid grid-cols-[120px_1fr] items-center gap-4 py-1">
       <div>
-        <div className="font-display text-label-md uppercase" style={{ color: CHANNEL_COLOR[ch] }}>
+        <div className="font-display text-label-lg" style={{ color: CHANNEL_COLOR[ch] }}>
           {CHANNEL_LABEL[ch] ?? ch}
         </div>
         <div className={cx('font-display text-headline-sm tnum', outside ? 'text-warning-text' : 'text-on-surface')}>
@@ -80,6 +79,7 @@ export default function PracticeLive() {
   const [hint, setHint] = useState<{ text: string; until: number } | null>(null);
   const [zMode, setZMode] = useState(false);
   const [source, setSource] = useState<'ws' | 'replay' | null>(null);
+  const [opts, setOpts] = useState(false);
   const points = useRef<LivePoint[]>([]);
   const cursor = useRef(0);
   const ws = useRef<WebSocket | null>(null);
@@ -239,199 +239,159 @@ export default function PracticeLive() {
   const total = report?.n_cycles ?? cycles;
   const showHint = hint && hint.until > Date.now() ? hint.text : null;
   const exList = exercises?.length ? exercises : [{ exercise_id: 'truck_loading_basic', title: 'Truck loading — basic' }, { exercise_id: 'trench_basic', title: 'Trench — basic' }];
+  const done = mode === 'done' && !!sessionId;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <TrainingTabs />
-      <PageTitle
-        kicker="Practice Analyser · Expert Motion Model"
-        title="Practice session — live"
-        sub="Your control inputs, phase by phase, against an envelope learned from highly professional operators (SIMULATED, safety-filtered)."
-        right={
-          <>
-            <ProvenanceBadges kinds={['ML', 'SIMULATED']} />
-            <DataSourceChip endpoints={['/practice/']} modelBacked />
-          </>
-        }
-      />
+      <PageTitle title="Practice session" sub="Your controls, phase by phase, against an envelope learned from expert operators." />
 
-      <section className="panel grid grid-cols-12 gap-4 p-4">
-        <div className="col-span-12 lg:col-span-4">
-          <div className="mb-2 font-display text-label-md uppercase text-on-surface-muted">Exercise</div>
-          <div className="grid grid-cols-2 gap-2">
+      <section className="flex flex-wrap items-end gap-8">
+        <div>
+          <div className="mb-2 text-body-md text-on-surface-muted">Exercise</div>
+          <div className="flex gap-2">
             {exList.map((ex) => (
               <button
                 key={ex.exercise_id}
                 type="button"
                 onClick={() => setExercise(ex.exercise_id)}
-                className={cx('flex min-h-[64px] items-center gap-2 border-2 px-3 text-left', exercise === ex.exercise_id ? 'border-cat bg-cat/10' : 'border-outline-variant bg-surface-container-high hover:border-outline-strong')}
+                className={cx('h-12 border px-4 text-body-md', exercise === ex.exercise_id ? 'border-on-surface bg-on-surface text-surface' : 'border-outline-variant hover:bg-surface-container-high')}
               >
-                <Icon name={ex.exercise_id.includes('trench') ? 'construction' : 'local_shipping'} size={28} className="text-cat-text" />
-                <span className="font-display text-label-lg uppercase">{(ex.title ?? ex.label ?? exerciseLabel(ex.exercise_id)).replace(' - ', ' — ')}</span>
+                {(ex.title ?? ex.label ?? exerciseLabel(ex.exercise_id)).replace(' - ', ' — ').replace(/ dig and cast to spoil/, '')}
               </button>
             ))}
           </div>
         </div>
-        <div className="col-span-12 space-y-2 lg:col-span-5">
-          <div className="font-display text-label-md uppercase text-on-surface-muted">Demo trainee archetype (SIMULATED)</div>
+        <div>
+          <div className="mb-2 text-body-md text-on-surface-muted">Demo trainee</div>
           <Segmented
             value={archetype}
             onChange={setArchetype}
             options={[
               { value: 'novice', label: 'Novice' },
               { value: 'intermediate', label: 'Intermediate' },
-              { value: 'novice_improving', label: 'Novice improving' },
+              { value: 'novice_improving', label: 'Improving' },
               { value: 'expert', label: 'Expert' },
             ]}
           />
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 font-display text-label-sm uppercase text-on-surface-muted">
-              Trainee
-              <select className="select h-10 w-auto" value={trainee} onChange={(e) => setTrainee(e.target.value)}>
-                {TRAINEES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-2 font-display text-label-sm uppercase text-on-surface-muted">
-              Cycles
-              <select className="select h-10 w-20" value={cycles} onChange={(e) => setCycles(Number(e.target.value))}>
-                {[4, 6, 8, 12].map((n) => (
-                  <option key={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-2 font-display text-label-sm uppercase text-on-surface-muted">
-              Speed
-              <select className="select h-10 w-20" value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
-                {[1, 2, 4, 8].map((n) => (
-                  <option key={n} value={n}>
-                    {n}×
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
         </div>
-        <div className="col-span-12 flex flex-col justify-center gap-2 lg:col-span-3">
-          <Button variant="primary" size="cab" icon="smart_toy" disabled={mode === 'connecting'} onClick={() => void runDemo()}>
+        <div className="ml-auto flex items-center gap-3">
+          <Button variant="ghost" size="md" iconRight={opts ? 'expand_less' : 'expand_more'} onClick={() => setOpts((o) => !o)}>
+            Options
+          </Button>
+          <Button variant={done ? 'secondary' : 'primary'} size="lg" icon="smart_toy" disabled={mode === 'connecting'} onClick={() => void runDemo()}>
             Run demo trainee
           </Button>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="secondary" size="md" icon="cable" disabled={mode === 'connecting'} onClick={() => void connectMachine()}>
-              Practice machine
-            </Button>
-            <Button variant="secondary" size="md" icon="stop_circle" disabled={!sessionId || mode === 'idle'} onClick={() => void finish()}>
-              Finish
-            </Button>
-          </div>
         </div>
       </section>
+      {opts && (
+        <section className="flex flex-wrap items-center gap-6 bg-surface-container-low px-6 py-4 text-body-md">
+          <label className="flex items-center gap-2">
+            Trainee
+            <select className="select h-10 w-auto" value={trainee} onChange={(e) => setTrainee(e.target.value)}>
+              {TRAINEES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            Cycles
+            <select className="select h-10 w-20" value={cycles} onChange={(e) => setCycles(Number(e.target.value))}>
+              {[4, 6, 8, 12].map((n) => (
+                <option key={n}>{n}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            Speed
+            <select className="select h-10 w-20" value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
+              {[1, 2, 4, 8].map((n) => (
+                <option key={n} value={n}>
+                  {n}×
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button variant="secondary" size="md" icon="cable" disabled={mode === 'connecting'} onClick={() => void connectMachine()}>
+            Connect practice machine
+          </Button>
+          <Button variant="secondary" size="md" icon="stop_circle" disabled={!sessionId || mode === 'idle'} onClick={() => void finish()}>
+            Finish session
+          </Button>
+        </section>
+      )}
 
-      <div className="grid grid-cols-12 gap-4">
-        <section className="col-span-12 border-2 border-outline-variant bg-surface-container-lowest p-5 xl:col-span-9">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline pb-4">
-            <div className="flex items-center gap-4">
-              {cur ? <PhaseChip phase={cur.phase} size="xl" /> : <span className="flex h-16 items-center border-2 border-dashed border-outline-variant px-6 font-display text-headline-lg uppercase text-on-surface-muted">Waiting</span>}
-              <div>
-                <div className="font-display text-label-md uppercase text-on-surface-muted">Cycle phase</div>
-                <div className="font-display text-headline-md tnum">{cur && cur.cycle >= 0 ? `Cycle ${cur.cycle + 1} of ${total}` : mode === 'waiting' ? 'Waiting for practice-machine samples…' : mode === 'connecting' ? 'Simulating trainee…' : '—'}</div>
-                <div className="mt-1 h-1.5 w-56 bg-surface-container-high">
-                  <div className="h-full bg-cat transition-all" style={{ width: `${Math.round((cur?.tau ?? 0) * 100)}%` }} />
-                </div>
+      <div className="grid grid-cols-12 gap-8">
+        <section className="panel col-span-12 p-6 xl:col-span-9">
+          <div className="flex items-center gap-6">
+            {cur ? <PhaseChip phase={cur.phase} size="xl" /> : <span className="flex h-16 items-center bg-surface-container-high px-6 font-display text-headline-md uppercase text-on-surface-muted">Waiting</span>}
+            <div className="flex-1">
+              <div className="font-display text-headline-md tnum">
+                {cur && cur.cycle >= 0 ? `Cycle ${cur.cycle + 1} of ${total}` : mode === 'waiting' ? 'Waiting for machine samples…' : mode === 'connecting' ? 'Simulating trainee…' : 'Ready'}
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {cur &&
-                LIVE_CHANNELS.map((ch) => {
-                  const z = cur.deviation[ch];
-                  if (z === undefined) return null;
-                  const off = Math.abs(z) > Z_BAND;
-                  return (
-                    <span key={ch} className={cx('border px-2 py-1 font-display text-label-md uppercase tnum', off ? 'border-warning text-warning-text' : 'border-outline text-on-surface-variant')}>
-                      {CHANNEL_LABEL[ch]} {z > 0 ? '+' : ''}
-                      {z.toFixed(1)}σ
-                    </span>
-                  );
-                })}
-              <span className="font-display text-label-sm uppercase text-on-surface-muted">
-                {source === 'ws' ? 'Live frames · WS' : source === 'replay' ? 'Replay of the analysed session' : ''}
-              </span>
+              <div className="mt-2 h-1.5 w-64 bg-surface-container-high">
+                <div className="h-full bg-cat transition-all" style={{ width: `${Math.round((cur?.tau ?? 0) * 100)}%` }} />
+              </div>
             </div>
           </div>
 
-          <div className={cx('mt-4 flex min-h-[64px] items-center gap-3 border-l-4 px-4 py-3', showHint ? 'border-notice-dark bg-notice/15' : 'border-success bg-success/10')}>
-            <Icon name={showHint ? 'lightbulb' : 'check_circle'} size={30} className={showHint ? 'text-notice-dark' : 'text-success-text'} />
+          <div className={cx('mt-6 flex min-h-[56px] items-center gap-3 px-4', showHint ? 'bg-notice/10 text-notice-dark' : 'text-on-surface-muted')}>
+            <Icon name={showHint ? 'lightbulb' : 'check_circle'} size={26} className={showHint ? '' : 'text-success-text'} />
             <span className="font-display text-headline-sm">{showHint ?? (running ? 'On the expert line — keep it smooth' : 'Run a demo trainee to see live coaching')}</span>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-6">
             {LIVE_CHANNELS.map((ch) => (
               <StripChart key={ch} data={chart} ch={ch} zMode={zMode} />
             ))}
-            <div className="mt-2 flex flex-wrap items-center gap-4 font-display text-label-sm uppercase text-on-surface-muted">
-              <span className="flex items-center gap-2">
-                <span className="h-3 w-6 bg-white/15" /> Expert band (P10–P90{zMode ? ', ±1.28σ' : ''})
-              </span>
-              <span>Line = trainee {zMode ? 'deviation from the expert (σ)' : 'lever command (−1…1)'}</span>
-              <span>Last 12 s</span>
+            <div className="mt-3 text-body-sm text-on-surface-muted">
+              Shaded = expert band (P10–P90) · line = trainee {zMode ? 'deviation (σ)' : 'lever command'} · last 12 s
             </div>
           </div>
 
-          {mode === 'done' && sessionId && (
-            <div className="mt-4 flex flex-wrap items-center gap-4 border-2 border-cat bg-cat/5 p-4">
-              <Icon name="flag" size={32} className="text-cat-text" />
-              <div className="flex-1">
-                <div className="font-display text-headline-sm uppercase">Session complete</div>
-                {report && (
-                  <div className="flex items-center gap-3 text-body-md text-on-surface-variant">
-                    Score <b className="font-display text-headline-md text-on-surface tnum">{Math.round(report.overall_score)}</b> / 100 <ScoreBandChip band={report.score_band} /> · {report.tips.length} coaching tips
-                  </div>
-                )}
-              </div>
-              <Button variant="primary" size="cab" iconRight="arrow_forward" onClick={() => nav(`/training/practice/${sessionId}`)}>
+          {done && (
+            <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-outline pt-6">
+              {report && (
+                <div className="flex items-center gap-3 text-body-lg">
+                  Score <b className="font-display text-headline-md tnum">{Math.round(report.overall_score)}</b> / 100 <ScoreBandChip band={report.score_band} />
+                </div>
+              )}
+              <span className="flex-1" />
+              <Button variant="primary" size="lg" iconRight="arrow_forward" onClick={() => nav(`/training/practice/${sessionId}`)}>
                 You vs expert report
               </Button>
             </div>
           )}
+          <SourceNote kinds={['ML', 'SIMULATED']}>{source === 'ws' ? 'live frames over WebSocket' : source === 'replay' ? 'replay of the analysed session' : ''}</SourceNote>
         </section>
 
-        <aside className="col-span-12 space-y-3 xl:col-span-3">
-          <div className="panel p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="font-display text-headline-sm uppercase">Recent sessions</span>
-              <Link to="/training/practice/progress" className="font-display text-label-sm uppercase text-cat-text">
-                Progress ›
-              </Link>
-            </div>
-            <ul className="space-y-1.5">
-              {(sessions ?? [])
-                .slice()
-                .reverse()
-                .slice(0, 8)
-                .map((s) => (
-                  <li key={s.session_id}>
-                    <Link to={`/training/practice/${s.session_id}`} className="flex items-center justify-between gap-2 border border-outline bg-surface-container-low px-3 py-2 hover:border-cat">
-                      <span className="min-w-0">
-                        <span className="block truncate font-display text-label-md uppercase">{exerciseLabel(s.exercise)}</span>
-                        <span className="block text-body-sm text-on-surface-muted">{fmtDate(s.created_ts ?? null)}{s.archetype ? ` · ${s.archetype.replace('_', ' ')}` : ''}</span>
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <span className="font-display text-headline-sm tnum">{s.overall_score != null ? Math.round(s.overall_score) : '—'}</span>
-                        {s.score_band && <ScoreBandChip band={s.score_band} />}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              {!sessions?.length && <li className="text-body-sm text-on-surface-muted">No sessions yet.</li>}
-            </ul>
+        <aside className="col-span-12 xl:col-span-3">
+          <div className="mb-3 flex items-baseline justify-between">
+            <span className="font-display text-headline-sm">Recent sessions</span>
+            <Link to="/training/practice/progress" className="text-body-md text-notice-dark hover:underline">
+              Progress
+            </Link>
           </div>
-          <div className="panel p-4 text-body-sm text-on-surface-variant">
-            <div className="mb-1 font-display text-label-md uppercase text-on-surface">How scoring works</div>
-            The analyser segments each cycle into DIG · SWING LOADED · DUMP · SWING EMPTY, compares every lever with the expert envelope for that phase, and scores expert-likeness 0–100. Fast is not automatically good — expert data is filtered for safety first.
-          </div>
+          <ul className="divide-y divide-outline">
+            {(sessions ?? [])
+              .slice()
+              .reverse()
+              .slice(0, 6)
+              .map((s) => (
+                <li key={s.session_id}>
+                  <Link to={`/training/practice/${s.session_id}`} className="flex items-center justify-between gap-2 py-3 hover:text-notice-dark">
+                    <span className="min-w-0">
+                      <span className="block truncate text-body-md">{exerciseLabel(s.exercise)}</span>
+                      <span className="block text-body-sm text-on-surface-muted">{fmtDate(s.created_ts ?? null)}</span>
+                    </span>
+                    <span className="font-display text-headline-sm tnum">{s.overall_score != null ? Math.round(s.overall_score) : '—'}</span>
+                  </Link>
+                </li>
+              ))}
+            {!sessions?.length && <li className="py-3 text-body-md text-on-surface-muted">No sessions yet.</li>}
+          </ul>
         </aside>
       </div>
     </div>

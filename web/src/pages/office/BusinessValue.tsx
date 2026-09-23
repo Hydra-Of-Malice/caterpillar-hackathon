@@ -229,12 +229,12 @@ function Tornado({ rows, base, units }: { rows: ValueSensitivityRow[]; base: num
   const min = Math.min(...vals);
   const max = Math.max(...vals);
   const span = max - min || Math.max(1, Math.abs(base) * 0.1);
-  const lo = min - span * 0.22;
-  const hi = max + span * 0.22;
+  const lo = min - span * 0.12;
+  const hi = max + span * 0.12;
   const pct = (v: number) => ((v - lo) / (hi - lo)) * 100;
   const ticks = niceTicks(lo, hi, 5);
 
-  const seg = (v: number, color: string, input: string) => {
+  const seg = (v: number, color: string) => {
     const a = Math.min(v, base);
     const b = Math.max(v, base);
     const leftSide = v < base;
@@ -245,7 +245,7 @@ function Tornado({ rows, base, units }: { rows: ValueSensitivityRow[]; base: num
           className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap text-footnote text-on-surface-muted tnum"
           style={leftSide ? { right: `calc(${100 - pct(a)}% + 6px)` } : { left: `calc(${pct(b)}% + 6px)` }}
         >
-          {input}
+          {usdK(v)}
         </span>
       </>
     );
@@ -270,8 +270,8 @@ function Tornado({ rows, base, units }: { rows: ValueSensitivityRow[]; base: num
                 {ticks.map((t) => (
                   <span key={t} className="absolute bottom-0 top-0 w-px bg-surface-container-high" style={{ left: `${pct(t)}%` }} />
                 ))}
-                {seg(r.low_usd, LOW_COLOR, lowIn)}
-                {seg(r.high_usd, HIGH_COLOR, highIn)}
+                {seg(r.low_usd, LOW_COLOR)}
+                {seg(r.high_usd, HIGH_COLOR)}
                 <span className="absolute bottom-0 top-0 w-0.5 bg-on-surface" style={{ left: `${pct(base)}%` }} />
               </div>
               <div className="border-t border-outline py-2 text-right text-body-sm text-on-surface tnum">{usdK(Math.abs(r.high_usd - r.low_usd))}</div>
@@ -451,8 +451,8 @@ export default function BusinessValue() {
             const m = INPUT_META[k];
             const key = inputKey(k);
             const a = amap[key];
-            const cur = edits[key] ?? edits[k];
-            const edited = cur !== undefined && (!a || cur !== a.value);
+            const ev = edits[key] ?? edits[k];
+            const edited = ev !== undefined && (!a || ev !== a.value);
             const tip = a ? `${a.label}${a.low !== undefined || a.high !== undefined ? ` · range ${fmtInput(a.low, a.unit)} – ${fmtInput(a.high, a.unit)}` : ''}` : m.label;
             return (
               <div key={k} title={tip}>
@@ -636,7 +636,7 @@ export default function BusinessValue() {
 
       {/* ---------------------------------------------------- tornado */}
       <Panel className="p-6">
-        <SectionHead title="What moves the number" sub="Each bar moves one assumption from the low to the high end of its range; everything else stays at current values." />
+        <SectionHead title="What moves the number" sub="Each bar shows the value per machine when one assumption moves from low to high. Hover a row for the inputs." />
         {!cur ? (
           <Loading label="Calculating sensitivity" />
         ) : cur.sensitivity?.length ? (
@@ -765,7 +765,7 @@ function GroupRows({ lever, rows, edits, onEdit, onReset }: { lever: string; row
               </div>
               <div className="mt-1 text-on-surface-muted tnum">{a.unit === 'share' ? `= ${fmtInput(v, 'share')}` : a.unit}</div>
             </td>
-            <td className="!align-top whitespace-nowrap pt-4 text-on-surface-variant tnum">{fmtRange(a)}</td>
+            <td className="!align-top whitespace-nowrap text-on-surface-variant tnum">{fmtRange(a)}</td>
             <td className="!align-top">
               <div className="text-on-surface-variant">
                 {a.source_url ? (

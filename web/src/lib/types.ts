@@ -623,6 +623,8 @@ export interface TrainingModule {
   why_for_you?: string | null;
   status?: string;
   safety_critical?: boolean;
+  /** VR viewing — only for demonstrations recorded in 3D (stereoscopic 180°/360°). Placeholder until production recordings exist. */
+  vr?: { available: boolean; format?: string; title?: string; url?: string | null };
 }
 
 export interface QuizQuestion {

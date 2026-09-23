@@ -20,7 +20,7 @@ export function RangeBar({
   const tick = tone === 'yellow' ? 'bg-cat' : 'bg-series-blue-light';
   return (
     <div className="w-full">
-      <div className={cx('relative w-full border border-outline bg-surface-container-lowest', height)}>
+      <div className={cx('relative w-full bg-surface-container-high', height)}>
         <div className={cx('absolute bottom-0 top-0 border-x', band)} style={{ left: pos(p10), width: `calc(${pos(p90)} - ${pos(p10)})` }} />
         <div className={cx('absolute -bottom-1.5 -top-1.5 w-1', tick)} style={{ left: `calc(${pos(p50)} - 2px)` }} title={`P50 ${format(p50)}`} />
         {now !== undefined && now !== null && (
@@ -31,7 +31,7 @@ export function RangeBar({
         {actual !== undefined && actual !== null && <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black bg-on-surface" style={{ left: pos(actual) }} title={`Actual ${format(actual)}`} />}
       </div>
       {labels && (
-        <div className="relative mt-2 h-4 font-display text-label-sm uppercase text-on-surface-muted">
+        <div className="relative mt-2 h-4 text-body-sm text-on-surface-muted">
           <span className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: pos(p10) }}>P10 · {format(p10)}</span>
           <span className="absolute -translate-x-1/2 whitespace-nowrap text-cat-text" style={{ left: pos(p50) }}>P50 · {format(p50)}</span>
           <span className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: pos(p90) }}>P90 · {format(p90)}</span>
@@ -56,14 +56,14 @@ export function EtaRangeBar({ estimate, nowTs, compact = false, showWhy, classNa
   return (
     <div className={cx('w-full', className)}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="font-display text-label-md uppercase text-on-surface">
-          Est. finish {fmtClock(t50)} <span className="text-on-surface-muted">(likely {fmtClock(t10)}–{fmtClock(t90)})</span>
+        <span className="text-body-lg text-on-surface">
+          Finish {fmtClock(t50)} <span className="text-on-surface-muted">· likely {fmtClock(t10)}–{fmtClock(t90)}</span>
         </span>
         <span className="flex items-center gap-2">
-          {estimate.low_data && <span className="font-display text-label-sm uppercase text-warning-text">Low data · wider range</span>}
+          {estimate.low_data && <span className="text-body-sm text-warning-text">Low data · wider range</span>}
           {showWhy && (
-            <button type="button" onClick={showWhy} className="font-display text-label-sm uppercase text-cat-text underline underline-offset-2">
-              Why this estimate?
+            <button type="button" onClick={showWhy} className="font-display text-label-md uppercase text-notice-dark hover:underline">
+              Why?
             </button>
           )}
           <ProvenanceBadges kinds={estimate.provenance} />

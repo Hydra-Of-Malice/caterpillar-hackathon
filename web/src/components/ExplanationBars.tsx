@@ -24,8 +24,8 @@ export function ExplanationBars({ items, compact = false, bandLabel = 'your usua
                 {fmt(f.value)} {f.unit} <span className="text-on-surface-muted">vs {fmt(lo)}–{fmt(hi)}</span>
               </span>
             </div>
-            <div className={cx('relative border border-outline bg-surface-container-lowest', compact ? 'h-3' : 'h-4')}>
-              <div className="absolute bottom-0 top-0 bg-white/10" style={{ left: `${pos(lo)}%`, width: `${pos(hi) - pos(lo)}%` }} title={bandLabel} />
+            <div className={cx('relative bg-surface-container-high', compact ? 'h-3' : 'h-4')}>
+              <div className="absolute bottom-0 top-0 bg-on-surface/15" style={{ left: `${pos(lo)}%`, width: `${pos(hi) - pos(lo)}%` }} title={bandLabel} />
               <div className={cx('absolute -bottom-1 -top-1 w-1', outside ? 'bg-warning' : 'bg-prov-ml')} style={{ left: `calc(${pos(f.value)}% - 2px)` }} />
             </div>
           </li>
