@@ -7,8 +7,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(ROOT / ".env")   # local, gitignored; never commit secrets here
 CONFIG_DIR = ROOT / "config"
 DATA_DIR = ROOT / "data"
 MODELS_DIR = ROOT / "models"
@@ -23,6 +25,13 @@ CLOUD_DB_URL = os.getenv("SENTINEL_CLOUD_DB", f"sqlite:///{(DATA_DIR / 'cloud.db
 CLOUD_API_URL = os.getenv("SENTINEL_CLOUD_API", "http://127.0.0.1:8100/api/v1")
 DEMO_MODE = os.getenv("DEMO_MODE", "1") == "1"
 ANTHROPIC_MODEL = os.getenv("SENTINEL_LLM_MODEL", "claude-opus-5-5")
+
+# Azure OpenAI (training copilot LLM). All optional; unset -> Claude, then extractive-only offline mode.
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", os.getenv("AZURE_FOUNDRY_ENDPOINT", ""))
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY", os.getenv("OPENAI_API_KEY", ""))
+AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT",
+                                    os.getenv("AZURE_FOUNDRY_GPT4O_DEPLOYMENT", "gpt-4o"))
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21")
 
 for _d in (DATA_DIR, MODELS_DIR):
     _d.mkdir(parents=True, exist_ok=True)

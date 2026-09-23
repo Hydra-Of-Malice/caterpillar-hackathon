@@ -537,7 +537,7 @@ export interface ShiftReview {
     material_m3: number;
     idle_min: number;
   };
-  idle_breakdown: { waiting_min: number; warmup_min: number; unexplained_min: number };
+  idle_breakdown: { waiting_min: number; unexplained_min: number };
   alerts_by_signal_word: Record<string, number>;
   well_done: string[];
   focus?: {
@@ -782,7 +782,7 @@ export interface IdleSummary {
   date: string;
   machines: Array<{
     machine_id: string;
-    days: Array<{ date: string; waiting_min: number; warmup_min: number; unexplained_min: number }>;
+    days: Array<{ date: string; waiting_min: number; unexplained_min: number }>;
   }>;
   longest_unexplained: Array<{ machine_id: string; operator_id: string; start_ts: number; duration_min: number; context: string }>;
   fuel_unexplained_l: number;

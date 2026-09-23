@@ -130,11 +130,10 @@ def _shift1_extras(shift_id: str, operator_id: str, start: float) -> list[Event]
                [Provenance.RULE, Provenance.SIMULATED], "shift1")
         for i in range(2)]
     idle = [("idle_wait", 24.0, {"waiting_for_truck": True}, Attribution.environment),
-            ("idle_warm", 9.0, {"idle_reason": "warmup"}, Attribution.environment),
-            ("idle_unexpl", 5.0, {"waiting_for_truck": False}, Attribution.operator)]
+            ("idle_unexpl1", 9.0, {"waiting_for_truck": False}, Attribution.environment),
+            ("idle_unexpl2", 5.0, {"waiting_for_truck": False}, Attribution.operator)]
     for i, (idx, minutes, extra, attribution) in enumerate(idle):
-        type_ = "warmup_idle" if idx == "idle_warm" else "excessive_idle"
-        out.append(_event(shift_id, operator_id, idx, start + 600 + i * 7200, type_, RiskCategory.procedural,
+        out.append(_event(shift_id, operator_id, idx, start + 600 + i * 7200, "excessive_idle", RiskCategory.procedural,
                           Tier.T1 if attribution is Attribution.operator else None, attribution,
                           {**ctx, "idle_min": minutes, **extra}, [Provenance.RULE, Provenance.SIMULATED], "shift1",
                           evidence={"idle_min": minutes}))

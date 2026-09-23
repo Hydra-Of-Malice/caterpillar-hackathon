@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
   "fastapi", "uvicorn[standard]", "pydantic>=2", "paho-mqtt>=2", "sqlalchemy>=2",
   "numpy", "pandas", "scikit-learn", "lightgbm", "scipy", "statsmodels", "pyyaml",
-  "httpx", "rank-bm25", "anthropic", "pyarrow", "amqtt", "websockets",
+  "httpx", "rank-bm25", "anthropic", "openai", "python-dotenv", "pyarrow", "amqtt", "websockets",
 ]
 
 [project.optional-dependencies]

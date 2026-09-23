@@ -73,7 +73,7 @@ export function normReview(raw: unknown): ShiftReview {
   return {
     ...(r as unknown as ShiftReview),
     totals: { operating_min: 0, tasks_done: 0, tasks_total: 0, material_m3: 0, idle_min: 0, ...o(r.totals) } as ShiftReview['totals'],
-    idle_breakdown: { waiting_min: 0, warmup_min: 0, unexplained_min: 0, ...o(r.idle_breakdown) } as ShiftReview['idle_breakdown'],
+    idle_breakdown: { waiting_min: 0, unexplained_min: 0, ...o(r.idle_breakdown) } as ShiftReview['idle_breakdown'],
     alerts_by_signal_word: Object.fromEntries(Object.entries(o(r.alerts_by_signal_word)).filter(([, v]) => typeof v === 'number' && v > 0)) as Record<string, number>,
     well_done: (Array.isArray(r.well_done) ? (r.well_done as unknown[]) : []).map((w) => (typeof w === 'string' ? w : s(o(w).text, o(w).title) ?? '')),
     focus: f

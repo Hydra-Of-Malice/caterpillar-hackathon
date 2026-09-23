@@ -297,7 +297,7 @@ export function normIdle(raw: unknown): IdleSummary {
   const totals = o(r.totals);
   return {
     date,
-    machines: ms.map((m) => ({ machine_id: s(m.machine_id) ?? '', days: [{ date: date.slice(5) || 'today', waiting_min: n(m.waiting_for_truck_min) ?? 0, warmup_min: n(m.warmup_cooldown_min) ?? 0, unexplained_min: n(m.unexplained_min) ?? 0 }] })),
+    machines: ms.map((m) => ({ machine_id: s(m.machine_id) ?? '', days: [{ date: date.slice(5) || 'today', waiting_min: n(m.waiting_for_truck_min) ?? 0, unexplained_min: n(m.unexplained_min) ?? 0 }] })),
     longest_unexplained: a(r.longest_unexplained).map((l) => {
       const c = o(l.context);
       return {

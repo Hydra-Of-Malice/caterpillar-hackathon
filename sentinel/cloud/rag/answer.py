@@ -16,6 +16,7 @@ from functools import lru_cache
 from typing import Any, Callable
 
 import anthropic
+import openai
 
 from sentinel.cloud.rag.ingest import Chunk
 from sentinel.cloud.rag.retriever import HybridRetriever, Hit, default_retriever
@@ -103,6 +104,39 @@ class ClaudeGenerator:
         return text
 
 
+class AzureOpenAIGenerator:
+    """Azure OpenAI (gpt-4o deployment) call that answers only from the given passages."""
+
+    def __init__(self, settings: CopilotSettings, deployment: str | None = None) -> None:
+        self.settings = settings
+        self.deployment = deployment or config.AZURE_OPENAI_DEPLOYMENT
+        self.client = openai.AzureOpenAI(
+            azure_endpoint=config.AZURE_OPENAI_ENDPOINT, api_key=config.AZURE_OPENAI_API_KEY,
+            api_version=config.AZURE_OPENAI_API_VERSION, timeout=settings.timeout_s, max_retries=settings.max_retries)
+
+    def __call__(self, question: str, chunks: list[Chunk]) -> str:
+        try:
+            response = self.client.chat.completions.create(
+                model=self.deployment,
+                max_tokens=self.settings.max_tokens,
+                messages=[{"role": "system", "content": SYSTEM_PROMPT},
+                          {"role": "user", "content": f"SOURCES:\n{format_sources(chunks)}\n\nQUESTION: {question}"}],
+            )
+        except openai.APIStatusError as exc:
+            raise GenerationError(f"Azure OpenAI API error {exc.status_code}") from exc
+        except openai.APIConnectionError as exc:               # includes timeouts
+            raise GenerationError("Azure OpenAI unreachable or timed out") from exc
+        choice = response.choices[0]
+        if choice.finish_reason == "length":
+            raise GenerationError("unusable response (finish_reason=length)")
+        if choice.finish_reason == "content_filter":
+            raise GenerationError("unusable response (finish_reason=content_filter)")
+        text = (choice.message.content or "").strip()
+        if not text:
+            raise GenerationError("empty response")
+        return text
+
+
 def is_safety_critical(question: str, hits: list[Hit], terms: tuple[str, ...]) -> bool:
     """Safety-critical if the question names a gated topic or the best passage is from a safety-critical doc."""
     q = question.lower()
@@ -176,7 +210,10 @@ class Copilot:
 
 
 def default_generator(settings: CopilotSettings) -> Generator | None:
-    """Claude when ANTHROPIC_API_KEY is set, otherwise None (extractive/offline mode)."""
+    """Azure OpenAI (gpt-4o) when configured, else Claude when ANTHROPIC_API_KEY is set,
+    else None (extractive/offline mode)."""
+    if config.AZURE_OPENAI_ENDPOINT and config.AZURE_OPENAI_API_KEY:
+        return AzureOpenAIGenerator(settings)
     return ClaudeGenerator(settings) if os.getenv("ANTHROPIC_API_KEY") else None
 
 

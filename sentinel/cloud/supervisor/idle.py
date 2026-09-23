@@ -1,4 +1,4 @@
-"""Idle breakdown (screen 16): waiting_for_truck / warmup_cooldown / unexplained, with a fuel estimate."""
+"""Idle breakdown (screen 16): waiting_for_truck / unexplained, with a fuel estimate."""
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
@@ -10,8 +10,7 @@ from sqlalchemy.orm import Session
 from sentinel.shared.config import load_yaml
 from sentinel.store.models import EventRow
 
-REASONS = ("waiting_for_truck", "warmup_cooldown", "unexplained")
-WARM_COOL = {"warmup", "warm_up", "cooldown", "cool_down"}
+REASONS = ("waiting_for_truck", "unexplained")
 
 
 def idle_minutes(data: dict[str, Any]) -> float:
@@ -32,12 +31,7 @@ def classify_idle(row: EventRow) -> tuple[str, float] | None:
         return None
     data = row.data or {}
     ctx = data.get("context") or {}
-    if ctx.get("waiting_for_truck"):
-        reason = "waiting_for_truck"
-    elif ctx.get("idle_reason") in WARM_COOL or "warm" in row.type or "cool" in row.type:
-        reason = "warmup_cooldown"
-    else:
-        reason = "unexplained"
+    reason = "waiting_for_truck" if ctx.get("waiting_for_truck") else "unexplained"
     return reason, idle_minutes(data)
 
 

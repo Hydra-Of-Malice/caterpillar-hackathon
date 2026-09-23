@@ -117,8 +117,7 @@ def test_supervisor_routes(client: TestClient) -> None:
     assert [r["machine_id"] for r in crew["rows"]] == ["EX-07", "EX-09"]
     ex07 = crew["rows"][0]
     assert ex07["current_task"]["task_id"] == "T-1" and ex07["protection"]["status"] == "active"
-    assert ex07["value_inputs"]["idle_min_by_reason"] == {"waiting_for_truck": 24.0, "warmup_cooldown": 9.0,
-                                                          "unexplained": 5.0}
+    assert ex07["value_inputs"]["idle_min_by_reason"] == {"waiting_for_truck": 24.0, "unexplained": 14.0}
     assert ex07["value_inputs"]["m3_moved"] == 180.0 and ex07["value_inputs"]["label"] == "SIMULATED"
     assert crew["kpis"]["open_escalations"] == 1 and crew["kpis"]["protection_degraded"] == 1
     esc = client.get(f"{API}/supervisor/escalations").json()
@@ -137,8 +136,8 @@ def test_supervisor_routes(client: TestClient) -> None:
 def test_idle_and_behaviour(client: TestClient) -> None:
     idle = client.get(f"{API}/idle/summary").json()
     ex07 = next(m for m in idle["machines"] if m["machine_id"] == "EX-07")
-    assert (ex07["waiting_for_truck_min"], ex07["warmup_cooldown_min"], ex07["unexplained_min"]) == (24.0, 9.0, 5.0)
-    assert ex07["fuel_l_unexplained"] == 0.25 and idle["label"] == "SIMULATED"
+    assert (ex07["waiting_for_truck_min"], ex07["unexplained_min"]) == (24.0, 14.0)
+    assert ex07["fuel_l_unexplained"] == 0.7 and idle["label"] == "SIMULATED"
     assert client.get(f"{API}/idle/summary", params={"date": "2020-01-01"}).json()["machines"] == []
     beh = client.get(f"{API}/behaviour/events", params={"attribution": "machine"}).json()
     assert beh["items"] and all(not i["competency_map"]["counts_toward_competency"] for i in beh["items"])

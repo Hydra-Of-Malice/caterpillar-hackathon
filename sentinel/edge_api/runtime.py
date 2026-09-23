@@ -286,8 +286,7 @@ class EdgeRuntime:
         if self.tracker.idle_current_s > 0 and idle_before_s == 0:
             self._idle_started = sample.ts
         if self.tracker.idle_current_s == 0 and idle_before_s >= 60 and self._idle_started is not None:
-            reason = ("waiting_for_truck" if self.waiting_for_truck else
-                      "warmup" if sample.coolant_c < self.tracker.warmup_coolant_c else "unexplained")
+            reason = "waiting_for_truck" if self.waiting_for_truck else "unexplained"
             self.alerts.record_event(Event(
                 ts=self._idle_started, site_id=self.site_id, machine_id=self.machine_id,
                 operator_id=sample.operator_id, shift_id=self._ctx.get("shift_id"), task_id=sample.task_id,

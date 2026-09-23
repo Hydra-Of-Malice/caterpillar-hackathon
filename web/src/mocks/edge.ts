@@ -398,7 +398,7 @@ export function mockShiftReview(): ShiftReview {
     shift_id: SHIFT_ID,
     date: 'Tue 23 Sep',
     totals: { operating_min: 460, tasks_done: 2, tasks_total: 3, material_m3: 420, idle_min: 38 },
-    idle_breakdown: { waiting_min: 24, warmup_min: 9, unexplained_min: 5 },
+    idle_breakdown: { waiting_min: 24, unexplained_min: 14 },
     alerts_by_signal_word: { DANGER: 1, WARNING: 3, CAUTION: 2 },
     well_done: ['Smooth bucket control — steadier than your last 5 shifts', 'Pre-shift check on time', 'Waited correctly for trucks — 24 min idle not flagged'],
     focus: {

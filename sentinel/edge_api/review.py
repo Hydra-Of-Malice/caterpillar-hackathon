@@ -27,7 +27,7 @@ def _idle_from_events(events: list[EventRow]) -> dict[str, float]:
             by_reason[e.data["context"].get("reason", "unexplained")] += e.data["context"].get("duration_min", 0.0)
     total = sum(by_reason.values())
     return {"today_min": round(total, 1), "waiting_min": round(by_reason["waiting_for_truck"], 1),
-            "warmup_min": round(by_reason["warmup"], 1), "unexplained_min": round(by_reason["unexplained"], 1)}
+            "unexplained_min": round(by_reason["unexplained"], 1)}
 
 
 def _cloud_focus(rt: Any, shift: ShiftRow) -> dict[str, Any] | None:
@@ -136,7 +136,7 @@ def compose(rt: Any, shift_id: str) -> dict[str, Any] | None:
         "totals": {"operating_min": operating_min, "tasks_done": len(done), "tasks_total": len(tasks),
                    "material_m3": round(sum(t.done_qty for t in tasks if t.qty_unit == "m3"), 1),
                    "idle_min": idle.get("today_min", 0.0), "alerts_shown": len(shown), "incidents": n_incidents},
-        "idle_breakdown": {k: idle.get(k, 0.0) for k in ("waiting_min", "warmup_min", "unexplained_min")},
+        "idle_breakdown": {k: idle.get(k, 0.0) for k in ("waiting_min", "unexplained_min")},
         "alerts_by_signal_word": by_word,
         "suppressed": {"count": sum(suppressed.values()), "by_reason": dict(suppressed)},
         "well_done": well_done, "focus": focus,

@@ -61,7 +61,6 @@ idle:
   rule_id: excessive_idle
   version: "idle-0.1.0"
   t_idle_s: 300.0           # site-set T_idle (5 min default)
-  warmup_s: 600.0           # idle within 10 min of a shift's first sample is warm-up (gated)
   max_dt_s: 1.0
   tier: T1
 

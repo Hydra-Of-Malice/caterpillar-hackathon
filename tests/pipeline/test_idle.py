@@ -9,9 +9,9 @@ from sentinel.shared.schemas import Attribution, Provenance, RiskCategory, Tier
 from tests.pipeline.synth import T0, idle_samples, loading_cycles, shift_started
 
 
-def idle_events(samples, cfg, waiting=lambda s: False, warm=True):
+def idle_events(samples, cfg, waiting=lambda s: False):
     tracker = IdleTracker(cfg)
-    stream = ([shift_started(samples[0].ts)] if warm else []) + samples
+    stream = [shift_started(samples[0].ts)] + samples
     return [e for s in stream if (e := tracker.update(s, waiting(s), "truck_loading")) is not None]
 
 
@@ -55,11 +55,6 @@ def test_ungated_idle_after_waiting_ends_still_fires(cfg):
     assert [bool(e.context.get("suppressed_reason")) for e in events] == [True, False]
     assert events[1].ts - T0 == pytest.approx(500.0, abs=0.5)
     assert events[1].context["ungated_idle_s"] >= 300.0
-
-
-def test_idle_during_shift_warm_up_is_suppressed(cfg):
-    events = idle_events(idle_samples(400.0, T0), cfg, warm=False)
-    assert len(events) == 1 and events[0].context["suppressed_reason"] == "warm_up"
 
 
 def test_brief_gate_does_not_log_a_duplicate_suppression(cfg):

@@ -271,7 +271,7 @@ export function mockMachineIssues(): MachineIssue[] {
 // ------------------------------------------------------------------ idle and behaviour
 export function mockIdleSummary(date: string): IdleSummary {
   const days = ['17 Sep', '18 Sep', '19 Sep', '20 Sep', '21 Sep', '22 Sep', '23 Sep'];
-  const mk = (seed: number) => days.map((d, i) => ({ date: d, waiting_min: 14 + ((i * 7 + seed * 5) % 19), warmup_min: 8 + ((i + seed) % 4), unexplained_min: 3 + ((i * 3 + seed * 11) % 13) }));
+  const mk = (seed: number) => days.map((d, i) => ({ date: d, waiting_min: 14 + ((i * 7 + seed * 5) % 19), unexplained_min: 3 + ((i * 3 + seed * 11) % 13) }));
   return {
     date,
     machines: [

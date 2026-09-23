@@ -29,7 +29,7 @@ const TABS: Array<{ value: Tab; label: string }> = [
 ];
 
 const IDLE_DATE = '2026-09-23';
-const IDLE_COLORS = { waiting: SERIES.blue, warmup: SERIES.green, unexplained: SERIES.orange };
+const IDLE_COLORS = { waiting: SERIES.blue, unexplained: SERIES.orange };
 
 const opName = (id: string) => OPERATORS[id]?.name ?? id;
 
@@ -79,15 +79,15 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
     (a, m) => {
       const d = m.days[m.days.length - 1];
       if (!d) return a;
-      return { waiting: a.waiting + d.waiting_min, warmup: a.warmup + d.warmup_min, unexplained: a.unexplained + d.unexplained_min };
+      return { waiting: a.waiting + d.waiting_min, unexplained: a.unexplained + d.unexplained_min };
     },
-    { waiting: 0, warmup: 0, unexplained: 0 },
+    { waiting: 0, unexplained: 0 },
   );
   const fuelL = typeof data.fuel_unexplained_l === 'number' ? data.fuel_unexplained_l : litres(totals.unexplained);
   // Gains (ESTIMATE): assume half of the unexplained idle is avoidable; litres ↔ minutes at the idle burn rate.
   const savedL = fuelL * 0.5;
   const avoidMin = idleLph > 0 ? (savedL / idleLph) * 60 : 0;
-  const total = totals.waiting + totals.warmup + totals.unexplained;
+  const total = totals.waiting + totals.unexplained;
   const pct = (v: number) => (total > 0 ? Math.round((v / total) * 100) : 0);
 
   // One chart: all machines summed per day, or one machine.
@@ -96,8 +96,8 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
     const byDate = new Map<string, IdleDay>();
     machines.forEach((m) =>
       m.days.forEach((d) => {
-        const cur = byDate.get(d.date) ?? { date: d.date, waiting_min: 0, warmup_min: 0, unexplained_min: 0 };
-        byDate.set(d.date, { date: d.date, waiting_min: cur.waiting_min + d.waiting_min, warmup_min: cur.warmup_min + d.warmup_min, unexplained_min: cur.unexplained_min + d.unexplained_min });
+        const cur = byDate.get(d.date) ?? { date: d.date, waiting_min: 0, unexplained_min: 0 };
+        byDate.set(d.date, { date: d.date, waiting_min: cur.waiting_min + d.waiting_min, unexplained_min: cur.unexplained_min + d.unexplained_min });
       }),
     );
     return Array.from(byDate.values());
@@ -108,7 +108,6 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
     <div className="space-y-8">
       <div className="grid grid-cols-2 gap-6 xl:grid-cols-4">
         <Stat label={<Swatch color={IDLE_COLORS.waiting}>Waiting for truck</Swatch>} value={fmtDur(totals.waiting)} sub={`${pct(totals.waiting)}% · explained`} />
-        <Stat label={<Swatch color={IDLE_COLORS.warmup}>Warm-up / cool-down</Swatch>} value={fmtDur(totals.warmup)} sub={`${pct(totals.warmup)}% · explained`} />
         <Stat label={<Swatch color={IDLE_COLORS.unexplained}>Unexplained</Swatch>} tone="orange" value={fmtDur(totals.unexplained)} sub={`${pct(totals.unexplained)}% · reviewed in context`} />
         <Stat
           label="Fuel in unexplained idle"
@@ -153,20 +152,18 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
                 <YAxis {...AXIS} width={44} label={{ value: 'min', angle: -90, position: 'insideLeft', offset: 16, ...AXIS_LABEL }} />
                 <Tooltip {...TOOLTIP} formatter={(v, name) => [`${v} min`, name]} />
                 <RBar dataKey="waiting_min" name="Waiting for truck" stackId="idle" fill={IDLE_COLORS.waiting} isAnimationActive={false} />
-                <RBar dataKey="warmup_min" name="Warm-up / cool-down" stackId="idle" fill={IDLE_COLORS.warmup} isAnimationActive={false} />
                 <RBar dataKey="unexplained_min" name="Unexplained" stackId="idle" fill={IDLE_COLORS.unexplained} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-body-sm text-on-surface-variant">
               <Swatch color={IDLE_COLORS.waiting}>Waiting for truck</Swatch>
-              <Swatch color={IDLE_COLORS.warmup}>Warm-up / cool-down</Swatch>
               <Swatch color={IDLE_COLORS.unexplained}>Unexplained</Swatch>
             </div>
           </>
         )}
       </Card>
 
-      <Card title="Longest unexplained idle" sub="Engine running, no truck waiting, no warm-up">
+      <Card title="Longest unexplained idle" sub="Engine running, no truck waiting">
         {(data.longest_unexplained ?? []).length === 0 ? (
           <p className="text-body-md text-on-surface-muted">No unexplained idle periods.</p>
         ) : (
@@ -491,7 +488,7 @@ function CauseDetail({ ev, issues }: { ev: SentinelEvent; issues: MachineIssue[]
         ) : null}
       </p>
 
-      <SourceNote kinds={['ML', 'RULE', ...(ev.simulated ? ['SIMULATED'] : [])]}>Per-task anomaly model; context gates: waiting for truck, travel, warm-up</SourceNote>
+      <SourceNote kinds={['ML', 'RULE', ...(ev.simulated ? ['SIMULATED'] : [])]}>Per-task anomaly model; context gates: waiting for truck, travel</SourceNote>
     </div>
   );
 }

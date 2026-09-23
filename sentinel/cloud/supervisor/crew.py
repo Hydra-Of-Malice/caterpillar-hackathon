@@ -100,7 +100,7 @@ def crew_summary(s: Session) -> dict[str, Any]:
             "value_inputs": {
                 "operating_h": round(exposure_h, 2),
                 "idle_min_by_reason": {k: idle.get(k + "_min", 0.0)
-                                       for k in ("waiting_for_truck", "warmup_cooldown", "unexplained")},
+                                       for k in ("waiting_for_truck", "unexplained")},
                 "idle_fuel_l_estimate": idle.get("fuel_l_total", 0.0),
                 "idle_fuel_l_unexplained": idle.get("fuel_l_unexplained", 0.0),
                 "m3_moved": round(m3, 1) if any(t.qty_unit == "m3" for t in tasks) else None,

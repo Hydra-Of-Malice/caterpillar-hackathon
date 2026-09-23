@@ -234,6 +234,6 @@ def test_11_post_shift_reviews(client):
     assert today["totals"]["tasks_total"] == 3 and today["alerts_by_signal_word"]["DANGER"] >= 1
     assert today["suppressed"]["by_reason"].get("waiting_for_truck") == 1 and today["timeline"]
     s0 = client.get(f"{API}/review/shift/SH-1042-S0").json()
-    assert s0["idle_breakdown"] == {"waiting_min": 24.0, "warmup_min": 9.0, "unexplained_min": 5.0}
+    assert s0["idle_breakdown"] == {"waiting_min": 24.0, "unexplained_min": 14.0}
     assert s0["focus"]["competency_id"] == "C04" and s0["well_done"] and s0["coaching"]
     assert client.get(f"{API}/review/shift/NOPE").status_code == 404

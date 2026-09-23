@@ -69,10 +69,10 @@ class _IdleEpisode:
 class IdleTracker:
     """Per-machine excessive-idle rule with the waiting_for_truck context gate.
 
-    Idle time accumulates per episode, split into gated and ungated seconds. Gates:
-    waiting_for_truck (RuntimeContext) and warm-up (the first `warmup_s` of a shift on a
-    machine). Ungated idle > T_idle fires one T1 event per episode; an episode that
-    reaches T_idle while mostly gated yields one suppressed-with-reason event.
+    Idle time accumulates per episode, split into gated and ungated seconds. The only
+    gate is waiting_for_truck (RuntimeContext). Ungated idle > T_idle fires one T1 event
+    per episode; an episode that reaches T_idle while mostly gated yields one
+    suppressed-with-reason event.
     """
 
     def __init__(self, cfg: dict[str, Any]) -> None:
@@ -80,19 +80,11 @@ class IdleTracker:
         self.fcfg = cfg["features"]
         self.t_idle = float(self.icfg["t_idle_s"])
         self.max_dt = float(self.icfg["max_dt_s"])
-        self.warmup = float(self.icfg["warmup_s"])
         self._episodes: dict[str, _IdleEpisode] = {}
-        self._shift_start: dict[str, tuple[str | None, float]] = {}
 
     def _gate(self, s: TelemetrySample, waiting_for_truck: bool) -> str | None:
         """Reason the current idle is explained by context, if any."""
-        shift, start = self._shift_start.get(s.machine_id, (None, None))
-        if start is None or shift != s.shift_id:
-            self._shift_start[s.machine_id] = (s.shift_id, s.ts)
-            start = s.ts
-        if waiting_for_truck:
-            return "waiting_for_truck"
-        return "warm_up" if s.ts - start < self.warmup else None
+        return "waiting_for_truck" if waiting_for_truck else None
 
     def update(self, s: TelemetrySample, waiting_for_truck: bool, task_type: str | None) -> Event | None:
         """Advance the idle state with one sample; return an idle Event when one is due."""

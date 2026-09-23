@@ -33,9 +33,9 @@ def test_idle_by_reason_and_continuous_operation():
     for i in range(61):
         t.update(sample(T0 + i, **idle), waiting_for_truck=True, task_type="truck_loading")
     for i in range(61, 122):
-        t.update(sample(T0 + i, coolant_c=60.0, **idle), waiting_for_truck=False, task_type="truck_loading")
+        t.update(sample(T0 + i, **idle), waiting_for_truck=False, task_type="truck_loading")
     s = t.idle_summary()
-    assert s["waiting_min"] == pytest.approx(1.0) and s["warmup_min"] == pytest.approx(1.0)
+    assert s["waiting_min"] == pytest.approx(1.0) and s["unexplained_min"] == pytest.approx(1.0)
     assert t.continuous_operation_min(T0 + 121) == pytest.approx(121 / 60)
     t.start_break(T0 + 130)
     assert t.continuous_operation_min(T0 + 200) == 0.0

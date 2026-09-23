@@ -53,7 +53,7 @@ def test_edge_world(dbs):
         assert {r.data["signal_word"] for r in incidents} == {"DANGER", "WARNING", "CAUTION", "NOTICE"}
         assert {r.source for r in incidents} == {"auto", "manual"}
         idle = [r.data["context"]["reason"] for r in s.scalars(select(EventRow).where(EventRow.type == "idle_period"))]
-        assert set(idle) == {"waiting_for_truck", "warmup", "unexplained"}
+        assert set(idle) == {"waiting_for_truck", "unexplained"}
         assert s.query(BreakLogRow).count() == 2
         assert all(r.data["simulated"] for r in s.scalars(select(EventRow)))
 

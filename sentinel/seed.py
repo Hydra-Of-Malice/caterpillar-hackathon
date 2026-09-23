@@ -318,7 +318,7 @@ def _ravi_shift0(w: _World, prev: date) -> None:
                dispute="disputed", context={"zone": "TL-1", "task_id": "T-S0-1",
                                             "attachments": [{"kind": "voice", "label": "Voice note 0:12",
                                                              "mock": True}]})
-    w.idle(sh, "s0_idle_warm", a(6, 4), 9.0, "warmup", "TL-1")
+    w.idle(sh, "s0_idle_unexpl", a(6, 4), 9.0, "unexplained", "TL-1")
     w.idle(sh, "s0_idle_w1", a(7, 40), 8.0, "waiting_for_truck", "TL-1")
     ev = w.event(sh, "s0_swing_1", a(8, 42), "fast_swing_near_truck", "T2", provenance=("RULE", "ML", "SIMULATED"),
                  explanation=_swing(36.5), competency="C04", context={**tl, "truck_m": 4.6})

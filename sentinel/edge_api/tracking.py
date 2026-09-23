@@ -29,7 +29,6 @@ class OperationTracker:
     """Continuous operation since the last qualifying break, breaks, idle time and motion."""
     min_break_s: float = 600.0
     max_dt_s: float = 1.0                       # gaps longer than this are not counted as time
-    warmup_coolant_c: float = 70.0
     op_start_ts: float | None = None
     last_break_ts: float | None = None
     on_break: bool = False
@@ -37,7 +36,6 @@ class OperationTracker:
     inactive_since: float | None = None
     idle_total_s: float = 0.0
     idle_waiting_s: float = 0.0
-    idle_warmup_s: float = 0.0
     idle_current_s: float = 0.0
     operating_s: float = 0.0
     operating_by_type: dict[str, float] = field(default_factory=dict)
@@ -46,8 +44,7 @@ class OperationTracker:
 
     def start_shift(self, ts: float) -> None:
         """Reset counters; the shift start counts as the last break (screen 2 "last break 06:00")."""
-        fresh = OperationTracker(min_break_s=self.min_break_s, max_dt_s=self.max_dt_s,
-                                 warmup_coolant_c=self.warmup_coolant_c)
+        fresh = OperationTracker(min_break_s=self.min_break_s, max_dt_s=self.max_dt_s)
         self.__dict__.update(fresh.__dict__)
         self.op_start_ts = self.last_break_ts = ts
 
@@ -74,8 +71,6 @@ class OperationTracker:
             self.idle_current_s += dt
             if waiting_for_truck:
                 self.idle_waiting_s += dt
-            elif s.coolant_c < self.warmup_coolant_c:
-                self.idle_warmup_s += dt
         else:
             self.idle_current_s = 0.0
 
@@ -107,10 +102,9 @@ class OperationTracker:
         self.last_ts = max(self.last_ts or now, now)
 
     def idle_summary(self) -> dict[str, float]:
-        unexplained = max(0.0, self.idle_total_s - self.idle_waiting_s - self.idle_warmup_s)
+        unexplained = max(0.0, self.idle_total_s - self.idle_waiting_s)
         return {"today_min": round(self.idle_total_s / 60, 1), "waiting_min": round(self.idle_waiting_s / 60, 1),
-                "warmup_min": round(self.idle_warmup_s / 60, 1), "unexplained_min": round(unexplained / 60, 1),
-                "current_min": round(self.idle_current_s / 60, 1)}
+                "unexplained_min": round(unexplained / 60, 1), "current_min": round(self.idle_current_s / 60, 1)}
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
