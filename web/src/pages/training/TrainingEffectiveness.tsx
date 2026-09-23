@@ -23,9 +23,9 @@ import {
   YAxis,
 } from 'recharts';
 import { practice } from '../../lib/api';
+import { signed } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
 import type { CohortArm, CohortSim } from '../../lib/types';
-import { GainChip, signed } from '../../components/GainChip';
 import { SourceNote } from '../../components/ProvenanceBadge';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { Details, DetailsButton, SectionTitle } from '../../components/training/Details';
@@ -550,9 +550,9 @@ function GainsRow({ d, g }: { d: CohortSim; g: Gains }) {
           sub={`vs ${g.kMed !== null ? g.kMed : `not reached in ${n}`} without feedback (median)`}
           gain={
             sessDiff !== null && sessDiff !== 0 ? (
-              <GainChip size="sm" to={null} title={chipTitle}>
+              <span className="text-body-sm text-on-surface-muted" title={chipTitle}>
                 {signed(sessDiff)} sessions
-              </GainChip>
+              </span>
             ) : undefined
           }
         />
@@ -563,9 +563,9 @@ function GainsRow({ d, g }: { d: CohortSim; g: Gains }) {
           sub={`${typeof g.outC === 'number' ? g.outC.toFixed(0) : '—'} vs ${typeof g.outK === 'number' ? g.outK.toFixed(0) : '—'} m³/h, coached vs control`}
           gain={
             outDiff !== null && Math.round(outDiff) !== 0 ? (
-              <GainChip size="sm" to={null} title={chipTitle}>
+              <span className="text-body-sm text-on-surface-muted" title={chipTitle}>
                 {signed(outDiff)} m³/h
-              </GainChip>
+              </span>
             ) : undefined
           }
         />
@@ -576,9 +576,9 @@ function GainsRow({ d, g }: { d: CohortSim; g: Gains }) {
           sub={`${pct(g.fsC)} vs ${pct(g.fsK)} of cycles at session ${n}`}
           gain={
             fsDiffPts !== null && Math.abs(fsDiffPts) >= 0.5 ? (
-              <GainChip size="sm" to={null} title={chipTitle}>
+              <span className="text-body-sm text-on-surface-muted" title={chipTitle}>
                 {signed(fsDiffPts, 1)} pts
-              </GainChip>
+              </span>
             ) : undefined
           }
         />
@@ -589,9 +589,9 @@ function GainsRow({ d, g }: { d: CohortSim; g: Gains }) {
           sub={`vs ${pct(g.shK)} without feedback`}
           gain={
             extraTrainees !== 0 ? (
-              <GainChip size="sm" to={null} title={chipTitle}>
+              <span className="text-body-sm text-on-surface-muted" title={chipTitle}>
                 {signed(extraTrainees)} of {perArm} trainees
-              </GainChip>
+              </span>
             ) : undefined
           }
         />

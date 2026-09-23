@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CartesianGrid, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { GainChip, signed } from '../../components/GainChip';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { ScoreBandChip } from '../../components/practice/parts';
 import { Button, EmptyState, Loading, PageTitle } from '../../components/ui';
 import { practice } from '../../lib/api';
-import { fmtDate } from '../../lib/format';
+import { fmtDate, signed } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
 import { exerciseLabel } from '../../lib/practiceView';
 import { OPERATORS } from '../../mocks/world';
@@ -51,8 +50,8 @@ export default function PracticeProgress() {
       ) : (
         <>
           <div className="flex flex-wrap gap-x-8 gap-y-2">
-            {first !== undefined && last !== undefined && <GainChip size="lg" to={null}>{signed(last - first)} points since session 1</GainChip>}
-            {firstProficient && <GainChip size="lg" to={null}>proficient at session {firstProficient}</GainChip>}
+            {first !== undefined && last !== undefined && <span className="text-body-lg text-on-surface-variant">{signed(last - first)} points since session 1</span>}
+            {firstProficient && <span className="text-body-lg text-on-surface-variant">proficient at session {firstProficient}</span>}
           </div>
           <section className="panel p-6">
             <div className="h-72">

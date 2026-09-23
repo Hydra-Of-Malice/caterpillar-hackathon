@@ -4,7 +4,6 @@ import { PHASE_LABEL } from '../../lib/format';
 import { BAND_LABEL, tipGainM3, type OverlayChannel } from '../../lib/practiceView';
 import type { CoachingTip, CycleMetric, PracticeReport, ScoreBand } from '../../lib/types';
 import { COMPETENCY_MODULE, competencyLabel } from '../../mocks/world';
-import { GainChip } from '../GainChip';
 import { Button, Icon, cx } from '../ui';
 
 export const PHASE_COLOR: Record<string, string> = { dig: '#FB5A00', swing_loaded: '#0066FF', dump: '#6852BE', swing_empty: '#1AC69E', idle: '#757575', travel: '#757575' };
@@ -209,7 +208,7 @@ export function TipCard({ tip, rank, report }: { tip: CoachingTip; rank: number;
         </div>
         <p className="mt-2 text-body-md text-on-surface-variant">{tip.detail}</p>
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-body-sm text-on-surface-muted">
-          {gain !== undefined && gain >= 0.5 && <GainChip>fixing this ≈ +{gain.toFixed(0)} m³/shift</GainChip>}
+          {gain !== undefined && gain >= 0.5 && <span className="text-body-sm text-on-surface-muted">fixing this ≈ +{gain.toFixed(0)} m³/shift</span>}
           {outside !== undefined && n !== undefined && <span>{outside} of {n} cycles outside the expert band</span>}
           {tip.competency_id && <span>{competencyLabel(tip.competency_id)}</span>}
         </div>

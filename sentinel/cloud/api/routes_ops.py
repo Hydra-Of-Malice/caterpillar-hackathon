@@ -15,7 +15,7 @@ from sentinel.cloud.monitoring.alert_rates import alert_rates
 from sentinel.cloud.monitoring.drift import drift_report
 from sentinel.cloud.monitoring.registry import list_models
 from sentinel.cloud.rag.retriever import default_retriever
-from sentinel.cloud.roles import Role
+from sentinel.cloud.roles import VERIFIER_ROLES, Role
 from sentinel.cloud.supervisor import instructor
 from sentinel.cloud.supervisor.crew import crew_summary
 from sentinel.cloud.supervisor.idle import idle_summary
@@ -78,8 +78,7 @@ def get_behaviour_events(operator_id: str | None = None, machine_id: str | None 
 
 
 @router.get("/instructor/operators")
-def get_heatmap(s: Session = Depends(get_session),
-                _: Role = Depends(forbid_roles(Role.supervisor))) -> dict[str, Any]:
+def get_heatmap(s: Session = Depends(get_session)) -> dict[str, Any]:
     """Competency heatmap: states only, never scores."""
     return instructor.heatmap(s)
 
@@ -91,8 +90,8 @@ def get_content_review(s: Session = Depends(get_session)) -> dict[str, Any]:
 
 @router.post("/instructor/content-review/{review_id}/approve")
 def post_approve(review_id: str, s: Session = Depends(get_session),
-                 _: Role = Depends(require_roles(Role.instructor)), actor: str = Depends(get_actor)) -> dict[str, Any]:
-    """Approve a module version (id `MODULE@VERSION`); instructor only; citation check must PASS."""
+                 _: Role = Depends(require_roles(*VERIFIER_ROLES)), actor: str = Depends(get_actor)) -> dict[str, Any]:
+    """Approve a module version (id `MODULE@VERSION`); verifier roles only; citation check must PASS."""
     try:
         return instructor.approve(s, module_store(s), default_retriever(), review_id, actor)
     except instructor.ReviewError as exc:

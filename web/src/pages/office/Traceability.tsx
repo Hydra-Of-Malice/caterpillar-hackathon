@@ -99,18 +99,6 @@ const ROWS: TraceRow[] = [
     success: 'Interval coverage close to the 80 % target on a time-later split; beats a per-task-type historical baseline on pinball loss.',
     status: ['Built', 'Simulated'],
   },
-  {
-    id: 'Value',
-    requirement: 'Business value',
-    problem: 'A buyer needs to see what the features could be worth, and which assumptions drive the number.',
-    feature: 'Editable lever model — productivity, idle fuel, training time, safety expected value, wear, planning — with scenarios and a sensitivity chart.',
-    data: 'Customer inputs, public reference prices (example values), team assumptions, simulated prototype gaps.',
-    methods: ['ESTIMATE', 'SIMULATED'],
-    links: [{ to: '/value', label: 'Business value' }],
-    success: 'Every dollar traces to an editable assumption; return on investment to be proven in a pilot.',
-    status: ['Built', 'Simulated'],
-    statusNote: 'Estimate, not measured',
-  },
 ];
 
 const METHOD_WORD: Record<string, string> = {

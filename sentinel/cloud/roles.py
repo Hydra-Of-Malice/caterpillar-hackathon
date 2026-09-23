@@ -16,6 +16,10 @@ class Role(str, Enum):
 HEADER_ROLES = frozenset(r.value for r in Role if r is not Role.system)
 DEFAULT_ROLE = Role.operator   # MOCK: a request without X-Role is treated as the operator
 LEARNER_ROLES = frozenset({Role.operator, Role.trainee})
+# Roles that may verify a competency as DEMONSTRATED and approve training content. The prototype
+# ships two roles (operator, supervisor), so the supervisor carries the instructor's sign-off duty;
+# `instructor` stays accepted for deployments that separate the two.
+VERIFIER_ROLES = frozenset({Role.instructor, Role.supervisor})
 
 
 def parse_role(value: str | None) -> Role | None:

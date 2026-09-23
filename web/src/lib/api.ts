@@ -11,7 +11,6 @@
 import * as edgeMock from '../mocks/edge';
 import * as cloudMock from '../mocks/cloud';
 import * as practiceMock from '../mocks/practice';
-import * as valueMock from '../mocks/value';
 import * as cohortMock from '../mocks/cohort';
 import type { Archetype } from '../mocks/practice';
 import { isForcedMock, markLive, markMock, setOrigin, type Origin } from './mockStatus';
@@ -63,15 +62,6 @@ import type {
   Task,
   TaskEstimate,
   TrainingModule,
-  ValueAssumption,
-  ValueEstimate,
-  ValueEstimateRequest,
-  ValueLeverMap,
-  ValueLeverResult,
-  ValueGainsHeadline,
-  ValuePitch,
-  ValueToday,
-  ValueUnitCosts,
 } from './types';
 
 export const EDGE_URL = (import.meta.env.VITE_EDGE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
@@ -117,10 +107,9 @@ interface ReqOpts<T> {
   timeoutMs?: number;
 }
 
-/** X-Role for the cloud role guard: operator|trainee|instructor|supervisor (judge browses as operator). */
+/** X-Role for the cloud role guard: operator|supervisor. */
 export function headerRole(): string {
-  const r = personaStore.get();
-  return r === 'judge' ? 'operator' : r;
+  return personaStore.get();
 }
 
 async function request<T>(o: ReqOpts<T>): Promise<T> {
@@ -289,10 +278,10 @@ export const cloud = {
   patchCompetency: (operatorId: string, competencyId: string, body: { state: CompetencyState; actor_role: string; assessment_id?: string }) =>
     request<{ ok?: boolean }>({
       origin: 'cloud', name: 'PATCH /competency/{op}/{comp}', method: 'PATCH', path: `/competency/${enc(operatorId)}/${enc(competencyId)}`,
-      body: { ...body, actor_role: body.actor_role === 'judge' ? 'instructor' : body.actor_role },
-      role: body.actor_role === 'judge' ? 'instructor' : body.actor_role,
+      body,
+      role: body.actor_role,
       mock: () => {
-        const r = cloudMock.mockPatchCompetency(operatorId, competencyId, body.state, body.actor_role === 'judge' ? 'instructor' : body.actor_role);
+        const r = cloudMock.mockPatchCompetency(operatorId, competencyId, body.state, body.actor_role);
         if (!r.ok) throw new ApiError(r.status, { detail: r.detail }, r.detail ?? 'forbidden');
         return ok;
       },
@@ -330,7 +319,7 @@ export const cloud = {
   crewSummary: () => request<CrewSummary>({ origin: 'cloud', name: 'GET /supervisor/crew-summary', path: '/supervisor/crew-summary', mock: cloudMock.mockCrewSummary, valid: (x) => has(x, 'kpis'), map: N.normCrew }),
   escalations: () => request<Escalation[]>({ origin: 'cloud', name: 'GET /supervisor/escalations', path: '/supervisor/escalations', mock: cloudMock.mockEscalations, map: N.normEscalations }),
   resolveEscalation: (id: string, note: string) =>
-    request<Escalation | { ok: boolean }>({ origin: 'cloud', name: 'POST /supervisor/escalations/{id}/resolve', method: 'POST', path: `/supervisor/escalations/${enc(id)}/resolve`, body: { note }, role: personaStore.get() === 'judge' ? 'supervisor' : undefined, mock: () => cloudMock.mockResolveEscalation(id, note) ?? ok }),
+    request<Escalation | { ok: boolean }>({ origin: 'cloud', name: 'POST /supervisor/escalations/{id}/resolve', method: 'POST', path: `/supervisor/escalations/${enc(id)}/resolve`, body: { note }, mock: () => cloudMock.mockResolveEscalation(id, note) ?? ok }),
   machineIssues: () => request<MachineIssue[]>({ origin: 'cloud', name: 'GET /supervisor/machine-issues', path: '/supervisor/machine-issues', mock: cloudMock.mockMachineIssues, map: N.normMachineIssues }),
 
   idleSummary: (date: string) => request<IdleSummary>({ origin: 'cloud', name: 'GET /idle/summary', path: `/idle/summary${q({ date })}`, mock: () => cloudMock.mockIdleSummary(date), map: N.normIdle }),
@@ -341,7 +330,7 @@ export const cloud = {
     request<InstructorOperatorRow[]>({ origin: 'cloud', name: 'GET /instructor/operators', path: '/instructor/operators', mock: cloudMock.mockInstructorOperators, map: N.normInstructorOperators }),
   contentReview: () => request<ContentReviewItem[]>({ origin: 'cloud', name: 'GET /instructor/content-review', path: '/instructor/content-review', mock: cloudMock.mockContentReview, map: N.normContentReview }),
   approveContent: (id: string) =>
-    request<ContentReviewItem | { ok: boolean }>({ origin: 'cloud', name: 'POST /instructor/content-review/{id}/approve', method: 'POST', path: `/instructor/content-review/${enc(id)}/approve`, body: {}, role: personaStore.get() === 'judge' ? 'instructor' : undefined, mock: () => cloudMock.mockApproveContent(id) ?? ok }),
+    request<ContentReviewItem | { ok: boolean }>({ origin: 'cloud', name: 'POST /instructor/content-review/{id}/approve', method: 'POST', path: `/instructor/content-review/${enc(id)}/approve`, body: {}, mock: () => cloudMock.mockApproveContent(id) ?? ok }),
 
   alertRates: () => request<AlertRates>({ origin: 'cloud', name: 'GET /monitoring/alert-rates', path: '/monitoring/alert-rates', mock: cloudMock.mockAlertRates, map: (x) => N.normAlertRates(x, cloudMock.mockAlertRates()) }),
   drift: () => request<DriftReport>({ origin: 'cloud', name: 'GET /monitoring/drift', path: '/monitoring/drift', mock: cloudMock.mockDrift, map: N.normDrift }),
@@ -385,173 +374,3 @@ export const practice = {
   },
 };
 
-// ================================================================== VALUE (cloud /value, ESTIMATE)
-const num = (...xs: unknown[]): number | undefined => {
-  for (const x of xs) if (typeof x === 'number' && Number.isFinite(x)) return x;
-  return undefined;
-};
-const obj = (x: unknown): Record<string, unknown> => (x && typeof x === 'object' ? (x as Record<string, unknown>) : {});
-
-/** UI input names → value-model assumption names (sentinel/value, config/value_model.yaml). */
-export const VALUE_INPUT_KEYS: Record<string, string> = {
-  hours_per_year: 'operating_hours_per_year',
-  fuel_usd_per_l: 'fuel_price_per_l',
-  operator_wage_usd_per_h: 'operator_wage_loaded_per_h',
-  machine_usd_per_h: 'machine_ownership_cost_per_h',
-};
-
-const humanise = (k: string) => k.replace(/_/g, ' ').replace(/\b(usd|l|h|m3|pct|frac)\b/gi, (w) => ({ usd: '$', l: 'L', h: 'h', m3: 'm³', pct: '%', frac: 'share' } as Record<string, string>)[w.toLowerCase()] ?? w).replace(/^./, (c) => c.toUpperCase());
-
-/** Accepts the value model's nested response (usd.per_machine …) and the flat fixture shape. */
-function normaliseValue(raw: unknown, req: ValueEstimateRequest): ValueEstimate {
-  const r = obj(raw);
-  const usd = obj(r.usd);
-  if (usd.per_machine) {
-    const per = obj(usd.per_machine);
-    const fleet = obj(usd.fleet);
-    const fleetSize = num(fleet.fleet_size, req.fleet_size) ?? req.fleet_size;
-    const sub = num(per.subscription_usd) ?? 0;
-    const leversObj = obj(r.levers);
-    const perLever = obj(per.levers);
-    const levers: ValueLeverResult[] = Object.keys(Object.keys(leversObj).length ? leversObj : perLever).map((k) => {
-      const l = obj(leversObj[k]);
-      return { lever: k, label: valueMock.LEVER_LABEL[k] ?? humanise(k), annual_usd_per_machine: num(l.usd, perLever[k]) ?? 0, formula: l.basis as string | undefined, kpi: l.evidence as string | undefined, provenance: ['ESTIMATE'] };
-    });
-    const unc = obj(r.uncertainty);
-    const gainsObj = obj(obj(r.gains).per_machine_per_year);
-    return {
-      scenario: (r.scenario as ValueEstimate['scenario']) ?? req.scenario,
-      fleet_size: fleetSize,
-      annual_value_usd_per_machine: num(per.gross_usd) ?? 0,
-      annual_value_usd_fleet: num(fleet.gross_usd) ?? (num(per.gross_usd) ?? 0) * fleetSize,
-      annual_cost_usd_per_machine: sub,
-      one_off_cost_usd_per_machine: num(fleet.one_off_usd) !== undefined ? (num(fleet.one_off_usd) as number) / fleetSize : undefined,
-      payback_months: num(usd.payback_months, fleet.payback_months) ?? null,
-      levers,
-      sensitivity: Array.isArray(r.sensitivity)
-        ? (r.sensitivity as Array<Record<string, unknown>>)
-            .filter((x) => !String(x.name).startsWith('subscription') && !String(x.name).startsWith('one_off'))
-            .map((x) => ({ key: String(x.name), label: humanise(String(x.name)), low_input: x.low as number, high_input: x.high as number, low_usd: (num(x.net_usd_at_low) ?? 0) + sub, high_usd: (num(x.net_usd_at_high) ?? 0) + sub }))
-        : undefined,
-      label: (r.label as string) ?? 'ESTIMATE',
-      notes: r.notes as string[] | undefined,
-      inputs: r.assumptions_used as Record<string, number> | undefined,
-      gains_per_machine: Object.fromEntries(Object.entries(gainsObj).filter(([, v]) => typeof v === 'number')) as Record<string, number>,
-      range_usd_per_machine: unc.per_machine_gross_usd as ValueEstimate['range_usd_per_machine'],
-      payback_range_months: unc.payback_months as ValueEstimate['payback_range_months'],
-    };
-  }
-  // flat fixture shape
-  return {
-    scenario: (r.scenario as ValueEstimate['scenario']) ?? req.scenario,
-    fleet_size: num(r.fleet_size) ?? req.fleet_size,
-    annual_value_usd_per_machine: num(r.annual_value_usd_per_machine) ?? 0,
-    annual_value_usd_fleet: num(r.annual_value_usd_fleet) ?? 0,
-    annual_cost_usd_per_machine: num(r.annual_cost_usd_per_machine),
-    one_off_cost_usd_per_machine: num(r.one_off_cost_usd_per_machine),
-    payback_months: num(r.payback_months) ?? null,
-    levers: (r.levers as ValueLeverResult[]) ?? [],
-    sensitivity: r.sensitivity as ValueEstimate['sensitivity'],
-    label: (r.label as string) ?? 'ESTIMATE',
-    notes: r.notes as string[] | undefined,
-    inputs: r.inputs as Record<string, number> | undefined,
-    gains_per_machine: r.gains_per_machine as Record<string, number> | undefined,
-    range_usd_per_machine: r.range_usd_per_machine as ValueEstimate['range_usd_per_machine'],
-    payback_range_months: r.payback_range_months as ValueEstimate['payback_range_months'],
-  };
-}
-
-const TAG_KIND: Record<string, ValueAssumption['kind']> = { INPUT: 'customer', ASSUMPTION: 'assumption', SIMULATED: 'simulated', ESTABLISHED: 'published', VENDOR_CLAIM: 'published' };
-
-function normaliseAssumptions(raw: unknown): ValueAssumption[] {
-  const r = obj(raw);
-  const a = r.assumptions ?? raw;
-  if (Array.isArray(a)) return a as ValueAssumption[];
-  return Object.entries(obj(a)).map(([key, v]) => {
-    const x = obj(v);
-    const src = String(x.source ?? '');
-    const tag = String(x.tag ?? 'ASSUMPTION');
-    return {
-      key, label: humanise(key), value: num(x.base, x.value) ?? 0, unit: String(x.unit ?? ''), low: num(x.low), high: num(x.high),
-      kind: TAG_KIND[tag.split(' ')[0]] ?? 'assumption', source: src.startsWith('http') ? `${tag} — source` : `${tag}${src ? ` — ${src}` : ''}`,
-      source_url: src.startsWith('http') ? src : null, note: x.note as string | undefined,
-    };
-  });
-}
-
-const REQ_ROUTE: Record<string, string> = { R1: '/cab/home', R2: '/incidents', R3: '/training/practice', R4: '/anomaly', R5: '/tasks' };
-
-function normaliseLevers(raw: unknown): ValueLeverMap[] {
-  const r = obj(raw);
-  const f = r.features ?? r.levers ?? raw;
-  if (!Array.isArray(f)) return [];
-  return (f as Array<Record<string, unknown>>).map((x) =>
-    'how_measured' in x
-      ? (x as unknown as ValueLeverMap)
-      : {
-          feature: `${x.requirement ? `${x.requirement} · ` : ''}${x.feature}`,
-          lever: (Array.isArray(x.levers) ? (x.levers as string[]) : [String(x.lever ?? '')]).map((l) => valueMock.LEVER_LABEL[l] ?? l).join(' + '),
-          kpi: `${x.kpi ?? ''}${x.gain_units ? ` (${x.gain_units})` : ''}`,
-          how_measured: String(x.measure ?? x.how_measured ?? ''),
-          route: REQ_ROUTE[String(x.requirement)] ?? undefined,
-          provenance: ['ESTIMATE'],
-        },
-  );
-}
-
-function normalisePitch(raw: unknown): ValuePitch {
-  const r = obj(raw);
-  if (Array.isArray(r.headlines)) return r as unknown as ValuePitch;
-  const nums = Array.isArray(r.numbers) ? (r.numbers as Array<Record<string, unknown>>) : [];
-  return {
-    label: r.label as string | undefined,
-    caveat: r.status as string | undefined,
-    headlines: nums.map((n) => {
-      const unit = String(n.unit ?? '');
-      return { key: String(n.key), label: String(n.label), unit, value: num(n.base, n.value) ?? 0, low: num(n.low), high: num(n.high), kind: unit.includes('USD') || unit === 'months' ? 'money' : 'gain' };
-    }),
-  };
-}
-
-function normaliseToday(raw: unknown): ValueToday {
-  const r = obj(raw);
-  if (Array.isArray(r.line_items)) return r as unknown as ValueToday;
-  const gains = Array.isArray(r.gains) ? (r.gains as Array<Record<string, unknown>>) : [];
-  return {
-    total_usd: num(obj(r.usd).total_usd),
-    label: r.label as string | undefined,
-    note: r.simulated ? 'Gains from a SIMULATED shift and editable assumptions — not measured savings.' : 'Gains estimated from editable assumptions — not measured savings.',
-    line_items: gains.map((g) => ({ key: String(g.key), label: String(g.label), value: num(g.value) ?? 0, unit: String(g.unit ?? ''), detail: g.basis as string | undefined, provenance: ['ESTIMATE'] })),
-  };
-}
-
-function normaliseGains(raw: unknown): ValueGainsHeadline {
-  const r = obj(raw);
-  const g = Array.isArray(r.gains) ? (r.gains as Array<Record<string, unknown>>) : [];
-  return {
-    label: r.label as string | undefined,
-    status: (g[0]?.status as string) ?? (r.status as string | undefined),
-    gains: g.map((x) => ({ key: String(x.key), label: String(x.label), unit: String(x.unit ?? ''), value: num(x.base, x.value) ?? 0, low: num(x.low), high: num(x.high), headline: x.headline as string | undefined, basis: x.basis as string | undefined, evidence: x.evidence as ValueGainsHeadline['gains'][number]['evidence'] })),
-  };
-}
-
-export const value = {
-  estimate: async (req: ValueEstimateRequest) => {
-    const overrides = Object.fromEntries(Object.entries(req.overrides ?? {}).map(([k, v]) => [VALUE_INPUT_KEYS[k] ?? k, v]));
-    const body = { ...req, overrides };
-    return normaliseValue(await request<unknown>({ origin: 'cloud', name: 'POST /value/estimate', method: 'POST', path: '/value/estimate', body, mock: () => valueMock.mockValueEstimate(body), timeoutMs: 15000 }), req);
-  },
-  assumptions: async () => normaliseAssumptions(await request<unknown>({ origin: 'cloud', name: 'GET /value/assumptions', path: '/value/assumptions', mock: valueMock.mockValueAssumptionsRaw })),
-  levers: async () => normaliseLevers(await request<unknown>({ origin: 'cloud', name: 'GET /value/levers', path: '/value/levers', mock: valueMock.mockValueLeversRaw })),
-  unitCosts: async () => {
-    // L/h and $/L come from the assumption set; /value/unit-costs is USD-per-outcome (Business Value page).
-    const a = await value.assumptions();
-    const get = (k: string, d: number) => a.find((x) => x.key === k)?.value ?? d;
-    return { ...valueMock.mockUnitCosts(), idle_fuel_l_per_h: get('idle_fuel_l_per_h', 3.8), fuel_usd_per_l: get('fuel_price_per_l', get('fuel_usd_per_l', 1)) } as ValueUnitCosts;
-  },
-  unitCostsRaw: () => request<unknown>({ origin: 'cloud', name: 'GET /value/unit-costs', path: '/value/unit-costs', mock: valueMock.mockUnitCostsRaw }),
-  today: async (body: Record<string, unknown> = {}) =>
-    normaliseToday(await request<unknown>({ origin: 'cloud', name: 'POST /value/today', method: 'POST', path: '/value/today', body, mock: valueMock.mockValueTodayRaw })),
-  pitch: async () => normalisePitch(await request<unknown>({ origin: 'cloud', name: 'GET /value/pitch', path: '/value/pitch', mock: valueMock.mockValuePitchRaw, timeoutMs: 15000 })),
-  gainsHeadline: async () => normaliseGains(await request<unknown>({ origin: 'cloud', name: 'GET /value/gains-headline', path: '/value/gains-headline', mock: valueMock.mockGainsHeadlineRaw, timeoutMs: 15000 })),
-};

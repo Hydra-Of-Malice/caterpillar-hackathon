@@ -1,11 +1,11 @@
 /**
  * Screen 14 — Supervisor crew overview (R1). One job: see the crew's state and act on escalations.
- * Four key numbers, the machines table, escalations (resolve inline) and gains today in operational units.
+ * Four key numbers, the machines table, escalations (resolve inline) and today's idle summary.
  * Machine issues sit behind "Details". Decision support only — the app never controls a machine.
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { cloud, value } from '../../lib/api';
+import { cloud } from '../../lib/api';
 import { fmtClock, fmtDate, fmtDur, fmtNum } from '../../lib/format';
 import { useNow, useResource } from '../../lib/hooks';
 import { liveNow } from '../../lib/live';
@@ -24,7 +24,6 @@ export default function Supervisor() {
   const nowTs = liveNow();
   const crew = useResource(() => cloud.crewSummary(), [], 15_000);
   const esc = useResource(() => cloud.escalations(), []);
-  const gains = useResource(() => value.today({ site_id: 'north-quarry' }), []);
   const issues = useResource(() => cloud.machineIssues(), []);
 
   const c = crew.data;
@@ -127,41 +126,16 @@ export default function Supervisor() {
                 )}
               </Card>
 
-              {/* ------------------------------------------------ gains today (operational units only) */}
-              <Card
-                title="Gains today"
-                sub="Estimate"
-                right={
-                  <Link to="/value" className="text-body-sm font-semibold text-notice-dark hover:underline">
-                    Assumptions
-                  </Link>
-                }
-              >
-                {gains.loading && !gains.data ? (
-                  <Loading label="Estimating" />
-                ) : !gains.data?.line_items?.length ? (
-                  <p className="text-body-md text-on-surface-muted">No estimate yet.</p>
-                ) : (
-                  <ul className="space-y-3">
-                    {gains.data.line_items.map((li) => (
-                      <li key={li.key} className="flex items-baseline justify-between gap-3" title={li.detail}>
-                        <span className="min-w-0 text-body-md text-on-surface-variant">{li.label}</span>
-                        <span className="shrink-0 whitespace-nowrap font-display text-body-lg font-bold text-on-surface tnum">
-                          {fmtNum(li.value, Number.isInteger(li.value) ? 0 : 1)} <span className="text-body-sm font-normal text-on-surface-muted">{li.unit}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <p className="mt-5 border-t border-outline pt-4 text-body-sm text-on-surface-variant">
+              {/* ------------------------------------------------ idle today */}
+              <Card title="Idle today" sub="Operational units">
+                <p className="text-body-md text-on-surface-variant">
                   Idle today <span className="font-semibold text-on-surface tnum">{fmtDur(k.idle_today_min)}</span> · {Math.round(k.idle_waiting_pct)}% waiting for truck
                   {typeof k.idle_fuel_l === 'number' && <> · ~{fmtNum(k.idle_fuel_l)} L fuel in unexplained idle</>}.{' '}
                   <Link to="/anomaly" className="font-semibold text-notice-dark hover:underline">
                     See idle
                   </Link>
                 </p>
-                <p className="mt-2 text-body-sm text-on-surface-muted">{gains.data?.note ?? 'Estimated from editable assumptions; not measured savings.'}</p>
-                <SourceNote kinds={['ESTIMATE', 'RULE', 'SIMULATED']} />
+                <SourceNote kinds={['RULE', 'SIMULATED']} />
               </Card>
             </div>
           </div>

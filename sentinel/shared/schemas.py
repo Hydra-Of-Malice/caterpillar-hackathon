@@ -376,7 +376,5 @@ class PracticeReport(BaseModel):
     # productivity gap vs expert, e.g. {"trainee_cycle_s": 31.0, "expert_cycle_s": 23.0, "trainee_m3_per_h": 180,
     #   "expert_m3_per_h": 245, "gap_pct": 26.5, "fuel_l_per_m3_trainee": .., "fuel_l_per_m3_expert": ..}
     productivity: dict[str, Any] | None = None
-    # money view from sentinel.value (ESTIMATE, assumptions listed), e.g. {"annual_value_usd": .., "assumptions": {...}}
-    value_estimate: dict[str, Any] | None = None
     model_version: str
     provenance: list[Provenance] = Field(default_factory=lambda: [Provenance.ML, Provenance.SIMULATED])

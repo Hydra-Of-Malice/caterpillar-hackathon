@@ -1,10 +1,11 @@
 import { createStore, useStore } from './store';
 
 /**
- * Role switcher (SSO/roles are MOCKED in the prototype). The role is sent as actor_role where the
- * contract needs it (e.g. only an instructor may set a competency to DEMONSTRATED).
+ * Role switcher (SSO/roles are MOCKED in the prototype). Two roles only: the operator in the cab,
+ * and the site supervisor, who also carries the instructor duties (competency sign-off, content
+ * approval) that a separate instructor role used to hold.
  */
-export type Role = 'operator' | 'trainee' | 'instructor' | 'supervisor' | 'judge';
+export type Role = 'operator' | 'supervisor';
 
 export interface Persona {
   role: Role;
@@ -15,19 +16,13 @@ export interface Persona {
 
 export const PERSONAS: Record<Role, Persona> = {
   operator: { role: 'operator', name: 'Ravi Kumar', id: 'OP-1042', title: 'Operator · 3 months' },
-  trainee: { role: 'trainee', name: 'Ravi Kumar', id: 'OP-1042', title: 'Trainee · practice mode' },
-  instructor: { role: 'instructor', name: 'Marcus Lee', id: 'INS-01', title: 'Instructor' },
   supervisor: { role: 'supervisor', name: 'Priya Nair', id: 'SUP-01', title: 'Site supervisor' },
-  judge: { role: 'judge', name: 'Judge', id: 'JUDGE', title: 'Hackathon judge' },
 };
 
 /** Where each role lands when picked in the header switcher. */
 export const ROLE_HOME: Record<Role, string> = {
   operator: '/cab/home',
-  trainee: '/training/practice',
-  instructor: '/instructor',
   supervisor: '/supervisor',
-  judge: '/tour',
 };
 
 function load(): Role {

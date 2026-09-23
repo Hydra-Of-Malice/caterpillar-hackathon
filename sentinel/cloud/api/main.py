@@ -26,7 +26,7 @@ from sentinel.store.db import Database
 
 log = logging.getLogger(__name__)
 API_PREFIX = "/api/v1"
-OPTIONAL_ROUTERS = ("sentinel.practice.api", "sentinel.value.api")   # agents D and H
+OPTIONAL_ROUTERS = ("sentinel.practice.api",)
 
 
 def _include_optional(app: FastAPI, module_name: str) -> None:

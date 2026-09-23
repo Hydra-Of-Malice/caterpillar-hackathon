@@ -101,7 +101,7 @@ class PracticeAnalyser:
             session_id=session_id, trainee_id=trainee_id, exercise=exercise, n_cycles=len(cycles),
             overall_score=round(overall, 1), score_band=score_band(overall), cycles=cycle_reports,
             summary_metrics=[ex.dists[k].cycle_metric(v) for k, v in summary.items() if k in ex.dists],
-            tips=tips, trajectory_overlay=overlay, productivity=prod, value_estimate=_value_estimate(prod),
+            tips=tips, trajectory_overlay=overlay, productivity=prod,
             model_version=self.model.version, provenance=[Provenance.ML, Provenance.SIMULATED])
 
     def _check_rate(self, arrays: SessionArrays) -> None:
@@ -167,19 +167,6 @@ class PracticeAnalyser:
             return None
         st.last_hint, st.last_hint_ts = hint, sample.ts
         return hint
-
-
-def _value_estimate(prod: dict[str, Any]) -> dict[str, Any] | None:
-    """Money view from sentinel.value (ESTIMATE); None when that module is not available."""
-    try:
-        from sentinel.value import practice_value
-    except ImportError:
-        return None
-    try:
-        return practice_value(prod)
-    except Exception:  # noqa: BLE001 - a value-model failure must never break the practice report
-        log.exception("practice_value failed; report returned without value_estimate")
-        return None
 
 
 def _value(sample: PracticeSample, channel: str) -> float:

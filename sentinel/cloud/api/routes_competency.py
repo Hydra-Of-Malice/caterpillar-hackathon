@@ -7,14 +7,14 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from sentinel.cloud.api.deps import forbid_roles, get_actor, get_session
+from sentinel.cloud.api.deps import get_actor, get_role, get_session
 from sentinel.cloud.audit import write_audit
 from sentinel.cloud.competency.demo_fixture import ensure_demo_history
 from sentinel.cloud.competency.profile import build_profile
 from sentinel.cloud.competency.service import UnknownShift, evaluate_shift, set_state
 from sentinel.cloud.competency.state import TransitionError
 from sentinel.cloud.ingest import ingest_batch
-from sentinel.cloud.roles import Role, parse_role
+from sentinel.cloud.roles import VERIFIER_ROLES, Role, parse_role
 from sentinel.shared.schemas import CompetencyState
 
 router = APIRouter(tags=["ingest & competency"])
@@ -51,19 +51,19 @@ def ingest(body: IngestBatch, s: Session = Depends(get_session)) -> dict[str, An
 
 @router.get("/operators/{operator_id}/profile")
 def profile(operator_id: str, s: Session = Depends(get_session),
-            role: Role = Depends(forbid_roles(Role.supervisor)), actor: str = Depends(get_actor)) -> dict[str, Any]:
-    """Operator Profile. Supervisors get 403 (crew aggregates only); instructor views are audit-logged."""
+            role: Role = Depends(get_role), actor: str = Depends(get_actor)) -> dict[str, Any]:
+    """Operator Profile. Verifier views (supervisor/instructor) are audit-logged."""
     out = build_profile(s, operator_id)
     if out is None:
         raise HTTPException(404, f"operator {operator_id!r} not found")
-    if role is Role.instructor:
+    if role in VERIFIER_ROLES:
         write_audit(s, actor=actor, role=role.value, action="profile_view", target=operator_id)
     return out
 
 
 @router.post("/competency/evaluate")
 def evaluate(body: EvaluateBody, s: Session = Depends(get_session),
-             role: Role = Depends(forbid_roles(Role.supervisor))) -> dict[str, Any]:
+             role: Role = Depends(get_role)) -> dict[str, Any]:
     """Event→competency mapping + gap rule for a shift (Gamma–Poisson P ≥ 0.8 and recurrence floor)."""
     loaded = ensure_demo_history(s, body.operator_id, body.shift_id)
     try:

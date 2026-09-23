@@ -92,3 +92,9 @@ export const CHANNEL_LABEL: Record<string, string> = {
   joy_stick: 'Stick',
   joy_bucket: 'Bucket',
 };
+
+/** Signed number for deltas: +12, −3.5 (true minus sign, not a hyphen). */
+export function signed(v: number, digits = 0): string {
+  const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+  return `${sign}${fmtNum(Math.abs(v), digits)}`;
+}

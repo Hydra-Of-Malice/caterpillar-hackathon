@@ -34,10 +34,11 @@ def test_operator_without_assessment_gets_403(client: TestClient) -> None:
     assert _patch(client, "C04", "demonstrated", "trainee").status_code == 403
 
 
-def test_supervisor_cannot_change_states_or_view_profiles(client: TestClient) -> None:
-    assert _patch(client, "C04", "in_training", "supervisor").status_code == 403
-    assert client.get("/api/v1/operators/OP-1042/profile", headers={"X-Role": "supervisor"}).status_code == 403
-    assert client.get("/api/v1/instructor/operators", headers={"X-Role": "supervisor"}).status_code == 403
+def test_supervisor_is_a_verifier(client: TestClient) -> None:
+    """Two-role prototype: the supervisor carries the instructor's sign-off duty."""
+    assert _patch(client, "C04", "in_training", "supervisor").status_code == 200
+    assert client.get("/api/v1/operators/OP-1042/profile", headers={"X-Role": "supervisor"}).status_code == 200
+    assert client.get("/api/v1/instructor/operators", headers={"X-Role": "supervisor"}).status_code == 200
 
 
 def test_unknown_role_and_header_body_mismatch_are_403(client: TestClient) -> None:
@@ -84,7 +85,7 @@ def test_quiz_pass_demonstrates_knowledge_competency_but_not_skill(client: TestC
     assert swing["passed"]
     _to_in_training(client)
     denied = _patch(client, "C04", "demonstrated", "operator", assessment_id=swing["assessment_id"])
-    assert denied.status_code == 403 and "instructor" in denied.json()["detail"]
+    assert denied.status_code == 403 and "sign-off required" in denied.json()["detail"]
 
 
 def test_failed_quiz_is_not_an_assessment(client: TestClient) -> None:
@@ -100,4 +101,5 @@ def test_resolve_and_approve_require_roles(client: TestClient) -> None:
     assert client.post(url, json={"note": "radioed"}).status_code == 403
     assert client.post(url, json={"note": "radioed"}, headers={"X-Role": "supervisor"}).status_code == 200
     approve = "/api/v1/instructor/content-review/MOD-SWING-APPROACH@1.3/approve"
-    assert client.post(approve, headers={"X-Role": "supervisor"}).status_code == 403
+    assert client.post(approve, headers={"X-Role": "operator"}).status_code == 403
+    assert client.post(approve, headers={"X-Role": "supervisor"}).status_code == 200

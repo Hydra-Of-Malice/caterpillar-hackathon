@@ -117,8 +117,8 @@ def test_supervisor_routes(client: TestClient) -> None:
     assert [r["machine_id"] for r in crew["rows"]] == ["EX-07", "EX-09"]
     ex07 = crew["rows"][0]
     assert ex07["current_task"]["task_id"] == "T-1" and ex07["protection"]["status"] == "active"
-    assert ex07["value_inputs"]["idle_min_by_reason"] == {"waiting_for_truck": 24.0, "unexplained": 14.0}
-    assert ex07["value_inputs"]["m3_moved"] == 180.0 and ex07["value_inputs"]["label"] == "SIMULATED"
+    assert ex07["operations"]["idle_min_by_reason"] == {"waiting_for_truck": 24.0, "unexplained": 14.0}
+    assert ex07["operations"]["m3_moved"] == 180.0 and ex07["operations"]["label"] == "SIMULATED"
     assert crew["kpis"]["open_escalations"] == 1 and crew["kpis"]["protection_degraded"] == 1
     esc = client.get(f"{API}/supervisor/escalations").json()
     assert esc["open"] == 1 and esc["items"][0]["what"] == "Break recommendation snoozed"

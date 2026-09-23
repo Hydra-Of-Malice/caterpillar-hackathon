@@ -318,10 +318,10 @@ function OperatorsTab({ persona }: { persona: Persona }) {
             <p className="text-body-sm text-on-surface-muted">
               Acting as <span className="font-semibold text-on-surface">{persona.name}</span> · {persona.role}
             </p>
-            {persona.role !== 'instructor' && (
+            {persona.role !== 'supervisor' && (
               <p className="flex items-start gap-2 text-body-sm text-warning-text" role="note">
                 <Icon name="badge" size={18} className="mt-0.5" />
-                <span>Only an instructor can verify Demonstrated. Switch to Marcus Lee (Instructor) in the persona menu.</span>
+                <span>Only a supervisor can verify Demonstrated. Switch to Priya Nair (Supervisor) in the persona menu.</span>
               </p>
             )}
             <div className="space-y-3">

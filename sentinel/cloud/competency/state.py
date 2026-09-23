@@ -1,8 +1,9 @@
 """Competency state machine with role enforcement and audit (05 §5.3, §5.5).
 
 unassessed -> observed_gap -> in_training -> improving -> demonstrated.
-`demonstrated` is set only by an instructor, or with a passing assessment (knowledge-type
-competencies only for quiz passes). The ML service account can never set it.
+`demonstrated` is set only by a verifier role (supervisor or instructor — see VERIFIER_ROLES),
+or with a passing assessment (knowledge-type competencies only for quiz passes). The ML service
+account can never set it.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from sentinel.cloud.audit import write_audit
 from sentinel.cloud.competency.catalog import Competency
-from sentinel.cloud.roles import LEARNER_ROLES, Role
+from sentinel.cloud.roles import LEARNER_ROLES, VERIFIER_ROLES, Role
 from sentinel.shared.schemas import CompetencyState as CS
 from sentinel.store.models import OperatorCompetencyRow, TrainingRecordRow
 
@@ -66,27 +67,25 @@ def find_passing_assessment(s: Session, operator_id: str, comp: Competency, asse
     if comp.id not in ((record.data or {}).get("competency_ids") or []):
         return f"assessment does not cover {comp.id}"
     if record.kind == "quiz_attempt" and not comp.assessment_can_demonstrate:
-        return f"{comp.id} is a skill competency: a quiz pass cannot set demonstrated; instructor sign-off required"
+        return f"{comp.id} is a skill competency: a quiz pass cannot set demonstrated; sign-off required"
     return None
 
 
 def check_permission(s: Session, role: Role, operator_id: str, comp: Competency, to_state: CS,
                      assessment_id: str | None) -> None:
     """Raise PermissionDenied unless `role` may move this competency to `to_state`."""
-    if role is Role.supervisor:
-        raise PermissionDenied("supervisors see crew aggregates only and cannot change competency states")
     if to_state is CS.demonstrated:
-        if role is Role.instructor:
+        if role in VERIFIER_ROLES:
             return
         if role in (Role.ml_service, Role.system):
             raise PermissionDenied("the ML/system account has no write permission on 'demonstrated'")
         if assessment_id is None:
-            raise PermissionDenied("'demonstrated' requires the instructor role or a passing assessment_id")
+            raise PermissionDenied("'demonstrated' requires a verifier role or a passing assessment_id")
         reason = find_passing_assessment(s, operator_id, comp, assessment_id)
         if reason:
             raise PermissionDenied(reason)
         return
-    if role is Role.instructor:
+    if role in VERIFIER_ROLES:
         return
     if role in (Role.ml_service, Role.system) and to_state in SYSTEM_TARGETS:
         return
@@ -114,7 +113,7 @@ def transition(s: Session, row: OperatorCompetencyRow, comp: Competency, to_stat
     row.evidence = evidence
     row.updated_at = time.time()
     if to_state is CS.demonstrated:
-        row.verified_by = actor if role is Role.instructor else f"assessment:{assessment_id}"
+        row.verified_by = actor if role in VERIFIER_ROLES else f"assessment:{assessment_id}"
     change = {"operator_id": row.operator_id, "competency_id": comp.id, "from": current.value,
               "to": to_state.value, "actor": actor, "role": role.value, "reason": reason,
               "assessment_id": assessment_id}

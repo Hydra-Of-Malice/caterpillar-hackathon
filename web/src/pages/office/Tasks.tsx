@@ -11,7 +11,6 @@ import { liveNow } from '../../lib/live';
 import type { EtaPreviewRequest, Task, TaskEstimate, TaskType } from '../../lib/types';
 import { OPERATORS, at } from '../../mocks/world';
 import { EtaDrivers, RangeBar } from '../../components/EtaRangeBar';
-import { GainChip } from '../../components/GainChip';
 import { SourceNote } from '../../components/ProvenanceBadge';
 import { SupervisorTabs } from '../../components/office/TrainingTabs';
 import { Bar, Card, FieldLabel, InlineTabs, TABLE, TableWrap } from '../../components/ops/layout';
@@ -435,8 +434,8 @@ function RecentTasks() {
           </span>{' '}
           finished inside their range
         </span>
-        {stats.truckWait > 0 && <GainChip size="sm">truck waiting −{stats.truckWait} min</GainChip>}
-        {stats.earlier > 0 && <GainChip size="sm">{stats.earlier} min earlier than plan</GainChip>}
+        {stats.truckWait > 0 && <span className="text-body-sm text-on-surface-muted">truck waiting −{stats.truckWait} min</span>}
+        {stats.earlier > 0 && <span className="text-body-sm text-on-surface-muted">{stats.earlier} min earlier than plan</span>}
       </div>
       <TableWrap>
         <table className={cx(TABLE, 'min-w-[720px]')}>

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DataSourceChip } from '../components/DataSourceChip';
 import { ProvenanceBadges, SourceNote } from '../components/ProvenanceBadge';
 import { Button, Icon, cx, toast } from '../components/ui';
-import { cloud, edge, practice, value } from '../lib/api';
+import { cloud, edge, practice } from '../lib/api';
 import { triggerFastForward, triggerInject, triggerWan, type TriggerResult } from '../lib/demo';
 import { localPreview, useLive } from '../lib/live';
 import { useShowSources } from '../lib/prefs';
@@ -29,7 +29,7 @@ const GROUPS: Array<{ id: string; title: string; icon: string; rows: Row[] }> = 
     rows: [
       { id: 'start', title: 'Shift start & privacy notice', desc: 'Badge / ID sign-in (MOCK), today at a glance, "What CAT Sentinel records" before the check.', chips: ['MOCK', 'SIMULATED'], to: '/cab/start', endpoints: ['GET /shift/current'] },
       { id: 'home', title: 'Operator home: tasks, progress, P10–P90 estimates', desc: 'Three tasks with progress bars, estimate range bar with a now-marker, "why this estimate?" drivers.', chips: ['ML', 'SIMULATED'], to: '/cab/home', endpoints: ['GET /tasks'], modelBacked: true },
-      { id: 'crew', title: 'Crew overview — no ranking', desc: 'Machines & operators, protection status, escalations, gains today in operational units.', chips: ['RULE', 'SIMULATED'], to: '/supervisor', endpoints: ['/supervisor/', '/value/today'] },
+      { id: 'crew', title: 'Crew overview — no ranking', desc: 'Machines & operators, protection status, escalations, gains today in operational units.', chips: ['RULE', 'SIMULATED'], to: '/supervisor', endpoints: ['/supervisor/'] },
     ],
   },
   {
@@ -87,10 +87,8 @@ const GROUPS: Array<{ id: string; title: string; icon: string; rows: Row[] }> = 
     ],
   },
   {
-    id: 'value', title: 'Business value', icon: 'query_stats',
+    id: 'sys', title: 'System & traceability', icon: 'query_stats',
     rows: [
-      { id: 'bv', title: 'Business value calculator', desc: 'Value per machine and fleet, payback, levers, tornado sensitivity, assumptions with sources.', chips: ['ESTIMATE', 'SIMULATED'], to: '/value', endpoints: ['/value/'] },
-      { id: 'gains', title: 'Gains on operational screens', desc: 'm³/shift, idle litres, productive hours — never dollars outside Business Value.', chips: ['ESTIMATE'], to: '/supervisor', endpoints: ['/value/today'] },
       { id: 'sys', title: 'Diagnostics, model cards, traceability, privacy', desc: 'Measured rule latency, data sources, model cards, drift; R1–R5 matrix; who sees what.', chips: ['ML', 'RULE', 'SIMULATED'], to: '/diagnostics', endpoints: ['GET /models'], modelBacked: true },
     ],
   },
@@ -117,7 +115,7 @@ export default function DemoTour() {
     const probes: Array<Promise<unknown>> = [
       edge.health(), edge.shiftCurrent().then((s) => edge.shiftReview(s.shift.shift_id)), edge.tasks(), edge.checklistItems(), edge.incidents(), edge.liveSnapshot(),
       cloud.profile('OP-1042'), cloud.recommendations('OP-1042'), cloud.modules(), cloud.reassessment('OP-1042', 'C04'), cloud.crewSummary(), cloud.idleSummary('2026-09-23'),
-      cloud.behaviourEvents(), cloud.models(), cloud.instructorOperators(), cloud.instructors(), practice.sessions('OP-1042'), practice.exercises(), practice.cohortSim(), value.pitch(), value.assumptions(), value.today(),
+      cloud.behaviourEvents(), cloud.models(), cloud.instructorOperators(), cloud.instructors(), practice.sessions('OP-1042'), practice.exercises(), practice.cohortSim(),
     ];
     probes.forEach((p) => p.catch(() => undefined));
   }, []);

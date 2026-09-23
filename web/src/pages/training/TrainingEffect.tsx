@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { CompetencyChip } from '../../components/CompetencyChip';
-import { GainChip, signed } from '../../components/GainChip';
 import { SourceNote } from '../../components/ProvenanceBadge';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { Details, SectionTitle } from '../../components/training/Details';
 import { AFTER_COLOR, BEFORE_COLOR, RateRatioBar, ShiftRateChart, ShiftRateLegend, shiftRows, verdictText } from '../../components/training/rateCharts';
 import { Chip, EmptyState, Loading, PageTitle, Panel } from '../../components/ui';
 import { cloud } from '../../lib/api';
+import { signed } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
 import { DEMO_OPERATOR_ID } from '../../lib/persona';
 import type { RateBlock } from '../../lib/types';
@@ -168,14 +168,14 @@ export default function TrainingEffect() {
           <SectionTitle as="h3">Gains</SectionTitle>
           <div className="flex flex-col items-start gap-2">
             {Number.isFinite(ratePctChange) && (
-              <GainChip title="(1 − rate ratio) × 100 — simulated, not yet conclusive">
+              <span className="text-body-sm text-on-surface-muted" title="(1 − rate ratio) × 100 — simulated, not yet conclusive">
                 {signed(ratePctChange, 0)}% fast-swing rate{includesNoChange ? ' (not yet conclusive)' : ''}
-              </GainChip>
+              </span>
             )}
             {Number.isFinite(withinPp) && (
-              <GainChip title="Change in the share of loading cycles without a fast swing near the truck, in percentage points">
+              <span className="text-body-sm text-on-surface-muted" title="Change in the share of loading cycles without a fast swing near the truck, in percentage points">
                 {signed(withinPp, 1)} pp cycles within expert range
-              </GainChip>
+              </span>
             )}
           </div>
           <SourceNote kinds={['SIMULATED', 'ESTIMATE']} className="!mt-1" />

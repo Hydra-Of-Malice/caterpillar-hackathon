@@ -43,7 +43,7 @@ def _continuous_min(s: Session, shift: ShiftRow, health: dict[str, Any], last_ac
 
 
 def crew_summary(s: Session) -> dict[str, Any]:
-    """Per machine/operator rows plus KPI tiles and the raw quantities the value model needs."""
+    """Per machine/operator rows plus KPI tiles and per-machine operating quantities."""
     cfg = load_yaml("cloud")["supervisor"]
     open_states = set(cfg["open_alert_states"])
     fuel_lph = float(cfg["idle_fuel_lph"])
@@ -62,7 +62,7 @@ def crew_summary(s: Session) -> dict[str, Any]:
         if sh is None:
             rows.append({"machine_id": machine_id, "operator": None, "shift": None, "current_task": None,
                          "protection": protection, "open_alerts": {w: 0 for w in SIGNAL_WORDS},
-                         "continuous_operation_min": None, "value_inputs": None})
+                         "continuous_operation_min": None, "operations": None})
             continue
         op = s.get(OperatorRow, sh.operator_id)
         tasks = sorted(s.scalars(select(TaskRow).where(TaskRow.shift_id == sh.shift_id)), key=lambda t: t.priority)
@@ -97,7 +97,7 @@ def crew_summary(s: Session) -> dict[str, Any]:
             "open_alerts": counts,
             "continuous_operation_min": _continuous_min(s, sh, health, last_activity),
             "last_activity_ts": last_activity,
-            "value_inputs": {
+            "operations": {
                 "operating_h": round(exposure_h, 2),
                 "idle_min_by_reason": {k: idle.get(k + "_min", 0.0)
                                        for k in ("waiting_for_truck", "unexplained")},
@@ -107,8 +107,8 @@ def crew_summary(s: Session) -> dict[str, Any]:
                 "label": "SIMULATED",
             },
         })
-    idle_total = sum(sum(r["value_inputs"]["idle_min_by_reason"].values()) for r in rows if r["value_inputs"])
-    idle_wait = sum(r["value_inputs"]["idle_min_by_reason"]["waiting_for_truck"] for r in rows if r["value_inputs"])
+    idle_total = sum(sum(r["operations"]["idle_min_by_reason"].values()) for r in rows if r["operations"])
+    idle_wait = sum(r["operations"]["idle_min_by_reason"]["waiting_for_truck"] for r in rows if r["operations"])
     return {
         "kpis": {
             "machines_active": sum(1 for r in rows if r["shift"] and r["shift"]["status"] == "active"),
@@ -121,6 +121,6 @@ def crew_summary(s: Session) -> dict[str, Any]:
         },
         "rows": rows,
         "ordering": "machine_id (no operator ranking)",
-        "note": "No operator ranking. Individual coaching data is visible to the operator and their instructor.",
+        "note": "No operator ranking. Individual coaching data is visible to the operator and their supervisor.",
         "label": "SIMULATED",
     }

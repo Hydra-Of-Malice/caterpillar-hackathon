@@ -1,14 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { GainsHero } from '../components/GainsHero';
 import { Button, Icon } from '../components/ui';
 import { setRole, type Role } from '../lib/persona';
 
 const PERSONAS: Array<{ role: Role; name: string; line: string; icon: string; to: string }> = [
-  { role: 'operator', name: 'Operator Ravi', line: 'In-cab copilot for the shift', icon: 'engineering', to: '/cab/start' },
-  { role: 'trainee', name: 'Trainee', line: 'Practice against expert operators', icon: 'sports_esports', to: '/training/practice' },
-  { role: 'instructor', name: 'Instructor Marcus', line: 'Competencies and sign-off', icon: 'school', to: '/instructor' },
-  { role: 'supervisor', name: 'Supervisor Priya', line: 'Crew, escalations, idle', icon: 'supervisor_account', to: '/supervisor' },
-  { role: 'judge', name: 'Judge', line: 'Every outcome in one checklist', icon: 'gavel', to: '/tour' },
+  { role: 'operator', name: 'Operator Ravi', line: 'In-cab copilot, practice and training', icon: 'engineering', to: '/cab/start' },
+  { role: 'supervisor', name: 'Supervisor Priya', line: 'Crew, escalations, idle and competency sign-off', icon: 'supervisor_account', to: '/supervisor' },
 ];
 
 /** Landing: short hero, three headline gains, persona cards. */
@@ -29,11 +25,10 @@ export default function Landing() {
         </div>
       </section>
 
-      <GainsHero />
 
       <section>
         <h2 className="mb-6 font-display text-headline-md">Explore as</h2>
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {PERSONAS.map((p) => (
             <Link key={p.role} to={p.to} onClick={() => setRole(p.role)} className="panel group flex flex-col gap-3 p-6 transition-colors hover:bg-surface-container-high">
               <Icon name={p.icon} size={32} className="text-on-surface-muted" />

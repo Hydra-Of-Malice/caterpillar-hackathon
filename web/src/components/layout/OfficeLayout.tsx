@@ -10,13 +10,11 @@ const MAIN: Array<{ to: string; label: string; match: string[]; wide?: boolean }
   { to: '/cab/home', label: 'Operator', match: ['/cab'] },
   { to: '/training', label: 'Training', match: ['/training'] },
   { to: '/supervisor', label: 'Supervisor', match: ['/supervisor', '/incidents', '/tasks', '/anomaly'] },
-  { to: '/value', label: 'Business value', match: ['/value'], wide: true },
   { to: '/tour', label: 'Demo tour', match: ['/tour'], wide: true },
 ];
 
 /** Shown in More only below 1280 px (they are in the bar at xl and up). */
 const NARROW_ONLY = [
-  { to: '/value', label: 'Business value', icon: 'query_stats' },
   { to: '/tour', label: 'Demo tour', icon: 'checklist' },
 ];
 

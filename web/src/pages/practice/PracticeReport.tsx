@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { GainChip, signed } from '../../components/GainChip';
 import { TrainingTabs } from '../../components/office/TrainingTabs';
 import { BandScale, CycleSparkline, MetricCard, PhaseChip, PhaseTimelineBar, ScoreBandChip, TipCard, TrajectoryChart } from '../../components/practice/parts';
 import { SourceNote } from '../../components/ProvenanceBadge';
 import { Button, EmptyState, Icon, Loading, PageTitle, cx } from '../../components/ui';
 import { practice } from '../../lib/api';
+import { signed } from '../../lib/format';
 import { useResource } from '../../lib/hooks';
 import { WORK_PHASES, exerciseLabel, parseOverlay, practiceGains, traineePhaseDurations } from '../../lib/practiceView';
 import type { CycleMetric, PracticeReport } from '../../lib/types';
@@ -41,9 +41,9 @@ function ValueCard({ report }: { report: PracticeReport }) {
         </ResponsiveContainer>
       </div>
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-        {g.m3PerShift !== undefined && <GainChip size="lg">+{g.m3PerShift.toFixed(0)} m³ per shift</GainChip>}
-        {g.upliftPct !== undefined && <GainChip size="lg">{signed(g.upliftPct)}% output</GainChip>}
-        {g.secondsPerCycle !== undefined && g.secondsPerCycle > 0.05 && <GainChip size="lg">{signed(-g.secondsPerCycle, 1)} s per cycle</GainChip>}
+        {g.m3PerShift !== undefined && <span className="text-body-lg text-on-surface-variant">+{g.m3PerShift.toFixed(0)} m³ per shift</span>}
+        {g.upliftPct !== undefined && <span className="text-body-lg text-on-surface-variant">{signed(g.upliftPct)}% output</span>}
+        {g.secondsPerCycle !== undefined && g.secondsPerCycle > 0.05 && <span className="text-body-lg text-on-surface-variant">{signed(-g.secondsPerCycle, 1)} s per cycle</span>}
       </div>
       <p className="mt-3 text-body-sm text-on-surface-muted">
         If you close {Math.round(g.closure * 100)}% of your gap to the expert

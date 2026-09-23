@@ -132,7 +132,6 @@ def test_productivity_and_tip_impact(reports):
         assert idle.evidence["est_s_saved_per_cycle"] > 0 and idle.evidence["est_m3_per_shift_gain"] > 0
     near = next(t for t in reports["novice"].tips if t.metric == "swing_near_truck_dps")
     assert near.evidence["est_s_saved_per_cycle"] is None                     # safety is not traded for time
-    assert reports["novice"].value_estimate is None or isinstance(reports["novice"].value_estimate, dict)
 
 
 def test_no_cycles_raises(analyser, make_session):

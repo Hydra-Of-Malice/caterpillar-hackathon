@@ -32,7 +32,6 @@ import Instructor from './pages/office/Instructor';
 import Diagnostics from './pages/office/Diagnostics';
 import Traceability from './pages/office/Traceability';
 import Privacy from './pages/office/Privacy';
-import BusinessValue from './pages/office/BusinessValue';
 
 export default function App() {
   useEffect(() => startLive('EX-07'), []);
@@ -51,7 +50,6 @@ export default function App() {
         <Route element={<OfficeLayout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/tour" element={<DemoTour />} />
-          <Route path="/value" element={<BusinessValue />} />
           <Route path="/training" element={<TrainingHub />} />
           <Route path="/training/effectiveness" element={<TrainingEffectiveness />} />
           <Route path="/training/module/:id" element={<ModulePlayer />} />

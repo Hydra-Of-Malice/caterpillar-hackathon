@@ -78,8 +78,8 @@ export function mockProfile(operatorId: string): OperatorProfile {
 }
 
 export function mockPatchCompetency(operatorId: string, competencyId: string, state: CompetencyState, actorRole: string): { ok: boolean; status: number; detail?: string } {
-  if (state === 'demonstrated' && actorRole !== 'instructor') {
-    return { ok: false, status: 403, detail: 'Only an instructor or a passed assessment can set DEMONSTRATED' };
+  if (state === 'demonstrated' && actorRole !== 'supervisor') {
+    return { ok: false, status: 403, detail: 'Only a supervisor or a passed assessment can set DEMONSTRATED' };
   }
   if (operatorId === 'OP-1042' && ravi[competencyId]) {
     ravi[competencyId] = { ...ravi[competencyId], state, verified_by: state === 'demonstrated' ? STAFF.instructor.initials : undefined };

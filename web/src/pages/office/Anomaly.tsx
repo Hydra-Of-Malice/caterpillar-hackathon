@@ -14,7 +14,6 @@ import { useResource } from '../../lib/hooks';
 import type { FeatureContribution, IdleSummary, MachineIssue, RiskCategory, SentinelEvent } from '../../lib/types';
 import { OPERATORS, competencyLabel } from '../../mocks/world';
 import { ExplanationBars } from '../../components/ExplanationBars';
-import { GainChip, idleLitres, useUnitCosts } from '../../components/GainChip';
 import { SourceNote } from '../../components/ProvenanceBadge';
 import { SupervisorTabs } from '../../components/office/TrainingTabs';
 import { AXIS, AXIS_LABEL, GRID, SERIES, TOOLTIP } from '../../components/ops/chartTheme';
@@ -29,6 +28,7 @@ const TABS: Array<{ value: Tab; label: string }> = [
 ];
 
 const IDLE_DATE = '2026-09-23';
+const IDLE_FUEL_LPH = 3.0;        // planning figure when the cloud does not send one (SIMULATED)
 const IDLE_COLORS = { waiting: SERIES.blue, unexplained: SERIES.orange };
 
 const opName = (id: string) => OPERATORS[id]?.name ?? id;
@@ -63,11 +63,11 @@ export default function Anomaly() {
 // ================================================================== IDLE
 function IdleTab() {
   const { data, loading, error } = useResource(() => cloud.idleSummary(IDLE_DATE), []);
-  const u = useUnitCosts();
 
   if (loading && !data) return <Loading label="Loading idle summary" />;
   if (!data) return error ? <ErrorNote error={error} /> : <EmptyState icon="hourglass_empty" title="No idle data yet" />;
-  return <IdleBody data={data} idleLph={u.idle_fuel_l_per_h} litres={(m) => idleLitres(u, m)} />;
+  const lph = IDLE_FUEL_LPH;
+  return <IdleBody data={data} idleLph={lph} litres={(m) => (m / 60) * lph} />;
 }
 
 type IdleDay = IdleSummary['machines'][number]['days'][number];
@@ -84,9 +84,6 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
     { waiting: 0, unexplained: 0 },
   );
   const fuelL = typeof data.fuel_unexplained_l === 'number' ? data.fuel_unexplained_l : litres(totals.unexplained);
-  // Gains (ESTIMATE): assume half of the unexplained idle is avoidable; litres ↔ minutes at the idle burn rate.
-  const savedL = fuelL * 0.5;
-  const avoidMin = idleLph > 0 ? (savedL / idleLph) * 60 : 0;
   const total = totals.waiting + totals.unexplained;
   const pct = (v: number) => (total > 0 ? Math.round((v / total) * 100) : 0);
 
@@ -113,11 +110,7 @@ function IdleBody({ data, idleLph, litres }: { data: IdleSummary; idleLph: numbe
           label="Fuel in unexplained idle"
           value={`~${Math.round(fuelL)}`}
           unit="L today"
-          sub={
-            <GainChip size="sm" title={`If half of the unexplained idle is avoided, at ${idleLph} L/h idle burn`}>
-              −{Math.round(avoidMin)} idle min · {Math.round(savedL)} L possible
-            </GainChip>
-          }
+          sub={`at ${idleLph} L/h idle burn`}
         />
       </div>
 
