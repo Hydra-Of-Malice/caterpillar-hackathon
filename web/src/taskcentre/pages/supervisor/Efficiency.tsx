@@ -17,7 +17,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bar as RBar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { personName, sup } from '../../api';
+import { personId, personName, sup } from '../../api';
 import { GmtTime } from '../../components';
 import { POLL } from '../../constants';
 import { nowTs } from '../../time';
@@ -343,7 +343,7 @@ export function TeamEfficiencyTable({ days = 7, compact = false }: { days?: numb
           </thead>
           <tbody>
             {rows.map((row) => {
-              const id = row.user_id ?? row.user?.user_id ?? '';
+              const id = personId(row) ?? '';
               const t = row.tasks ?? {};
               const rate = asPercent(row.on_time_rate);
               return (

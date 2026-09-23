@@ -125,7 +125,7 @@ function TcFooter() {
 /** Route element for everything under `/tc`. */
 export function TcLayout() {
   const loc = useLocation();
-  useLightTheme(true);
+  useLightTheme(false);   // dark theme everywhere: black surfaces, white text, Cat yellow
   return (
     <TcAuthProvider>
       <div className="flex min-h-screen flex-col bg-surface">

@@ -38,7 +38,7 @@ export function OfficeLayout() {
   const persona = usePersona();
   const navigate = useNavigate();
   const loc = useLocation();
-  useLightTheme(true);
+  useLightTheme(false);   // dark theme everywhere: black surfaces, white text, Cat yellow
   const [more, setMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   useEffect(() => setMore(false), [loc.pathname]);

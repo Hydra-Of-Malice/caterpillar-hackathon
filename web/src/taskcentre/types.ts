@@ -796,6 +796,8 @@ export interface EfficiencyFlags {
 
 /** `GET /sup/operators/{id}/efficiency?days=` — facts with their evidence, never a hidden score. */
 export interface SupEfficiency {
+  /** `/tc/sup/efficiency` nests the person here; other endpoints use `user`. Both are read. */
+  operator?: User;
   user?: User;
   user_id?: string;
   name?: string;

@@ -484,8 +484,18 @@ export const sim = simApi;
 
 // ---------------------------------------------------------------- small helpers
 /** A person row may nest the user or flatten it. Read it safely either way. */
-export function personName(p: { user?: { name?: string; username?: string }; name?: string; username?: string; user_id?: string }): string {
-  return p.user?.name ?? p.name ?? p.user?.username ?? p.username ?? p.user_id ?? 'Unknown';
+interface PersonRef { name?: string; username?: string; user_id?: string }
+type PersonLike = { user?: PersonRef; operator?: PersonRef; name?: string; username?: string;
+                    user_id?: string };
+
+export function personName(p: PersonLike): string {
+  const u = p.user ?? p.operator;
+  return u?.name ?? p.name ?? u?.username ?? p.username ?? personId(p) ?? 'Unknown';
+}
+
+/** The id for a person-shaped row, wherever this endpoint happens to put them. */
+export function personId(p: PersonLike): string | undefined {
+  return p.user_id ?? p.user?.user_id ?? p.operator?.user_id;
 }
 
 /** Turn any thrown value into a message worth showing a user. */

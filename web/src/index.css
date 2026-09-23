@@ -12,8 +12,10 @@
 @tailwind utilities;
 
 /*
- * Theme tokens (rgb channels). :root = in-cab NIGHT (dark, Stitch). .theme-light (on <html>) =
- * Caterpillar light theme for office pages and the in-cab DAY mode (docs/ui-theme.md).
+ * Theme tokens (rgb channels). :root = the dark Caterpillar theme (black surfaces, white text,
+ * Cat yellow accent) used by the Task Centre, the office pages and in-cab NIGHT mode.
+ * .theme-light (on <html>) is kept for the in-cab DAY mode, which exists for sunlight
+ * readability in the cab and stays a deliberate operator choice (docs/ui-theme.md).
  */
 :root,
 .theme-dark {
@@ -51,6 +53,7 @@
   --svg-text: #ffffff;
   --svg-accent: #4db1ff;
   --card-shadow: none;
+  color-scheme: dark;
 }
 
 .theme-light {
