@@ -102,7 +102,7 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 - **Calibration.** Scores become a context percentile against a later calibration split.
 - **Thresholds.** Set by an **alert budget**: the lowest τ whose bootstrap upper 95 % bound gives ≤ 1.0 T1 and ≤ 0.2 T2 false alerts per operating hour.
 - **Explanations.** Robust z ("how many typical deviations from normal") names the top 3 features in real units.
-- **Direction gate.** An anomaly counts only if most of the deviation is in the risky direction.
+- **Direction gate.** An anomaly counts only if at least half of the deviation is in the risky direction.
 - **Attribution.** Rules route events to the machine (fault code, pressure without lever input, same signature across ≥ 2 operators), the environment or the operator.
 - **Fusion.** r = max(rule severity, direction × surprise) × exposure + recurrence bonus. **ML alone gives at most T0 post-shift coaching; in-cab tiers need a rule hit.**
 
@@ -123,7 +123,7 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 - **Retrieval.** Keyword (BM25) and TF-IDF retrieval are merged by rank (RRF). If no passage clears the relevance floors, the copilot refuses.
 - **Safety topics** get verbatim quotes only.
 - **Generation.** Otherwise Claude may answer. Every sentence must cite a retrieved passage, be lexically supported by it, and use only numbers from it. Any failure falls back to quotes.
-- **Approval gate.** Only instructor-approved content reaches operators.
+- **Approval gate.** Only approved document versions are indexed, and modules reach operators only once approved (the instructor review queue).
 
 **(g) Cohort simulation:**
 - **Set-up.** 20 simulated trainees, 12 sessions each, on the same random draws in both arms.
@@ -133,7 +133,7 @@ Caterpillar requirements: **R1** task dashboard · **R2** operator safety · **R
 
 ### What is deliberately NOT ML
 
-- The safety engine (seatbelt, person-in-zone, over-speed, hydraulic lock, sensor health)
+- The safety engine (seatbelt, person-in-zone, over-speed, hydraulics left unlocked, sensor health)
 - The context-gated idle rule
 - The three behaviour rules
 - The break reminder
@@ -146,7 +146,7 @@ Protections must pass 100 % of boundary, missing-signal and stuck-value tests, a
 
 1. **Data.** The simulator produces 10 Hz telemetry for 5 operator archetypes (expert → novice, improving novice, late-shift degradation) with ±15 % personal jitter:
    - a fleet baseline of 4 operators × 2 machines × 2 shifts;
-   - practice sessions from 5 experts and 6 trainees;
+   - practice sessions from 5 experts and 5 trainees;
    - 1,500 historical tasks.
 
    The clean-data assumption is that training windows are mostly normal. The pipeline never reads ground truth, which is used only for phase labels and evaluation.
@@ -169,7 +169,7 @@ Protections must pass 100 % of boundary, missing-signal and stuck-value tests, a
    - Alert rates against the budget.
    - Per-alert "useful / not useful" labels.
    - Operator disputes, which remove events from gap evidence.
-8. **Retrain.** Re-run on new clean hours. The `LATEST` pointer allows rollback. Probability calibration (isotonic regression) switches on only after ≥ 50 reviewer labels per class. Until then, percentiles only and never "probability of incident".
+8. **Retrain.** Re-run on new clean hours. The `LATEST` pointer allows rollback. Probability calibration (isotonic regression) is deferred until there are ≥ 50 reviewer labels per class. Until then, percentiles only and never "probability of incident".
 
 **Roadmap to a Caterpillar pilot**
 
