@@ -1,0 +1,35 @@
+# CAT Sentinel - AI Task Centre config (owner: agent E).
+#
+# Every threshold here is [PROPOSED] for the SIMULATED demo detectors in
+# `sentinel/taskcentre/brain.py`. They were chosen so the demo is legible, not validated against
+# real worksite data - re-tune before any of this is pointed at a real detector.
+#
+# Loaded by `sentinel.taskcentre.service.settings()` (merged over its DEFAULT_SETTINGS, so a missing
+# key falls back rather than crashing) and read as a typed object by
+# `sentinel.taskcentre.brain.BrainConfig.load()`.
+version: "taskcentre-0.1.0"
+
+# Nearest-operator dispatch for a critical machine incident.
+# An operator is eligible only if ALL of these hold: role operator, account active, same site,
+# a location report with usable coordinates, that report is younger than max_age_s, and the
+# distance to the incident is within max_distance_m. If nobody qualifies the incident is recorded
+# as `no_eligible_operator` and the supervisors + admins are told - an operator is never invented.
+nearest_operator:
+  max_age_s: 600          # a position older than 10 min is not evidence of where somebody is now
+  max_distance_m: 2000    # beyond 2 km "nearest" stops being a useful dispatch
+
+# Simulated camera idle analysis. A productivity flag, never a safety alert.
+idle:
+  threshold_s: 900        # 15 min of unexplained stillness before anything is flagged at all
+  cooldown_s: 600         # one flag per (camera, operator) per 10 min, so one long pause != a ticket flood
+
+# Two identical machine sensor events (same machine_id + kind) inside this window are one incident:
+# the first alarms, the repeats are deduped. Prevents an alert flood from a chattering sensor.
+incident_dedupe_s: 300
+
+# Bearer-token lifetime for a Task Centre sign-in (consumed by sentinel/taskcentre/auth.py).
+session_hours: 12
+
+# A person's last known position older than this is shown as STALE in the admin/supervisor views.
+# Kept equal to nearest_operator.max_age_s so "stale" and "not dispatchable" mean the same thing.
+stale_location_s: 600

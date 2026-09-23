@@ -26,7 +26,17 @@ from sentinel.store.db import Database
 
 log = logging.getLogger(__name__)
 API_PREFIX = "/api/v1"
-OPTIONAL_ROUTERS = ("sentinel.practice.api",)
+OPTIONAL_ROUTERS = (
+    "sentinel.practice.api",
+    # AI Task Centre: worksite users/roles, geofenced punches, assignable tasks, chat,
+    # review flags and the simulated AI brain. Additive; the copilot routes are unchanged.
+    "sentinel.taskcentre.routes_auth",
+    "sentinel.taskcentre.routes_admin",
+    "sentinel.taskcentre.routes_supervisor",
+    "sentinel.taskcentre.routes_operator",
+    "sentinel.taskcentre.routes_chat",
+    "sentinel.taskcentre.routes_sim",
+)
 
 
 def _include_optional(app: FastAPI, module_name: str) -> None:

@@ -13,6 +13,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
 from sentinel.shared import config
+from sentinel.store import taskcentre_models  # noqa: F401 - registers the tc_* tables on Base
 from sentinel.store.models import Base
 
 
