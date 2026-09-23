@@ -6,7 +6,7 @@
  * (polled every `POLL.operator`) and is matched on the route id.
  */
 import { useState, type ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { errorText, opApi } from '../../api';
 import { POLL } from '../../constants';
 import { GmtTime, TcError, TcLoading } from '../../components';
@@ -15,8 +15,10 @@ import { useNow, useResource } from '../../../lib/hooks';
 import { fmtGmt } from '../../time';
 import type { Checkpoint, OpToday, ProgressKind, TcTask } from '../../types';
 import { ChatPanel } from './Chat';
+import { TaskTimer, useTaskClock } from './TaskTimer';
 import { Note, OfflineNote, OpPage, Stat, TOUCH_BIG, useOnline } from './common';
-import { STATUS_LABEL, errStatus, sortTasks, statusChip, taskProgress, unmetRequired } from './model';
+import { STATUS_LABEL, checklistChip, checklistPath, errStatus, sortTasks, statusChip, taskProgress, unmetRequired, useTaskStart } from './model';
+import { WaitingControl } from './Waiting';
 
 function CheckpointControl({ cp, disabled, onSet }: { cp: Checkpoint; disabled: boolean; onSet: (done: number) => void }) {
   const complete = cp.done >= cp.target;
@@ -159,6 +161,7 @@ function ProgressForm({
 
 export default function TaskDetail() {
   const { id = '' } = useParams();
+  const nav = useNavigate();
   const online = useOnline();
   const now = useNow(15_000) / 1000;
   const r = useResource<OpToday>(() => opApi.today(), [], POLL.operator);
@@ -171,6 +174,7 @@ export default function TaskDetail() {
   const [showChat, setShowChat] = useState(false);
 
   const today = r.data;
+  useTaskClock(today?.ts); // keep the live timer on the server's clock, not this device's
   const found = sortTasks(today?.tasks ?? []).find((t) => t.task_id === id);
   const checkpoints: Checkpoint[] = (found?.checkpoints ?? [])
     .map((c) => (over[c.checkpoint_id] === undefined ? c : { ...c, done: over[c.checkpoint_id] }))
@@ -204,17 +208,12 @@ export default function TaskDetail() {
     }
   };
 
-  const startTask = async () => {
-    setBusy(true);
-    setActionError(null);
-    try {
-      applyTask(await opApi.startTask(id));
-    } catch (e) {
-      setActionError(errorText(e));
-    } finally {
-      setBusy(false);
-    }
-  };
+  /**
+   * Start task. When the pre-start check is not complete this opens the checklist instead of
+   * calling the API; a `409` from a complete-looking checklist also lands on the checklist with the
+   * server's reason, so the screen never shows a task as started when it is not.
+   */
+  const start = useTaskStart(applyTask);
 
   const sendProgress = async (kind: ProgressKind, text: string) => {
     await opApi.progress(id, { kind, text });
@@ -260,6 +259,8 @@ export default function TaskDetail() {
     );
 
   const task = found;
+  /** Pre-start check state; absent means the API has not reported one, so nothing is assumed done. */
+  const cl = task.checklist ?? { completed: false, blocked: false, answered: 0, total: 0, failed_critical_count: 0 };
   const p = taskProgress({ checkpoints });
   const outstanding = unmetRequired(checkpoints);
   const chip = statusChip(task.status);
@@ -294,6 +295,17 @@ export default function TaskDetail() {
           <Stat label="Started (GMT)">
             {task.started_at ? <GmtTime ts={task.started_at} gmt={task.started_at_gmt} /> : 'Not started'}
           </Stat>
+          <div className="col-span-2">
+            <div className="font-display text-label-sm uppercase text-on-surface-muted">Pre-start check</div>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Chip icon={checklistChip(task.checklist).icon} tone={checklistChip(task.checklist).tone}>
+                {checklistChip(task.checklist).text}
+              </Chip>
+              <Link to={checklistPath(task.task_id)} className="font-display text-label-lg uppercase text-notice-dark underline">
+                {cl.completed ? 'Review the check' : 'Open the check'}
+              </Link>
+            </div>
+          </div>
         </div>
         {task.instructions && (
           <div className="border-t border-outline pt-3">
@@ -303,11 +315,46 @@ export default function TaskDetail() {
         )}
       </section>
 
+      <TaskTimer task={task} variant="full" />
+
       {task.status === 'pending' && (
-        <Button variant="primary" size="xl" icon="play_arrow" block className="h-20" disabled={busy} onClick={() => void startTask()}>
-          {busy ? 'Starting…' : 'Start Task'}
-        </Button>
+        <section className="space-y-2" aria-label="Start this task">
+          {cl.blocked ? (
+            <Note tone="danger" icon="block" title="This task cannot start" role="alert">
+              A critical item failed the pre-start check, so starting is stopped here and your supervisor has been notified.
+              Open the check to see which item and what was reported.
+            </Note>
+          ) : null}
+          <Button
+            variant={cl.blocked ? 'secondary' : 'primary'}
+            size="xl"
+            icon={cl.blocked ? 'fact_check' : cl.completed ? 'play_arrow' : 'fact_check'}
+            block
+            className="h-20"
+            disabled={busy || start.busy}
+            onClick={() => (cl.blocked ? nav(checklistPath(id)) : void start.start(task))}
+          >
+            {start.busy ? 'Starting…' : cl.blocked ? 'Open the pre-start check' : 'Start task'}
+          </Button>
+          <p className="flex items-start gap-2 text-body-md text-on-surface-muted">
+            <Icon name={checklistChip(task.checklist).icon} size={22} />
+            <span>
+              {cl.completed
+                ? 'The pre-start check is complete. Starting the task records the time in GMT.'
+                : cl.total > 0
+                  ? `The pre-start inspection comes first — ${cl.answered} of ${cl.total} items answered. Start task opens it.`
+                  : 'The pre-start inspection comes first. Start task opens it.'}
+            </span>
+          </p>
+          {start.error && (
+            <Note tone="danger" icon="error" title="The task did not start" role="alert">
+              {start.error}
+            </Note>
+          )}
+        </section>
       )}
+
+      {task.status === 'ongoing' && <WaitingControl waiting={today?.waiting} taskId={task.task_id} onChanged={r.reload} />}
 
       {checkpoints.length > 0 && (
         <section aria-label="Checkpoints" className="space-y-2">

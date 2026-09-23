@@ -25,6 +25,7 @@ interface NavItem {
 const NAV: Record<Role, NavItem[]> = {
   admin: [
     { to: '/tc/admin', label: 'Site overview', icon: 'dashboard', end: true },
+    { to: '/tc/admin/foresight', label: 'What could happen', icon: 'troubleshoot' },
     { to: '/tc/demo', label: 'Scenarios', icon: 'science' },
   ],
   supervisor: [

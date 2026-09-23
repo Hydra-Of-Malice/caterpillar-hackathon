@@ -19,6 +19,7 @@ from sentinel.store.taskcentre_models import (
     CheckpointRow,
     NotificationRow,
     SiteRow,
+    TaskChecklistResultRow,
     TaskProgressRow,
     TcIncidentRow,
     TcTaskRow,
@@ -26,6 +27,7 @@ from sentinel.store.taskcentre_models import (
     TrainingVideoRow,
     UserRow,
 )
+from sentinel.taskcentre.checklist import checklist_items
 from sentinel.taskcentre import routes_operator
 from sentinel.taskcentre.auth import create_session, hash_password
 
@@ -91,8 +93,13 @@ def auth(token: str) -> dict[str, str]:
 # ---------------------------------------------------------------- builders
 def make_task(db: Database, task_id: str, *, operator_id: str = "op1", supervisor_id: str = "sup1",
               start_offset_s: float = -1800.0, finish_offset_s: float = 3600.0,
-              checkpoints: list[dict[str, Any]] | None = None, status: str = "pending") -> str:
-    """Insert a task whose window is relative to now, plus its checkpoints."""
+              checkpoints: list[dict[str, Any]] | None = None, status: str = "pending",
+              checklist: str | None = "pass") -> str:
+    """Insert a task whose window is relative to now, plus its checkpoints.
+
+    The pre-start inspection gates `start`, so by default every item is answered PASS. Pass
+    ``checklist=None`` to leave it unanswered and exercise the gate itself.
+    """
     now = time.time()
     with db.session() as s:
         s.add(TcTaskRow(task_id=task_id, site_id=SITE, operator_id=operator_id,
@@ -105,6 +112,11 @@ def make_task(db: Database, task_id: str, *, operator_id: str = "op1", superviso
                                 label=cp.get("label", f"Step {i}"), kind=cp.get("kind", "checkbox"),
                                 target=cp.get("target", 1), done=cp.get("done", 0),
                                 required=cp.get("required", True)))
+        if checklist is not None:
+            for item in checklist_items():
+                s.add(TaskChecklistResultRow(task_id=task_id, item_id=item["id"], user_id=operator_id,
+                                             result=checklist, critical=bool(item.get("critical")),
+                                             note=None, ts=now))
     return task_id
 
 

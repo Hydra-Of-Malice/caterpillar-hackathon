@@ -34,7 +34,8 @@ from sentinel.taskcentre.adapters import (CameraObservation, EXPLAINED_CONTEXTS,
                                           MachineSensorEvent, clip_placeholder, mark_sim_event,
                                           observation_timeline, record_sim_event)
 from sentinel.taskcentre.geo import haversine_m
-from sentinel.taskcentre.service import latest_location, notify, open_ticket, settings
+from sentinel.taskcentre.service import gmt_iso, latest_location, notify, open_ticket, settings
+from sentinel.taskcentre.waiting import overlaps_wait, reason_phrase
 
 #: Every row written here carries this provenance until a real detector replaces the adapter.
 SIMULATED = "SIMULATED"
@@ -42,6 +43,13 @@ SIMULATED = "SIMULATED"
 #: Tickets this module opens.
 KIND_IDLE = "ai_idle"
 KIND_FATIGUE = "fatigue"
+KIND_PROXIMITY_FLAG = "proximity_flag"
+
+#: Substrings that mark a machine sensor event as "somebody was near the machine". Matched against
+#: ``MachineSensorEvent.kind`` so a real detector only has to name its event sensibly
+#: (``person_in_zone``, ``proximity_intrusion``, ``person_near_machine``, ...) to get the operator
+#: acknowledge/dispute prompt for free.
+PROXIMITY_KIND_HINTS: tuple[str, ...] = ("proximity", "person", "pedestrian", "struck_by")
 
 #: One line appended wherever a person reads what the brain produced. Not decoration - the demo is
 #: judged on being honest about what is real, and this is the sentence that says it.
@@ -310,8 +318,85 @@ def handle_machine_sensor(s: Session, event: MachineSensorEvent, cfg: BrainConfi
 
     incident.notified_user_ids = notified
     s.flush()
+    if is_proximity_kind(event.kind):
+        raise_proximity_prompt(s, incident, event)
     mark_sim_event(sim_event, incident_id=incident.incident_id, outcome=incident.dispatch_status)
     return incident
+
+
+# ---------------------------------------------------------------- proximity -> operator prompt
+def is_proximity_kind(kind: str | None) -> bool:
+    """Is this sensor condition "somebody was close to the machine"? See :data:`PROXIMITY_KIND_HINTS`."""
+    lowered = (kind or "").lower()
+    return any(hint in lowered for hint in PROXIMITY_KIND_HINTS)
+
+
+def _prompt_operator(s: Session, incident: TcIncidentRow) -> UserRow | None:
+    """Who is asked to confirm or dispute: the person at the controls, else whoever was dispatched.
+
+    The machine's assigned operator is preferred because they are the one who can say what actually
+    happened. If nobody is assigned and nobody was dispatched, no prompt is raised - we do not pick a
+    person to answer for an event they may have had nothing to do with.
+    """
+    assigned = s.execute(select(UserRow).where(UserRow.machine_id == incident.machine_id,
+                                               UserRow.role == "operator", UserRow.active.is_(True))
+                         .order_by(UserRow.user_id)).scalars().first()
+    if assigned is not None:
+        return assigned
+    return s.get(UserRow, incident.nearest_user_id) if incident.nearest_user_id else None
+
+
+def raise_proximity_prompt(s: Session, incident: TcIncidentRow,
+                           event: MachineSensorEvent) -> TicketRow | None:
+    """Ask the operator to confirm or dispute a person-near-machine flag, on top of the alert path.
+
+    A proximity flag is a statement about a person's work, made by a detector that cannot see why
+    somebody was there. So the operator gets the first word: a ticket is opened for their supervisor
+    with the recorded evidence, and a notification asks the operator to **acknowledge or dispute** it
+    (``GET /tc/op/flags``, ``POST /tc/op/flags/{ticket_id}/respond``).
+
+    Their answer is appended as a review decision - the incident and the evidence are never rewritten,
+    and a dispute is kept verbatim and shown to the supervisor beside the evidence. It is the
+    operator's account, not a veto: the flag stays open for the supervisor either way.
+
+    Returns the ticket, or ``None`` when there is nobody to ask.
+    """
+    operator = _prompt_operator(s, incident)
+    if operator is None:
+        return None
+
+    headline = f"{_humanise(incident.kind)} on {incident.machine_id}"
+    explanation = (
+        f"A SIMULATED proximity source reported {_humanise(incident.kind)} on {incident.machine_id} at "
+        f"{gmt_iso(incident.ts)} GMT. {incident.detail} You are recorded as the operator on this "
+        f"machine, so you are asked first: confirm it if somebody was close, or dispute it if the "
+        f"detector got it wrong. Either answer is recorded and sent to your supervisor - a dispute is "
+        f"kept in your own words next to the evidence, and nothing you say is overwritten.")
+
+    ticket = open_ticket(
+        s, site_id=incident.site_id, kind=KIND_PROXIMITY_FLAG, severity=incident.severity,
+        owner_role="supervisor", owner_user_id=operator.supervisor_id,
+        subject_user_id=operator.user_id, source=event.source or SIMULATED,
+        machine_id=incident.machine_id, incident_id=incident.incident_id,
+        title=f"Proximity flag awaiting the operator's response: {headline}",
+        detail=f"{explanation} {SIMULATED_NOTE}",
+        evidence={"incident_id": incident.incident_id, "machine_id": incident.machine_id,
+                  "kind": incident.kind, "severity": incident.severity, "observed_at": incident.ts,
+                  "observed_at_gmt": gmt_iso(incident.ts), "lat": incident.lat, "lon": incident.lon,
+                  "detail": incident.detail, "source": event.source or SIMULATED,
+                  "category": "safety", "is_safety_alert": True,
+                  "response_options": ["acknowledged", "disputed"],
+                  "explanation": explanation,
+                  "dispute_policy": ("A dispute is recorded verbatim and shown to the supervisor beside "
+                                     "the evidence. It is the operator's account of what happened, not "
+                                     "a veto, and it is never deleted or summarised away."),
+                  "note": SIMULATED_NOTE})
+
+    notify(s, operator.user_id, kind=KIND_PROXIMITY_FLAG, severity="warning",
+           title=f"Confirm or dispute: {headline}",
+           body=(f"{explanation} {SIMULATED_NOTE}"),
+           link="/tc/op", incident_id=incident.incident_id, ticket_id=ticket.ticket_id)
+    return ticket
 
 
 # ---------------------------------------------------------------- camera -> idle ticket
@@ -341,6 +426,10 @@ def handle_camera_observation(s: Session, obs: CameraObservation, cfg: BrainConf
       ``machine_paused``, ``expected_delay``) - the event is stored with a ``suppressed_reason`` and
       nobody is disturbed. Waiting for a haul truck is the job, not idling, and a system that cannot
       tell the difference trains supervisors to ignore it;
+    * **the operator already declared a wait** covering this observation window (they tapped
+      "Waiting for truck"; see :mod:`sentinel.taskcentre.waiting`). The detector may know nothing
+      about the truck, but the person in the cab said why they are standing still before anybody
+      looked - that explanation is honoured, recorded on the event, and no flag is raised;
     * the pause is shorter than ``idle.threshold_s``;
     * the same (camera, operator) pair was already flagged inside ``idle.cooldown_s``.
 
@@ -358,6 +447,15 @@ def handle_camera_observation(s: Session, obs: CameraObservation, cfg: BrainConf
         reason = (f"context '{obs.context}' explains the pause ({minutes:.0f} min); this is expected "
                   f"work, not idle time, so no flag was raised")
         mark_sim_event(sim_event, suppressed_reason=reason, outcome="suppressed_explained")
+        return None
+
+    declared = overlaps_wait(s, obs.operator_id, obs.ts - obs.idle_seconds, obs.ts)
+    if declared is not None:
+        reason = (f"operator_declared_{declared.reason}: the operator reported "
+                  f"{reason_phrase(declared.reason)} from {gmt_iso(declared.started_at)} GMT "
+                  f"(declared wait {declared.wait_id}), which covers this {minutes:.0f} min pause. "
+                  f"Explained waiting is not idle time, so no flag was raised")
+        mark_sim_event(sim_event, suppressed_reason=reason, outcome="suppressed_operator_declared")
         return None
 
     if obs.idle_seconds < cfg.idle.threshold_s:

@@ -16,6 +16,7 @@ import type { SupOperatorRow, TcTask, Ticket } from '../../types';
 import { Button, PageTitle } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
 import { AddOperator } from './AddOperator';
+import { TeamEfficiencyTable } from './Efficiency';
 import { TaskCreate } from './TaskCreate';
 import {
   BUCKET,
@@ -251,6 +252,22 @@ export default function Dashboard() {
               </table>
             </TableWrap>
           ))}
+      </Card>
+
+      {/* ------------------------------------------------ training & efficiency */}
+      <Card
+        title="Training &amp; efficiency"
+        sub="What the system recorded for each operator over the last 7 days."
+        right={
+          <Link to="efficiency" className="text-body-sm font-semibold text-notice-dark hover:underline">
+            Full view
+          </Link>
+        }
+      >
+        <TeamEfficiencyTable days={7} compact />
+        <p className="mt-3 text-body-sm text-on-surface-muted">
+          Open an operator to see their training profile, their progress through each module, and the evidence behind these numbers.
+        </p>
       </Card>
 
       <Caveat icon="location_on">

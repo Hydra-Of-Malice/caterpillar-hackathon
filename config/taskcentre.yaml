@@ -33,3 +33,128 @@ session_hours: 12
 # A person's last known position older than this is shown as STALE in the admin/supervisor views.
 # Kept equal to nearest_operator.max_age_s so "stale" and "not dispatchable" mean the same thing.
 stale_location_s: 600
+
+# ---------------------------------------------------------------- work-schedule fatigue RISK
+# A per-operator FATIGUE-RISK indicator (`sentinel/taskcentre/fatigue.py`), visible to the
+# supervisor and to the operator themselves.
+#
+# IT IS NOT A FATIGUE DETECTOR. `docs/sections/06-fatigue.md` records that we found no published
+# validation of machine data as a fatigue indicator, and that a fatigue *score* shown to a
+# supervisor as a judgement of a person is on the "never" list (§6). So this scores the **work
+# schedule** - hours of work, breaks, time of day, consecutive days - the way a real fatigue-risk
+# management system does, from facts somebody recorded (punches, declared waits, completed tasks).
+# The score is a visible weighted sum: every weight, ramp and threshold below is echoed back in the
+# API response, so there is no hidden model.
+fatigue_risk:
+  method_version: "fatigue-risk-0.1.0"
+
+  # The established shift-work risk window, in GMT (wraps midnight). A covariate, never a claim
+  # about the individual - see 06-fatigue.md §1.3 "circadian low".
+  night_window:
+    start_hour: 22
+    end_hour: 6
+
+  # MIRRORS `config/alert_policy.yaml` `break:` EXACTLY. The copilot prompts the operator on these
+  # numbers, so the supervisor's indicator must use the same ones or the two products disagree
+  # about the same shift. Change them together, never apart.
+  break_policy:
+    advisory_min: 120        # alert_policy break.advisory_min  - T1 break check-in
+    recommend_min: 150       # alert_policy break.recommend_min - T3 break recommended
+    escalate_min: 165        # alert_policy break.escalate_min  - T4 if still no break
+    min_break_min: 10        # alert_policy break.min_break_min - a shorter gap does not reset continuous work
+
+  # How a shift is identified from the punch history. A punch-out shorter than this is a break
+  # *inside* the shift (which is what the break policy is about); anything longer starts a new
+  # shift, so yesterday's hours are never charged against today. Looking at "today's punches"
+  # instead would report a night shift that began at 23:20 as nobody having started work.
+  new_shift_gap_min: 360
+
+  # Score bands. The level shown is the WORSE of this band and the break-policy band, so the
+  # supervisor's indicator can never read calmer than the operator's own break prompt.
+  levels:
+    elevated_score: 25
+    high_score: 55
+
+  # The whole model. contribution = weight x clamp((value - ramp_from) / (ramp_to - ramp_from), 0, 1);
+  # score = 100 x sum(contributions) / sum(weights). A fact that was never recorded contributes 0 -
+  # an unknown is never guessed. Weights are [PROPOSED] for the demo, not validated.
+  factors:
+    # Time since the last punched rest. Weighted highest because it is the one factor with a
+    # documented, operational response (take a break) and it matches the copilot's rule.
+    continuous_minutes_without_break:
+      weight: 45
+      ramp_from: 60          # starts to score after an hour of continuous work
+      ramp_to: 165           # full weight at the escalation point
+    # Hours of work. Folkard & Tucker 2003: risk rises roughly exponentially after the 8th hour.
+    hours_since_start_work:
+      weight: 25
+      ramp_from: 8
+      ramp_to: 12
+    # Night work - binary: the shift clock is inside night_window.
+    night_work:
+      weight: 18
+    # Successive shifts. Risk rises over consecutive days (Folkard & Tucker 2003).
+    consecutive_work_days:
+      weight: 12
+      ramp_from: 5
+      ramp_to: 7
+
+# ---------------------------------------------------------------- admin RISK FORESIGHT
+# The admin's risk register (`sentinel/taskcentre/foresight.py`, GET /tc/admin/foresight).
+#
+# IT IS NOT A PREDICTIVE MODEL AND IT IS NOT TRAINED. Each rule below reads rows this system already
+# wrote, and when a threshold here is crossed it produces one item saying what those facts could
+# plausibly lead to and who should act. Every item carries `source: RULE`, the facts it fired on
+# (`basis`) and a limitation note; `likelihood` is the BAND OF THE RULE THAT FIRED, never a measured
+# probability. Acting on an item notifies people and writes a record - it never touches a machine.
+#
+# Every threshold is [PROPOSED] for the demo, chosen so the register is legible. Re-tune before any
+# of this is pointed at real site data.
+foresight:
+  method_version: "foresight-0.1.0"
+  max_items: 50             # hard cap on the register, so one noisy rule cannot bury the rest
+
+  # Work-schedule fatigue RISK (from `fatigue_risk` above) while that person has a task under way.
+  # The mapping is 1:1 with the fatigue level - foresight never invents a band of its own, and it
+  # never re-states the schedule risk as a claim about the person.
+  fatigue:
+    elevated_likelihood: elevated
+    high_likelihood: high
+
+  # Repeated person-near-machine events on ONE machine. Counting events is all this does: it does
+  # not know who was near the machine or whether anybody was ever actually at risk.
+  proximity:
+    window_s: 3600          # look back 1 h
+    min_events: 2           # 2 in the window -> elevated
+    high_events: 3          # 3 or more -> high
+
+  # Safety advisories not running while a machine is being worked. The only heartbeat this prototype
+  # records is the camera's last frame, so "stale" means we have not heard from the service - which
+  # is not the same as the machine being unsafe.
+  protection:
+    heartbeat_stale_s: 900  # no camera frame for 15 min while the machine is worked
+    degraded_states: [degraded, off, fault, disabled]   # MachineRow.meta.protection_state values
+
+  # A critical incident nobody has pressed acknowledge on. The rule knows only that the button was
+  # not pressed; somebody may already be attending it.
+  unacknowledged_incident:
+    after_s: 300            # 5 min with no acknowledgement -> elevated
+    high_after_s: 900       # 15 min -> high
+
+  # Open flags piling up in one supervisor's review queue.
+  review_backlog:
+    min_open: 3             # 3 open flags in one queue -> moderate
+    high_open: 6            # 6 or more -> elevated
+    stale_after_s: 86400    # or the oldest one has sat unread for a day -> elevated
+
+  # Open work measured against its own recorded expected finish time. Two timestamps compared; the
+  # rule has no estimate of how much work is actually left.
+  tasks:
+    at_risk_margin_s: 1800  # finishing within 30 min counts as at risk
+    overdue_grace_s: 0      # past the expected finish by this much before it counts as overdue
+
+  # Machine fault codes (MachineRow.meta.fault_codes) or repeated non-proximity sensor events.
+  machine_faults:
+    window_s: 21600         # look back 6 h
+    min_events: 2           # 2 sensor events in the window -> moderate
+    high_events: 4          # 4 or more (or any fault code) -> elevated

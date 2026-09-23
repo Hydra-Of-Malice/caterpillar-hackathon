@@ -29,9 +29,12 @@ from sentinel.store.models import MachineRow
 from sentinel.store.taskcentre_models import (CameraRow, GeofenceRow, PunchRow, ReviewDecisionRow,
                                               TcIncidentRow, TicketRow, UserRow)
 from sentinel.taskcentre.auth import require_role
+from sentinel.taskcentre.foresight import CAVEATS as FORESIGHT_CAVEATS
+from sentinel.taskcentre.foresight import HONESTY_NOTE as FORESIGHT_NOTE
+from sentinel.taskcentre.foresight import site_foresight
 from sentinel.taskcentre.geo import classify
-from sentinel.taskcentre.service import (gmt_iso, latest_location, location_public, notify, settings,
-                                         user_public)
+from sentinel.taskcentre.service import (gmt_iso, latest_location, location_public, notify, open_ticket,
+                                         settings, user_public)
 
 router = APIRouter(prefix="/tc/admin", tags=["task-centre-admin"])
 
@@ -491,4 +494,128 @@ def get_incidents(s: Session = Depends(get_session),
             "open": sum(1 for r in rows if not r["acknowledged"]),
             "no_eligible_operator": sum(1 for r in rows
                                         if r["dispatch_status"] == "no_eligible_operator"),
+            **_stamps(now_ts=now)}
+
+
+# ---------------------------------------------------------------- risk foresight
+#: Ticket severity per foresight likelihood band. `critical` is deliberately never used: a rule
+#: reading recorded facts must not outrank a real critical incident in the same queue.
+FORESIGHT_SEVERITY: dict[str, str] = {"high": "high", "elevated": "medium", "moderate": "medium",
+                                      "low": "low"}
+
+FORESIGHT_ACTED = "acted"
+
+
+class ForesightActIn(BaseModel):
+    """Which suggested action the admin is routing, and anything they want on the record with it."""
+    action: str = Field(min_length=1, description="an `action` from the item's recommended_actions")
+    comment: str = Field(default="", max_length=2000)
+
+
+@router.get("/foresight")
+def get_foresight(site_id: str | None = Query(default=None, description="defaults to the admin's site"),
+                  s: Session = Depends(get_session),
+                  admin: UserRow = Depends(require_role("admin"))) -> dict[str, Any]:
+    """The site's risk register: what the recorded facts could lead to, and who should act.
+
+    **Rule-based, never predictive.** Each item names the facts it fired on (`basis`), carries
+    `source: "RULE"` with a limitation `note`, and reports a `likelihood` that is the band of the rule
+    that fired - not a probability. An empty `items` list means no rule fired, not that the site is
+    safe. See `sentinel/taskcentre/foresight.py` and the `foresight` block in `config/taskcentre.yaml`.
+    """
+    return site_foresight(s, site_id or admin.site_id)
+
+
+def _foresight_recipients(item: dict[str, Any], action: dict[str, Any], s: Session,
+                          site_id: str) -> list[str]:
+    """Who this routing tells: the action's named owners, the item's, else the site's supervisors."""
+    out: list[str] = []
+    for user_id in [*action.get("owner_user_ids", []), *item.get("notify_user_ids", [])]:
+        if user_id and user_id not in out:
+            out.append(user_id)
+    if out:
+        return out
+    stmt = select(UserRow).where(UserRow.role == "supervisor", UserRow.active.is_(True),
+                                 UserRow.site_id == site_id).order_by(UserRow.user_id)
+    return [u.user_id for u in s.execute(stmt).scalars()]
+
+
+@router.post("/foresight/{risk_id}/act")
+def post_foresight_act(risk_id: str, body: ForesightActIn, s: Session = Depends(get_session),
+                       admin: UserRow = Depends(require_role("admin"))) -> dict[str, Any]:
+    """Route one of a foresight item's suggested actions, and record what was done.
+
+    This **notifies and records only**. It tells the supervisors the item names, opens (or reuses) a
+    ticket carrying the item's basis so the suggestion is reviewable, and appends a
+    ``tc_review_decision`` row saying which admin routed which action and when. It never changes a
+    machine, a task, an incident or the evidence any item was built from - ``controls_machinery`` is
+    ``false`` in the response for exactly that reason.
+
+    404 for an unknown ``risk_id`` (the register is recomputed from live facts, so an item that no
+    longer fires is genuinely gone); 400 for an action the item did not recommend.
+    """
+    now = time.time()
+    register = site_foresight(s, admin.site_id, now=now)
+    item = next((i for i in register["items"] if i["risk_id"] == risk_id), None)
+    if item is None:
+        raise HTTPException(404, f"risk {risk_id!r} is not in the current register; it may no longer "
+                                 f"fire on the recorded facts")
+    actions = {a["action"]: a for a in item["recommended_actions"]}
+    action = actions.get(body.action)
+    if action is None:
+        raise HTTPException(400, f"action {body.action!r} is not recommended for {risk_id!r}; use one "
+                                 f"of {sorted(actions)}")
+
+    recipients = _foresight_recipients(item, action, s, admin.site_id)
+    ticket = s.get(TicketRow, item["ticket_id"]) if item.get("ticket_id") else None
+    reused = ticket is not None
+    if ticket is None:
+        ticket = open_ticket(
+            s, site_id=admin.site_id, kind=f"foresight_{item['kind']}",
+            severity=FORESIGHT_SEVERITY.get(item["likelihood"], "medium"),
+            owner_role=action["owner_role"], owner_user_id=recipients[0] if recipients else None,
+            subject_user_id=(item["affected"]["operators"][0]["user_id"]
+                             if item["affected"]["operators"] else None),
+            source="RULE", machine_id=(item["affected"]["machines"] or [None])[0],
+            incident_id=item.get("incident_id"),
+            title=f"Foresight action: {action['label']}",
+            detail=f"{item['title']} — {item['what_could_happen']} {item['note']}",
+            evidence={"risk_id": risk_id, "rule_id": item["rule_id"], "kind": item["kind"],
+                      "likelihood": item["likelihood"], "basis": item["basis"],
+                      "what_could_happen": item["what_could_happen"],
+                      "thresholds": item["thresholds"], "source": "RULE",
+                      "method": register["method"], "note": item["note"],
+                      "confidence": item["confidence"], "caveats": list(FORESIGHT_CAVEATS),
+                      "routed_by": admin.user_id, "routed_action": body.action,
+                      "controls_machinery": False})
+
+    decision = ReviewDecisionRow(
+        ticket_id=ticket.ticket_id, reviewer_id=admin.user_id, reviewer_role=admin.role,
+        decision=FORESIGHT_ACTED, comment=body.comment, ts=now,
+        data={"risk_id": risk_id, "rule_id": item["rule_id"], "action": body.action,
+              "action_label": action["label"], "likelihood": item["likelihood"],
+              "owner_role": action["owner_role"], "notified_user_ids": recipients,
+              "reused_existing_ticket": reused, "source": "RULE", "controls_machinery": False})
+    s.add(decision)
+    s.flush()
+
+    body_text = (f"{admin.name} routed a foresight suggestion: {action['label']}. "
+                 f"Why now: {item['title']} — {item['what_could_happen']} {item['note']}")
+    for user_id in recipients:
+        notify(s, user_id, kind="foresight", severity=FORESIGHT_SEVERITY.get(item["likelihood"], "info"),
+               title=f"Suggested action: {action['label']}",
+               body=f"{body_text} {body.comment}".strip(), link="/tc/sup", ticket_id=ticket.ticket_id)
+
+    users = _users_by_id(s)
+    history = _decisions_by_ticket(s, [ticket.ticket_id])[ticket.ticket_id]
+    return {"ok": True, "risk_id": risk_id, "action": body.action, "action_label": action["label"],
+            "item": item,
+            "ticket": _ticket_payload(ticket, history, users, now=now),
+            "ticket_created": not reused,
+            "decision": _decision_payload(decision, users),
+            "notified_user_ids": recipients,
+            "notified_users": [_brief(users.get(uid)) for uid in recipients],
+            "controls_machinery": False,
+            "note": FORESIGHT_NOTE,
+            "caveats": list(FORESIGHT_CAVEATS),
             **_stamps(now_ts=now)}

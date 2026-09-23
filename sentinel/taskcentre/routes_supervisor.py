@@ -31,6 +31,7 @@ from sentinel.store.taskcentre_models import (
     TicketRow,
     UserRow,
 )
+from sentinel.taskcentre import efficiency, fatigue, training
 from sentinel.taskcentre.auth import assert_can_view_operator, current_user, require_roles
 from sentinel.taskcentre.service import gmt_iso, latest_location, location_public, notify, user_public
 from sentinel.taskcentre.routes_chat import post_message, thread_key
@@ -43,7 +44,7 @@ STALE_LOCATION_S = 600.0
 PROGRESS_LIMIT = 30
 PUNCH_LIMIT = 10
 OPEN_STATUSES = ("pending", "ongoing")
-REVIEW_KINDS = ("ai_idle", "geofence_punch", "task_overrun", "fatigue")
+REVIEW_KINDS = ("ai_idle", "geofence_punch", "task_overrun", "fatigue", "checklist_fail")
 SIMULATED_FEED_NOTE = "SIMULATED feed - placeholder frames, not live video"
 
 
@@ -88,6 +89,11 @@ class ReviewIn(BaseModel):
 
 class ExceptionIn(BaseModel):
     comment: str = ""
+
+
+class TrainingAssignIn(BaseModel):
+    """Why this item is being put on the operator's list; it travels with the notification."""
+    note: str | None = Field(default=None, max_length=500)
 
 
 # ---------------------------------------------------------------- helpers
@@ -525,3 +531,94 @@ def cameras(s: Session = Depends(get_session), user: UserRow = Depends(current_u
                          "last_frame_ts": c.last_frame_ts, "last_frame_gmt": gmt_iso(c.last_frame_ts),
                          "age_s": (None if c.last_frame_ts is None else now - c.last_frame_ts)}
                         for c in rows]}
+
+
+# ---------------------------------------------------------------- training profiles
+@router.get("/operators/{operator_id}/training")
+def operator_training(operator_id: str, s: Session = Depends(get_session),
+                      user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """One operator's training profile: every item with their status, totals and per-category counts.
+
+    Scoped like every other per-person view (404 unknown, 403 outside the caller's team). What this
+    shows is content covered, not competency demonstrated — the payload carries that wording in
+    ``note`` and the UI must keep it.
+    """
+    operator = _team_operator(s, user, operator_id)
+    return training.profile(s, operator.user_id)
+
+
+@router.post("/operators/{operator_id}/training/{video_id}/assign")
+def assign_training(operator_id: str, video_id: str, body: TrainingAssignIn | None = None,
+                    s: Session = Depends(get_session),
+                    user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """Put a training item on one of the caller's operators' lists and notify them.
+
+    The assignment records who asked for it and when, next to whatever progress the person already
+    has: it never resets their progress and never marks anything complete on their behalf.
+    """
+    operator = _team_operator(s, user, operator_id)
+    note = body.note if body is not None else None
+    try:
+        out = training.assign(s, user.user_id, operator.user_id, video_id, note=note)
+    except KeyError:
+        raise HTTPException(404, f"training item {video_id!r} not found")
+    return {**out, "profile": training.profile(s, operator.user_id)}
+
+
+# ---------------------------------------------------------------- efficiency
+@router.get("/operators/{operator_id}/efficiency")
+def operator_efficiency(operator_id: str, days: int = Query(efficiency.DEFAULT_DAYS, ge=1, le=90),
+                        s: Session = Depends(get_session),
+                        user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """How one operator's recorded work adds up over the last ``days`` days — facts, not a score.
+
+    Declared waiting time is subtracted from working time and reported separately; AI flags are
+    split into confirmed, dismissed and still-unreviewed, and a dismissed flag never counts against
+    anybody. ``composite_score`` is ``None`` by design and ``caveats`` names what these numbers
+    cannot tell you.
+    """
+    operator = _team_operator(s, user, operator_id)
+    now = time.time()
+    return efficiency.operator_efficiency(s, operator.user_id, since_ts=now - days * DAY_S,
+                                          until_ts=now)
+
+
+@router.get("/efficiency")
+def team_efficiency(days: int = Query(efficiency.DEFAULT_DAYS, ge=1, le=90),
+                    s: Session = Depends(get_session),
+                    user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """The same facts for every operator in the caller's scope, **ordered by name and never ranked**.
+
+    No leaderboard, no team score, no best-to-worst sort: ``ordering`` says so in the payload. An
+    admin sees every operator on the site; a supervisor sees their own.
+    """
+    now = time.time()
+    return efficiency.team_efficiency(s, user.user_id, since_ts=now - days * DAY_S, until_ts=now,
+                                      operator_ids=[o.user_id for o in _team(s, user)])
+
+
+# ---------------------------------------------------------------- work-schedule fatigue risk
+@router.get("/operators/{operator_id}/fatigue-risk")
+def operator_fatigue_risk(operator_id: str, s: Session = Depends(get_session),
+                          user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """One operator's work-schedule fatigue-**risk** estimate (supervisor: own team; admin: anyone).
+
+    Not a fatigue detector and not a measurement of the person — an exposure estimate built only
+    from recorded facts (punches, declared waits, completed tasks), with every factor, weight and
+    threshold in the payload. The operator can read the same estimate about themselves at
+    ``GET /tc/op/fatigue-risk``, so nobody is assessed behind their back. See
+    ``sentinel/taskcentre/fatigue.py`` and ``docs/sections/06-fatigue.md``.
+    """
+    operator = _team_operator(s, user, operator_id)
+    return fatigue.fatigue_risk(s, operator.user_id)
+
+
+@router.get("/fatigue-risk")
+def team_fatigue_risk(s: Session = Depends(get_session),
+                      user: UserRow = Depends(current_user)) -> dict[str, Any]:
+    """The same estimate for every operator in the caller's team, **ordered by name, never ranked**.
+
+    An admin sees every active operator. The per-level counts are for triage — who might need break
+    cover — not for comparing people against each other.
+    """
+    return fatigue.team_fatigue_risk(s, None if user.role == "admin" else user.user_id)

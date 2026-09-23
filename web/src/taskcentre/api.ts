@@ -15,12 +15,21 @@ import type {
   Camera,
   ChatMessage,
   ChatThread,
+  ChecklistAnswer,
+  ChecklistStatus,
+  ChecklistView,
   CheckpointUpdate,
   DecisionBody,
+  FlagRespondResult,
+  FlagResponseKind,
+  ForesightActResult,
+  ForesightResponse,
   GeoFix,
   LoginResponse,
   Notification,
+  OpFlag,
   OpToday,
+  OpTrainingProfile,
   PersonRow,
   ProgressCreate,
   PunchKind,
@@ -28,16 +37,25 @@ import type {
   SimScenario,
   SimScenarioResult,
   SupDashboard,
+  SupEfficiency,
   SupOperatorDetail,
   SupOperatorRow,
+  SupTeamEfficiency,
+  SupTrainingProfile,
   TaskCreate,
   TaskProgress,
   TcIncident,
   TcTask,
   Ticket,
   TicketFilters,
+  TrainingItem,
+  TrainingProgressUpdate,
   TrainingVideo,
   User,
+  WaitingReason,
+  WaitingStartResponse,
+  WaitingStopResponse,
+  WaitingSummary,
 } from './types';
 
 export * from './time';
@@ -288,6 +306,21 @@ export const adminApi = {
   cameras: async (): Promise<Camera[]> => asList<Camera>(await request('GET', '/admin/cameras'), 'cameras', 'items'),
 
   incidents: async (): Promise<TcIncident[]> => asList<TcIncident>(await request('GET', '/admin/incidents'), 'incidents', 'items'),
+
+  /**
+   * What could happen next, derived by deterministic rules from facts already recorded. Not a
+   * trained forecast: every item carries its `basis`, and `method`/`caveats` are shown verbatim.
+   * A 404 means the rules are not running on this API — the screen says so rather than inventing.
+   */
+  foresight: (): Promise<ForesightResponse> => request<ForesightResponse>('GET', '/admin/foresight'),
+
+  /**
+   * Take one of an item's recommended actions: routes it to the person named (notifies the
+   * supervisor, opens a ticket). Returns what it did so the screen can confirm it, rather than
+   * claiming success on its own.
+   */
+  foresightAct: (riskId: string, action: string, comment?: string): Promise<ForesightActResult> =>
+    request<ForesightActResult>('POST', `/admin/foresight/${enc(riskId)}/act`, comment && comment.trim() ? { action, comment: comment.trim() } : { action }),
 };
 
 // ---------------------------------------------------------------- supervisor
@@ -309,13 +342,48 @@ export const supApi = {
   decide: (ticketId: string, body: DecisionBody): Promise<Ticket> => request<Ticket>('POST', `/sup/review/${enc(ticketId)}`, body),
 
   cameras: async (): Promise<Camera[]> => asList<Camera>(await request('GET', '/sup/cameras'), 'cameras', 'items'),
+
+  /**
+   * One operator's training profile: every item with its status, plus the roll-up and the
+   * per-category breakdown. The content is DEMO material written for this prototype.
+   */
+  training: (userId: string): Promise<SupTrainingProfile> => request<SupTrainingProfile>('GET', `/sup/operators/${enc(userId)}/training`),
+
+  /** Assign a training item to an operator. The optional note reaches them with it. */
+  assignTraining: (userId: string, videoId: string, note?: string): Promise<unknown> =>
+    request('POST', `/sup/operators/${enc(userId)}/training/${enc(videoId)}/assign`, note && note.trim() ? { note: note.trim() } : {}),
+
+  /** Working facts for one operator over the last `days`, with the evidence behind each number. */
+  efficiency: (userId: string, days = 7): Promise<SupEfficiency> =>
+    request<SupEfficiency>('GET', `/sup/operators/${enc(userId)}/efficiency${qs({ days })}`),
+
+  /** The same facts for the whole team, one row per operator. Ordered by name — never ranked. */
+  teamEfficiency: (days = 7): Promise<SupTeamEfficiency> => request<SupTeamEfficiency>('GET', `/sup/efficiency${qs({ days })}`),
 };
 
 // ---------------------------------------------------------------- operator
 export const opApi = {
   today: (): Promise<OpToday> => request<OpToday>('GET', '/op/today'),
 
+  /**
+   * 409 when the pre-start checklist is not complete, or a critical item failed. The body carries
+   * `{error, missing, answered, total}` or `{error, failed_critical, ticket_id}` — read it with
+   * `startConflict()` (pages/operator/model.ts) and send the operator to the checklist.
+   */
   startTask: (taskId: string): Promise<TcTask> => request<TcTask>('POST', `/op/tasks/${enc(taskId)}/start`),
+
+  /** The pre-start inspection for one task: the items, the answers already stored, and the verdict. */
+  checklist: (taskId: string): Promise<ChecklistView> => request<ChecklistView>('GET', `/op/tasks/${enc(taskId)}/checklist`),
+
+  /**
+   * Save answers as they are given — partial sets are allowed, so nothing is lost if the screen
+   * closes. A `fail` without a note is rejected (400); the screen holds it back until it has one.
+   */
+  saveChecklist: async (taskId: string, results: ChecklistAnswer[]): Promise<ChecklistStatus> => {
+    const raw = await request<ChecklistStatus | { status: ChecklistStatus }>('POST', `/op/tasks/${enc(taskId)}/checklist`, { results });
+    const wrapped = (raw as { status?: ChecklistStatus })?.status;
+    return wrapped && typeof wrapped === 'object' ? wrapped : (raw as ChecklistStatus);
+  },
 
   checkpoint: (taskId: string, body: CheckpointUpdate): Promise<TcTask> => request<TcTask>('POST', `/op/tasks/${enc(taskId)}/checkpoint`, body),
 
@@ -326,10 +394,52 @@ export const opApi = {
 
   training: async (): Promise<TrainingVideo[]> => asList<TrainingVideo>(await request('GET', '/op/training'), 'videos', 'items', 'training'),
 
+  /**
+   * The operator's own training record — every item with its status and percent, the summary and
+   * the per-category roll-up. A `404` means the endpoint is not running yet; the screen says so
+   * rather than showing zero progress, which would be a claim it cannot make.
+   */
+  trainingProfile: (): Promise<OpTrainingProfile> => request<OpTrainingProfile>('GET', '/op/training/profile'),
+
+  /**
+   * Record what the operator actually watched. Sent as the player reports it, and once more with
+   * `completed` when the clip ends. Returns the updated item when the server sends one back.
+   */
+  trainingProgress: async (videoId: string, body: TrainingProgressUpdate): Promise<TrainingItem | null> => {
+    const raw = await request<TrainingItem | { item?: TrainingItem } | undefined>('POST', `/op/training/${enc(videoId)}/progress`, body);
+    if (!raw || typeof raw !== 'object') return null;
+    const item = (raw as { item?: TrainingItem }).item ?? (raw as TrainingItem);
+    return typeof item?.video_id === 'string' ? item : null;
+  },
+
   notifications: async (opts: { quiet?: boolean } = {}): Promise<Notification[]> =>
     asList<Notification>(await request('GET', '/op/notifications', undefined, { quiet: opts.quiet }), 'notifications', 'items'),
 
   ack: (notificationId: string): Promise<Notification> => request<Notification>('POST', `/op/notifications/${enc(notificationId)}/ack`),
+
+  /**
+   * Declare a pause the operator is not answerable for. `reason` defaults to `waiting_for_truck`
+   * server-side; `task_id` attaches the wait to the task in progress when there is one.
+   */
+  startWaiting: (body: { reason?: WaitingReason; task_id?: string | null; note?: string } = {}): Promise<WaitingStartResponse> =>
+    request<WaitingStartResponse>('POST', '/op/waiting/start', body),
+
+  /** End the open wait. The server returns the minutes it recorded. */
+  stopWaiting: (): Promise<WaitingStopResponse> => request<WaitingStopResponse>('POST', '/op/waiting/stop', {}),
+
+  /** The day's waiting in full — totals, the breakdown by reason and every period. */
+  waiting: (): Promise<WaitingSummary> => request<WaitingSummary>('GET', '/op/waiting'),
+
+  /** Flags raised about this operator that are waiting for their own account of what happened. */
+  flags: async (opts: { quiet?: boolean } = {}): Promise<OpFlag[]> =>
+    asList<OpFlag>(await request('GET', '/op/flags', undefined, { quiet: opts.quiet }), 'flags', 'tickets', 'items'),
+
+  /**
+   * Record the operator's answer to a flag. It is **added** to the record beside the original
+   * detection and sent to the supervisor with the evidence — it never deletes or overrides it.
+   */
+  respondFlag: (ticketId: string, response: FlagResponseKind, comment?: string): Promise<FlagRespondResult> =>
+    request<FlagRespondResult>('POST', `/op/flags/${enc(ticketId)}/respond`, comment && comment.trim() ? { response, comment: comment.trim() } : { response }),
 };
 
 // ---------------------------------------------------------------- chat (both roles)

@@ -280,3 +280,61 @@ class SimEventRow(Base):
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     produced_ticket_id: Mapped[str | None] = mapped_column(String, nullable=True)
     produced_incident_id: Mapped[str | None] = mapped_column(String, nullable=True)
+
+
+class TaskChecklistResultRow(Base):
+    """Pre-start inspection answer for one task, using the shared config/checklist.yaml items.
+
+    Mirrors the copilot's shift checklist: PASS / FAIL / N_A, a FAIL on a critical item blocks the
+    task from starting and raises a ticket, and N/A never blocks. One row per (task, item); the
+    latest answer wins and is overwritten in place, with `ts` recording when it was given.
+    """
+    __tablename__ = "tc_task_checklist"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    task_id: Mapped[str] = mapped_column(String, index=True)
+    item_id: Mapped[str] = mapped_column(String, index=True)
+    user_id: Mapped[str] = mapped_column(String)
+    result: Mapped[str] = mapped_column(String)          # pass|fail|na
+    critical: Mapped[bool] = mapped_column(Boolean, default=False)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)   # required on a FAIL
+    ts: Mapped[float] = mapped_column(Float, default=_now)
+
+
+class WaitPeriodRow(Base):
+    """An operator-declared pause: the machine is idle for a reason outside the operator's control.
+
+    The operator taps "Waiting for truck" (or another reason) and the period is recorded with a
+    server timestamp. Idle observations that overlap a declared wait are explained, not flagged:
+    the brain suppresses the AI idle ticket and the time is reported as waiting, not as the
+    operator's fault. An open period has ``ended_at`` null.
+    """
+    __tablename__ = "tc_wait_period"
+    wait_id: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String, index=True)
+    task_id: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
+    reason: Mapped[str] = mapped_column(String, default="waiting_for_truck")  # waiting_for_truck|machine_paused|expected_delay
+    started_at: Mapped[float] = mapped_column(Float, index=True)
+    ended_at: Mapped[float | None] = mapped_column(Float, index=True, nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source: Mapped[str] = mapped_column(String, default="operator")   # operator|supervisor|simulated
+
+
+class TrainingProgressRow(Base):
+    """One operator's progress through one training item.
+
+    Progress is recorded from what the operator actually did (opened it, how far through, finished),
+    never inferred. ``percent`` is 0-100 of the item watched/read; ``completed_at`` is set only when
+    they reach the end.
+    """
+    __tablename__ = "tc_training_progress"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(String, index=True)
+    video_id: Mapped[str] = mapped_column(String, index=True)
+    status: Mapped[str] = mapped_column(String, default="not_started")   # not_started|in_progress|completed
+    percent: Mapped[float] = mapped_column(Float, default=0.0)
+    started_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+    completed_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+    last_seen_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+    assigned_by: Mapped[str | None] = mapped_column(String, nullable=True)   # supervisor who assigned it, if any
+    assigned_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)

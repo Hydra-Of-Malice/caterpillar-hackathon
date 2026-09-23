@@ -17,6 +17,7 @@ import { PRESENCE_NOTE, POLL, STALE } from '../../constants';
 import { ageS } from '../../time';
 import type { AdminOverview, Camera, PersonRow, TcIncident } from '../../types';
 import { CamerasPanel, MachinesPanel } from './Machines';
+import { ForesightSummary } from './Foresight';
 import { IncidentsPanel } from './Incidents';
 import { PeoplePanel } from './People';
 import { TicketsPanel } from './Tickets';
@@ -145,6 +146,9 @@ export default function AdminHome() {
           </div>
         </>
       )}
+
+      {/* ------------------------------------------------ what could happen next (rules, not a forecast) */}
+      <ForesightSummary />
 
       <InlineTabs value={tab} options={TABS} onChange={setTab} label="Admin sections" />
 

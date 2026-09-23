@@ -15,13 +15,17 @@ import { useNow, useResource } from '../../../lib/hooks';
 import { fmtGmtDate, nowTs } from '../../time';
 import type { OpToday, Punch, TcTask } from '../../types';
 import { ChatPanel } from './Chat';
+import { FlagResponsePanel } from './FlagResponse';
 import { NotificationsPanel } from './Notifications';
+import { TaskTimer, useTaskClock } from './TaskTimer';
 import { Note, OfflineNote, OpPage, Stat, TOUCH, TOUCH_BIG, useOnline } from './common';
-import { GEOFENCE_TEXT, NO_FIX_NOTE, STATUS_LABEL, sortTasks, statusChip, taskProgress } from './model';
+import { GEOFENCE_TEXT, NO_FIX_NOTE, STATUS_LABEL, checklistChip, sortTasks, statusChip, taskProgress, useTaskStart } from './model';
+import { WaitingControl } from './Waiting';
 
-function TaskCard({ task, now, prominent = false }: { task: TcTask; now: number; prominent?: boolean }) {
+function TaskCardLink({ task, now, prominent = false }: { task: TcTask; now: number; prominent?: boolean }) {
   const p = taskProgress(task);
   const chip = statusChip(task.status);
+  const cl = checklistChip(task.checklist);
   const open = task.status === 'pending' || task.status === 'ongoing';
   const late = open && (task.overdue ?? now > task.expected_finish_ts);
   return (
@@ -75,6 +79,8 @@ function TaskCard({ task, now, prominent = false }: { task: TcTask; now: number;
         </div>
       </dl>
 
+      <TaskTimer task={task} />
+
       {p.total > 0 && (
         <div className="mt-3">
           <div className="flex items-center justify-between font-display text-label-md uppercase text-on-surface-muted">
@@ -86,7 +92,54 @@ function TaskCard({ task, now, prominent = false }: { task: TcTask; now: number;
           <ProgressBar pct={(p.done / p.total) * 100} tone={p.done === p.total ? 'green' : 'yellow'} className="mt-1" />
         </div>
       )}
+
+      {task.status !== 'completed' && task.status !== 'cancelled' && (
+        <div className="mt-3 flex items-center gap-2 border-t border-outline pt-3 text-body-md text-on-surface-variant">
+          <Icon name={cl.icon} size={22} className="text-on-surface-muted" />
+          <span>{cl.text}</span>
+        </div>
+      )}
     </Link>
+  );
+}
+
+/**
+ * A task card plus its Start task action.
+ *
+ * The button is a sibling of the card link, never inside it: a control nested in a link cannot be
+ * operated reliably by keyboard or screen reader.
+ */
+function TaskCard({
+  task,
+  now,
+  prominent = false,
+  onStart,
+  busy = false,
+}: {
+  task: TcTask;
+  now: number;
+  prominent?: boolean;
+  onStart?: (task: TcTask) => void;
+  busy?: boolean;
+}) {
+  const done = task.checklist?.completed === true;
+  const blocked = task.checklist?.blocked === true;
+  if (task.status !== 'pending' || !onStart) return <TaskCardLink task={task} now={now} prominent={prominent} />;
+  return (
+    <div className="space-y-2">
+      <TaskCardLink task={task} now={now} prominent={prominent} />
+      <Button
+        variant={blocked ? 'secondary' : 'primary'}
+        size="lg"
+        icon={blocked ? 'block' : done ? 'play_arrow' : 'fact_check'}
+        block
+        className={cx('h-16', TOUCH_BIG)}
+        disabled={busy}
+        onClick={() => onStart(task)}
+      >
+        {busy ? 'Starting…' : blocked ? 'Pre-start check blocked' : done ? 'Start task' : 'Start task — pre-start check'}
+      </Button>
+    </div>
   );
 }
 
@@ -210,8 +263,11 @@ export default function Today() {
   const online = useOnline();
   const now = useNow(15_000) / 1000;
   const r = useResource<OpToday>(() => opApi.today(), [], POLL.operator);
+  /** Start task: to the pre-start check when it is not done, straight to the API when it is. */
+  const start = useTaskStart(() => r.reload());
 
   const today = r.data;
+  useTaskClock(today?.ts); // keep every task timer on the server's clock, not this device's
   const tasks = sortTasks(today?.tasks ?? []);
   const ongoingId = today?.ongoing_task?.task_id;
   const ongoing = tasks.find((t) => (ongoingId ? t.task_id === ongoingId : t.status === 'ongoing'));
@@ -230,6 +286,7 @@ export default function Today() {
       {r.loading && !today && <TcLoading label="Loading your day" />}
       {r.error && !today && <TcError error={r.error} what="Your day" onRetry={r.reload} />}
 
+      {view === 'alerts' && <FlagResponsePanel />}
       {view === 'alerts' && <NotificationsPanel />}
 
       {view === 'messages' && today && (
@@ -253,6 +310,8 @@ export default function Today() {
             </div>
           </section>
 
+          <WaitingControl waiting={today.waiting} taskId={ongoing?.task_id ?? null} onChanged={r.reload} />
+
           {unread > 0 && (
             <Link to="/tc/op?view=messages" className={cx('block', TOUCH)}>
               <Note tone="info" icon="mark_chat_unread" title={`${unread} new message${unread === 1 ? '' : 's'} from your supervisor`}>
@@ -270,10 +329,15 @@ export default function Today() {
             </div>
           ) : (
             <>
+              {start.error && (
+                <Note tone="danger" icon="error" title="The task did not start" role="alert">
+                  {start.error}
+                </Note>
+              )}
               {ongoing && (
                 <section aria-label="Task in progress" className="space-y-2">
                   <h2 className="font-display text-label-lg uppercase text-on-surface-muted">Doing now</h2>
-                  <TaskCard task={ongoing} now={now} prominent />
+                  <TaskCard task={ongoing} now={now} prominent onStart={(t) => void start.start(t)} busy={start.busy} />
                 </section>
               )}
               {rest.length > 0 && (
@@ -281,7 +345,7 @@ export default function Today() {
                   <h2 className="font-display text-label-lg uppercase text-on-surface-muted">{ongoing ? 'Also today' : 'Today'}</h2>
                   <div className="space-y-3">
                     {rest.map((t) => (
-                      <TaskCard key={t.task_id} task={t} now={now} />
+                      <TaskCard key={t.task_id} task={t} now={now} onStart={(task) => void start.start(task)} busy={start.busy} />
                     ))}
                   </div>
                 </section>

@@ -15,7 +15,10 @@ import { fmtDelta, isSameGmtDay, nowTs } from '../../time';
 import type { ChatMessage, Punch, TaskProgress, TcTask } from '../../types';
 import { Button, PageTitle } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
+import { OperatorEfficiency } from './Efficiency';
+import FatigueRisk from './FatigueRisk';
 import { TaskCreate } from './TaskCreate';
+import TrainingProfile from './TrainingProfile';
 import {
   Card,
   Caveat,
@@ -148,6 +151,15 @@ export default function OperatorDetail() {
                   </Details>
                 )}
               </Card>
+
+              {/* ------------------------------------------------ efficiency */}
+              <OperatorEfficiency operatorId={id} operatorName={operator?.name ?? 'this operator'} />
+
+              {/* ------------------------------------------------ work-schedule fatigue risk (not a fatigue detector) */}
+              <FatigueRisk operatorId={id} operatorName={operator?.name ?? 'this operator'} />
+
+              {/* ------------------------------------------------ training */}
+              <TrainingProfile operatorId={id} operatorName={operator?.name ?? 'this operator'} />
 
               {/* ------------------------------------------------ progress */}
               <Card title="Recent progress" sub="Notes, delays, status and checkpoint changes — append-only">
