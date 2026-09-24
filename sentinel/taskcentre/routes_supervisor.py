@@ -31,7 +31,7 @@ from sentinel.store.taskcentre_models import (
     TicketRow,
     UserRow,
 )
-from sentinel.taskcentre import efficiency, fatigue, training
+from sentinel.taskcentre import efficiency, fatigue, media, training
 from sentinel.taskcentre.auth import assert_can_view_operator, current_user, require_roles
 from sentinel.taskcentre.service import gmt_iso, latest_location, location_public, notify, user_public
 from sentinel.taskcentre.routes_chat import post_message, thread_key
@@ -595,7 +595,8 @@ def cameras(s: Session = Depends(get_session), user: UserRow = Depends(current_u
                          "simulated": c.stream_kind != "live",
                          "note": SIMULATED_FEED_NOTE if c.stream_kind != "live" else "",
                          "last_frame_ts": c.last_frame_ts, "last_frame_gmt": gmt_iso(c.last_frame_ts),
-                         "age_s": (None if c.last_frame_ts is None else now - c.last_frame_ts)}
+                         "age_s": (None if c.last_frame_ts is None else now - c.last_frame_ts),
+                         **media.media_for(c.camera_id)}
                         for c in rows]}
 
 

@@ -140,6 +140,13 @@ export interface Camera {
   machine_id?: string | null;
   label: string;
   stream_kind: StreamKind;
+  /** A file staged at media/cameras/<camera_id>/still.* — served scoped, never a live feed. */
+  still_available?: boolean;
+  still_url?: string | null;
+  still_kind?: string | null;
+  clip_available?: boolean;
+  clip_url?: string | null;
+  clip_kind?: string | null;
   last_frame_ts?: number | null;
   last_frame_gmt?: string | null;
   age_s?: number | null;

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="North yard wide angle — staged still, not a live feed">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a4f58"/><stop offset="100%" stop-color="#24282b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sky)"/>
+  <!-- quarry bench -->
+  <path d="M0 250 L180 232 L300 246 L470 228 L640 244 L640 360 L0 360 Z" fill="#1d1f22"/>
+  <path d="M0 292 L220 280 L430 292 L640 282 L640 360 L0 360 Z" fill="#17181a"/>
+  <!-- excavator silhouette -->
+  <g fill="#0f1011">
+    <rect x="228" y="196" width="104" height="46" rx="4"/>
+    <rect x="246" y="170" width="52" height="32" rx="3"/>
+    <rect x="216" y="240" width="130" height="16" rx="8"/>
+    <path d="M330 206 L410 172 L418 182 L344 220 Z"/>
+    <path d="M410 172 L452 196 L444 208 L404 184 Z"/>
+    <path d="M444 200 L470 214 L462 232 L434 216 Z"/>
+  </g>
+  <!-- HUD -->
+  <rect x="0" y="0" width="640" height="34" fill="#000" opacity="0.62"/>
+  <text x="14" y="23" font-family="monospace" font-size="15" fill="#FFCD11">cam-yard-01</text>
+  <text x="170" y="23" font-family="monospace" font-size="15" fill="#e6e6e6">EX-04</text>
+  <text x="626" y="23" font-family="monospace" font-size="14" fill="#9aa0a6" text-anchor="end">North yard wide angle</text>
+  <rect x="0" y="326" width="640" height="34" fill="#000" opacity="0.62"/>
+  <text x="14" y="348" font-family="monospace" font-size="14" fill="#b3a6f0">SIMULATED — staged still, no live feed</text>
+  <!-- framing marks -->
+  <g stroke="#ffffff" stroke-opacity="0.22" stroke-width="2" fill="none">
+    <path d="M24 52 L24 78 M24 52 L50 52"/><path d="M616 52 L616 78 M616 52 L590 52"/>
+    <path d="M24 308 L24 282 M24 308 L50 308"/><path d="M616 308 L616 282 M616 308 L590 308"/>
+  </g>
+</svg>

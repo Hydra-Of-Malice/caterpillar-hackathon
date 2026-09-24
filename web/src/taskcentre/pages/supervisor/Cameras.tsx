@@ -1,8 +1,10 @@
 /**
  * `/tc/sup/cameras` — the cameras on this supervisor's machines (GET /tc/sup/cameras).
  *
- * There is no video in this prototype. Every tile is either a clearly marked simulated placeholder
- * or an explicit unavailable state; nothing on this screen implies a live picture.
+ * A tile shows the still staged for that camera (`media/cameras/<camera_id>/still.*`) when one
+ * exists, and an explicit empty state when one does not. **No tile ever implies a live picture:**
+ * a staged frame is captioned as staged, and a camera with nothing behind it says so rather than
+ * showing a decorative placeholder that a viewer could mistake for a feed.
  */
 import { Link } from 'react-router-dom';
 import { sup } from '../../api';
@@ -11,6 +13,7 @@ import { POLL, PROTOTYPE_NOTE, STALE } from '../../constants';
 import type { Camera } from '../../types';
 import { PageTitle } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
+import { useAuthedMedia } from '../../useAuthedMedia';
 import { Card, Caveat, Chip, EmptyState, Icon, gate } from './common';
 
 const COPY: Record<string, { title: string; detail: string }> = {
@@ -68,12 +71,61 @@ export default function Cameras() {
   );
 }
 
+/**
+ * The staged frame for a camera, or the honest empty state.
+ *
+ * The caption is not decoration. A picture on a screen labelled "Cameras" is read as what the camera
+ * is seeing now; this one is a file somebody put on a disk, and the band across it says so over the
+ * image itself, where it cannot be cropped out of a screenshot.
+ */
+function CameraStill({
+  cam,
+  kind,
+  fallbackTitle,
+  fallbackDetail,
+}: {
+  cam: Camera;
+  kind: string;
+  fallbackTitle: string;
+  fallbackDetail: string;
+}) {
+  const still = useAuthedMedia(cam.still_available ? cam.still_url : null);
+
+  if (still.loading) {
+    return (
+      <div className="flex aspect-video items-center justify-center border-b border-outline bg-surface-container-high">
+        <span className="text-body-sm text-on-surface-muted">Loading the staged frame…</span>
+      </div>
+    );
+  }
+
+  if (still.url) {
+    return (
+      <figure className="relative border-b border-outline">
+        <img src={still.url} alt={`Staged frame for ${cam.label}. Not a live feed.`} className="block aspect-video w-full object-cover" />
+        <figcaption className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-black/75 px-2.5 py-1.5 text-body-sm text-white">
+          <Icon name="science" size={16} />
+          Staged frame — not a live feed, nothing is streamed or recorded
+        </figcaption>
+      </figure>
+    );
+  }
+
+  return (
+    <NotAvailable
+      icon={kind === 'simulated' ? 'videocam' : 'videocam_off'}
+      title={still.error ? 'Frame could not be loaded' : fallbackTitle}
+      detail={still.error ?? fallbackDetail}
+    />
+  );
+}
+
 function CameraTile({ cam, now }: { cam: Camera; now: number }) {
   const kind = cam.stream_kind ?? 'unavailable';
   const copy = COPY[kind] ?? COPY.unavailable;
   return (
     <article className="border border-outline bg-surface-container-low">
-      <NotAvailable icon={kind === 'simulated' ? 'videocam' : 'videocam_off'} title={copy.title} detail={copy.detail} />
+      <CameraStill cam={cam} fallbackTitle={copy.title} fallbackDetail={copy.detail} kind={kind} />
 
       <div className="space-y-2 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">

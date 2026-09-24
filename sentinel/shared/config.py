@@ -18,6 +18,10 @@ DATA_DIR = ROOT / "data"
 #: tunnel — which is what makes it reachable from a phone with geolocation working (HTTPS).
 WEB_DIST = Path(os.getenv("SENTINEL_WEB_DIST", str(ROOT / "web" / "dist")))
 
+#: Staged camera stills and clips, served from local storage (see `sentinel.taskcentre.media`).
+#: Drop a file at ``media/cameras/<camera_id>/still.jpg`` and the demo shows it.
+MEDIA_DIR = Path(os.getenv("SENTINEL_MEDIA_DIR", str(ROOT / "media")))
+
 #: Browser origins allowed to call the API cross-origin. Same-origin serving needs none of these;
 #: they are for running the Vite dev server against this API. Comma-separated; "*" allows any.
 CORS_ORIGINS = [o.strip() for o in os.getenv(

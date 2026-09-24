@@ -38,6 +38,7 @@ OPTIONAL_ROUTERS = (
     "sentinel.taskcentre.routes_supervisor",
     "sentinel.taskcentre.routes_operator",
     "sentinel.taskcentre.routes_chat",
+    "sentinel.taskcentre.routes_media",
     "sentinel.taskcentre.routes_sim",
 )
 

@@ -170,7 +170,8 @@ def test_location_endpoint_records_a_report(client: TestClient, db: Database) ->
     assert payload["geofence_status"] == "outside" and payload["ts_gmt"].endswith("Z")
     with db.session() as s:
         latest = s.execute(select(LocationReportRow).where(LocationReportRow.user_id == "u_op1")
-                           .order_by(LocationReportRow.ts.desc())).scalars().first()
+                           .order_by(LocationReportRow.ts.desc(),
+                                     LocationReportRow.id.desc())).scalars().first()
     assert latest.geofence_status == "outside"
     with db.session() as s:
         assert s.execute(select(TicketRow)).scalars().all() == []    # reporting a position is not a punch
