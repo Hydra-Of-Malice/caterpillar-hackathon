@@ -1,18 +1,21 @@
 # Camera still attribution
 
-The photographs staged under `media/cameras/<camera_id>/still.jpg` are **not** Caterpillar
-material and **not** output from any camera in this system. They are freely licensed
-photographs from Wikimedia Commons, used to make the demo tiles look like a worksite.
+The photographs staged under `media/cameras/<camera_id>/still.*` are **Caterpillar product
+photography**, supplied by the team for this prototype. They are **not** output from any camera in
+this system, and no tile presents them as one — each is captioned "staged frame" over the image
+itself.
 
-Each tile captions itself as a staged frame in the UI. The licences below require attribution,
-so this file is part of the deliverable, not a formality.
+They are Caterpillar's copyright, used here to demonstrate a Caterpillar-facing prototype. They are
+**not committed to the repository** (see `.gitignore`); they live on the machine running the demo.
+Anyone cloning this repo gets the SVG mocks in `still.svg` until they stage their own files.
 
-| Camera | Licence | Author | Source |
-|---|---|---|---|
-| `cam-ex-07` | CC BY-SA 4.0 | Tall Black | [An excavator at work in the expansive construction stone qua](https://commons.wikimedia.org/wiki/File:An_excavator_at_work_in_the_expansive_construction_stone_quarry_of_Marurui_Roysambu,_Nairobi,_Kenya..jpg) |
-| `cam-ex-09` | CC BY-SA 2.0 | Derek Harper | [Excavator, Callow Rock Quarry - geograph.org.uk - 5964712.jp](https://commons.wikimedia.org/wiki/File:Excavator,_Callow_Rock_Quarry_-_geograph.org.uk_-_5964712.jpg) |
-| `cam-ex-11` | CC BY-SA 2.0 | Philip Halling | [Excavators working - geograph.org.uk - 6166152.jpg](https://commons.wikimedia.org/wiki/File:Excavators_working_-_geograph.org.uk_-_6166152.jpg) |
-| `cam-yard-01` | CC BY-SA 2.0 | Philip Halling | [An excavator working on the water splash - geograph.org.uk -](https://commons.wikimedia.org/wiki/File:An_excavator_working_on_the_water_splash_-_geograph.org.uk_-_5655772.jpg) |
+| Camera | Staged frame |
+|---|---|
+| `cam-ex-07` | Cat cab, forward view through the windscreen |
+| `cam-ex-09` | Cat operator station, wide |
+| `cam-ex-11` | Cat operator station, seat and controls |
+| `cam-yard-01` | Operator at the controls, wide worksite view |
 
-The SVG mocks originally shipped here remain in place as `still.svg`; the loader prefers
-`.jpg`, so these photographs are what is served. Delete a `.jpg` to fall back to its mock.
+To stage your own: drop a file at `media/cameras/<camera_id>/still.jpg` (`.png`, `.webp` and `.svg`
+also work). It is served on the next request — nothing to register, no restart. Delete it to fall
+back to that camera's `still.svg` mock.

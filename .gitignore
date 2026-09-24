@@ -12,3 +12,12 @@ web/dist-debug/
 data/edge_state.json
 .env
 web/.vite/
+
+# Staged camera frames. Caterpillar product photography lives on the demo machine, not in a public
+# repo; the SVG mocks beside them are committed so a fresh clone still shows something.
+# See media/cameras/ATTRIBUTION.md. To commit yours instead, delete these two lines.
+media/cameras/**/still.jpg
+media/cameras/**/still.jpeg
+media/cameras/**/still.png
+media/cameras/**/still.webp
+media/cameras/**/clip.*
