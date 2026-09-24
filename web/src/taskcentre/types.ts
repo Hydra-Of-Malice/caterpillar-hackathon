@@ -139,7 +139,12 @@ export interface Camera {
   site_id?: string;
   machine_id?: string | null;
   label: string;
-  stream_kind: StreamKind;
+  stream_kind?: StreamKind;
+  /** `/tc/admin/cameras` sends these two instead of `stream_kind`. Read via `cameraKind`. */
+  reported_stream_kind?: StreamKind;
+  state?: string;
+  available?: boolean;
+  unavailable_reason?: string | null;
   /** A file staged at media/cameras/<camera_id>/still.* — served scoped, never a live feed. */
   still_available?: boolean;
   still_url?: string | null;

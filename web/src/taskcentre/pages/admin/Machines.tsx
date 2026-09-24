@@ -6,7 +6,8 @@ import { Card, TABLE, TableWrap } from '../../../components/ops/layout';
 import { Icon, cx } from '../../../components/ui';
 import { STALE } from '../../constants';
 import { LocalTime } from '../../components/LocalTime';
-import { NotAvailable, TcEmpty } from '../../components/States';
+import { CameraStill } from '../../components/CameraStill';
+import { TcEmpty } from '../../components/States';
 import { StaleBadge } from '../../components/Badges';
 import type { Camera, MachineStatus } from '../../types';
 
@@ -81,7 +82,7 @@ export function MachinesPanel({ machines, now }: { machines: MachineStatus[]; no
 
 export function CamerasPanel({ cameras, now }: { cameras: Camera[]; now: number }) {
   return (
-    <Card title="Cameras" sub="This prototype has no video pipeline — each tile states what it actually has">
+    <Card title="Cameras" sub="Staged stills only — no video pipeline. Each tile states what it actually has.">
       {cameras.length === 0 ? (
         <TcEmpty icon="videocam_off" title="No cameras registered">
           The API returned no cameras for this site.
@@ -90,21 +91,7 @@ export function CamerasPanel({ cameras, now }: { cameras: Camera[]; now: number 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {cameras.map((c) => (
             <figure key={c.camera_id} className="space-y-2">
-              {c.stream_kind === 'simulated' ? (
-                <div className="placeholder-media stripes-sim relative flex aspect-video items-center justify-center border border-outline">
-                  <div className="flex flex-col items-center gap-1 px-4 text-center">
-                    <Icon name="science" size={32} className="text-prov-sim-text" />
-                    <span className="font-display text-label-sm uppercase text-on-surface-variant">Simulated feed</span>
-                    <span className="text-body-sm text-on-surface-muted">No video is produced. Observations come from the scenario generator.</span>
-                  </div>
-                </div>
-              ) : (
-                <NotAvailable
-                  className="aspect-video"
-                  title={c.stream_kind === 'live' ? 'Live stream not wired' : 'Camera unavailable'}
-                  detail={c.stream_kind === 'live' ? 'This camera is marked live, but the prototype has no video pipeline to show it.' : 'The camera reported itself unavailable.'}
-                />
-              )}
+              <CameraStill cam={c} />
               <figcaption className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="font-display text-label-md uppercase">{c.label}</span>
                 {c.machine_id && <span className="text-body-sm text-on-surface-muted">{c.machine_id}</span>}

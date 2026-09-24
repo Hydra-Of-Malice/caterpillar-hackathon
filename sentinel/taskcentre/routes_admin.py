@@ -28,6 +28,7 @@ from sentinel.cloud.api.deps import get_session
 from sentinel.store.models import MachineRow
 from sentinel.store.taskcentre_models import (CameraRow, GeofenceRow, PunchRow, ReviewDecisionRow,
                                               TcIncidentRow, TicketRow, UserRow)
+from sentinel.taskcentre import media
 from sentinel.taskcentre.auth import require_role
 from sentinel.taskcentre.foresight import CAVEATS as FORESIGHT_CAVEATS
 from sentinel.taskcentre.foresight import HONESTY_NOTE as FORESIGHT_NOTE
@@ -188,6 +189,9 @@ def _camera_payload(camera: CameraRow, *, now: float, stale_after_s: float) -> d
             "label": camera.label, "reported_stream_kind": camera.stream_kind, "state": state,
             "available": state != "unavailable", "unavailable_reason": reason, "age_s": age_s,
             "stale": stale, "stale_after_s": stale_after_s, "meta": camera.meta or {},
+            # A staged still is a file on disk, not a frame: it is reported whatever the detector's
+            # freshness says, and the tile captions it as staged.
+            **media.media_for(camera.camera_id),
             **_stamps(last_frame_ts=camera.last_frame_ts)}
 
 
