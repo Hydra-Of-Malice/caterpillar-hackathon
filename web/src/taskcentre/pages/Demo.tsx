@@ -85,6 +85,13 @@ function WhereItLands({ items }: { items?: ScenarioAppearance[] }) {
   );
 }
 
+/** The one sentence to show for a run. Never an object: `detail` is a dict on success. */
+function resultLine(r?: SimScenarioResult): string | undefined {
+  if (!r) return undefined;
+  const pick = [r.message, r.summary, typeof r.detail === 'string' ? r.detail : undefined, r.status];
+  return pick.find((v): v is string => typeof v === 'string' && v.trim().length > 0);
+}
+
 function created(r: SimScenarioResult): Array<{ label: string; value: string; to?: string }> {
   const out: Array<{ label: string; value: string; to?: string }> = [];
   const push = (label: string, value: unknown, to?: string) => {
@@ -191,7 +198,7 @@ export default function TcDemo() {
                     <p className="mt-1 text-body-sm text-danger-text">{r.error}</p>
                   ) : (
                     <>
-                      {(r.result?.message || r.result?.detail || r.result?.status) && <p className="mt-1 text-body-md text-on-surface-variant">{r.result?.message ?? r.result?.detail ?? r.result?.status}</p>}
+                      {resultLine(r.result) && <p className="mt-1 text-body-md text-on-surface-variant">{resultLine(r.result)}</p>}
                       {r.result?.dispatch_status === 'no_eligible_operator' && <p className="mt-1 text-body-sm text-warning-text">No eligible operator was found — the supervisor and admin were alerted instead.</p>}
                       {items.length === 0 ? (
                         <p className="mt-1 text-body-sm text-on-surface-muted">The API reported no ids for this run.</p>

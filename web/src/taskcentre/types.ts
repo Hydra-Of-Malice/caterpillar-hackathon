@@ -479,7 +479,10 @@ export interface SimScenarioResult {
   ok?: boolean;
   status?: string;
   message?: string;
-  detail?: string;
+  /** The reader-facing sentence for a run. */
+  summary?: string;
+  /** A string on an error, a dict of per-scenario facts on success. Never render it raw. */
+  detail?: string | Record<string, unknown>;
   created?: Record<string, unknown>;
   incident_id?: string | null;
   ticket_id?: string | null;

@@ -21,3 +21,6 @@ media/cameras/**/still.jpeg
 media/cameras/**/still.png
 media/cameras/**/still.webp
 media/cameras/**/clip.*
+
+# keep_online.ps1 state: current public link, pid, logs
+.run/

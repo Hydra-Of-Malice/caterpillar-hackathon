@@ -501,7 +501,9 @@ export const simApi = {
   scenarios: async (): Promise<SimScenario[]> => {
     const raw = await request<SimScenario[] | Record<string, unknown>>('GET', '/sim/scenarios');
     const list = asList<SimScenario | string>(raw, 'scenarios', 'items');
-    return list.map((s) => (typeof s === 'string' ? { name: s } : s));
+    return list.map((s) =>
+      typeof s === 'string' ? { name: s } : { ...s, name: s.name ?? (s as { id?: string }).id ?? '' },
+    );
   },
 
   runScenario: (name: string): Promise<SimScenarioResult> => request<SimScenarioResult>('POST', `/sim/scenario/${enc(name)}`, {}, { timeoutMs: 20_000 }),
