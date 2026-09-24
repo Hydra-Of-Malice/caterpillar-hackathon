@@ -59,6 +59,14 @@ Routers mount on the **cloud** app. Each agent writes its own router file; the i
 `GET /admin/tickets?status=&kind=&user=&machine=` · `POST /admin/tickets/{id}/decision {decision, comment}` ·
 `GET /admin/cameras` · `GET /admin/incidents`
 
+**B2 — fleet** (`routes_fleet.py` + `fleet.py`, admin only)
+`GET /admin/fleet?days=` (per machine: current state + since, availability / utilisation / idle / downtime split planned-unplanned, breakdowns, MTBF, MTTR, service meter, last maintained, next service due and its status; fleet totals) ·
+`GET /admin/machines/{id}?days=` (the same, plus the state timeline, lifetime stats, work orders with history, incidents, flags, tasks, cameras, assigned operators) ·
+`POST /admin/machines/{id}/maintenance {kind, title, detail?, scheduled_for? | start_now? | completed_at? + hour_meter_h?}` ·
+`PATCH /admin/maintenance/{id}` (descriptive fields; old values kept in `history`) ·
+`POST /admin/maintenance/{id}/start|complete|cancel` (409 when the status does not allow it).
+Figures are derived on every request from `tc_machine_state` (intervals of scheduled time: operating | idle | down | maintenance; gaps are unscheduled and count toward nothing) and `tc_maintenance` (work orders). Starting a work order puts the machine `down` (repair) or into `maintenance` (service, inspection); completing it closes that interval. The next service is due `fleet.service_interval_h` meter-hours after the last completed service. The demo state log is SIMULATED (`fleet.seed_fleet_history`, run by the Task Centre seed and at cloud start-up in DEMO_MODE).
+
 **C — supervisor** (`routes_supervisor.py`, supervisor + admin)
 `GET /sup/operators` (own team, with today's task counts and last location) ·
 `GET /sup/operators/{id}` · `POST /sup/tasks` (title, instructions, location, machine_id?, priority, start_ts, expected_finish_ts, checkpoints[]) ·
@@ -86,7 +94,7 @@ Config in `config/taskcentre.yaml` (agent E writes it): `nearest_operator: {max_
 ## Frontend — `web/src/taskcentre/`
 New area, own routes; existing routes untouched. Reuse `web/src/components/ui.tsx` primitives and the Tailwind tokens. Agent F writes `web/src/taskcentre/api.ts` (typed client, token in `localStorage`, `Authorization` header, 401 → redirect to login) and `types.ts`; agents G/H/I import them.
 
-Routes (all under `/tc`): `/tc` landing (product name, description, three role login entry points) · `/tc/login/:role` · `/tc/admin` · `/tc/sup` · `/tc/sup/operator/:id` · `/tc/op` (mobile-first) · `/tc/op/task/:id` · `/tc/op/training` · `/tc/demo` (scenario control panel).
+Routes (all under `/tc`): `/tc` landing (product name, description, three role login entry points) · `/tc/login/:role` · `/tc/admin` · `/tc/admin/machines/:id` · `/tc/sup` · `/tc/sup/operator/:id` · `/tc/op` (mobile-first) · `/tc/op/task/:id` · `/tc/op/training` · `/tc/demo` (scenario control panel).
 
 Requirements: GMT labels on every operational time; clear empty / loading / error / stale / permission-denied states; a critical alarm that is visible on **any** page of the operator app (a global banner component polling notifications, not sound or colour alone); do not drown the operator in analytics.
 

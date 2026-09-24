@@ -1,84 +1,17 @@
 /**
- * Admin — machines and cameras. Every row says how old its reading is; a stale row is marked
- * stale rather than shown as if it were current, and no camera pretends to carry live video.
+ * Admin — cameras. Every tile says how old its frame is; a stale tile is marked stale rather than
+ * shown as if it were current, and no camera pretends to carry live video. The machines themselves
+ * live in the fleet table (`FleetPanel`) and each machine's own page.
  */
-import { Card, TABLE, TableWrap } from '../../../components/ops/layout';
-import { Icon, cx } from '../../../components/ui';
+import { Card } from '../../../components/ops/layout';
 import { STALE } from '../../constants';
 import { LocalTime } from '../../components/LocalTime';
 import { CameraStill } from '../../components/CameraStill';
 import { TcEmpty } from '../../components/States';
 import { StaleBadge } from '../../components/Badges';
-import type { Camera, MachineStatus } from '../../types';
+import type { Camera } from '../../types';
 
-const STATUS_TONE: Record<string, string> = {
-  active: 'text-success-text',
-  idle: 'text-on-surface-variant',
-  fault: 'text-danger-text',
-  offline: 'text-on-surface-muted',
-};
-
-export function MachinesPanel({ machines, now }: { machines: MachineStatus[]; now: number }) {
-  return (
-    <Card title="Machines" sub={`${machines.length} on site · status and reading age`}>
-      {machines.length === 0 ? (
-        <TcEmpty icon="agriculture" title="No machines reported">
-          The API returned no machines for this site. Nothing is filled in on their behalf.
-        </TcEmpty>
-      ) : (
-        <TableWrap>
-          <table className={cx(TABLE, 'min-w-[720px]')}>
-            <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Status</th>
-                <th>Operator</th>
-                <th>Last reading</th>
-                <th>Freshness</th>
-                <th>Open flags</th>
-              </tr>
-            </thead>
-            <tbody>
-              {machines.map((m) => (
-                <tr key={m.machine_id}>
-                  <td>
-                    <span className="font-display text-label-md uppercase">{m.machine_id}</span>
-                    {m.label && <span className="block text-body-sm text-on-surface-muted">{m.label}</span>}
-                  </td>
-                  <td>
-                    <span className={cx('font-display text-label-md uppercase', STATUS_TONE[m.status ?? ''] ?? 'text-on-surface-variant')}>
-                      <Icon name={m.status === 'fault' ? 'error' : m.status === 'active' ? 'play_circle' : m.status === 'offline' ? 'cloud_off' : 'pause_circle'} size={16} className="align-[-3px]" />{' '}
-                      {m.status ?? 'unknown'}
-                    </span>
-                    {m.detail && <span className="block text-body-sm text-on-surface-muted">{m.detail}</span>}
-                  </td>
-                  <td className="text-body-md">{m.operator_name ?? m.operator_id ?? <span className="text-on-surface-muted">—</span>}</td>
-                  <td>
-                    <LocalTime ts={m.last_seen_ts} gmt={m.last_seen_gmt} mode="smart" />
-                  </td>
-                  <td>
-                    <StaleBadge ts={m.last_seen_ts} thresholdS={STALE.machine_s} now={now} label="machine reading" />
-                  </td>
-                  <td className="tnum">
-                    {(m.open_tickets ?? 0) + (m.open_incidents ?? 0) === 0 ? (
-                      <span className="text-on-surface-muted">none</span>
-                    ) : (
-                      <>
-                        {m.open_tickets ? `${m.open_tickets} ticket${m.open_tickets === 1 ? '' : 's'}` : ''}
-                        {m.open_tickets && m.open_incidents ? ' · ' : ''}
-                        {m.open_incidents ? `${m.open_incidents} incident${m.open_incidents === 1 ? '' : 's'}` : ''}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableWrap>
-      )}
-    </Card>
-  );
-}
+export { FleetPanel } from './FleetPanel';
 
 export function CamerasPanel({ cameras, now }: { cameras: Camera[]; now: number }) {
   return (

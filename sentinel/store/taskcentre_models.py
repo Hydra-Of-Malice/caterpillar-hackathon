@@ -338,3 +338,52 @@ class TrainingProgressRow(Base):
     assigned_by: Mapped[str | None] = mapped_column(String, nullable=True)   # supervisor who assigned it, if any
     assigned_at: Mapped[float | None] = mapped_column(Float, nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+# ---------------------------------------------------------------- fleet: machine state log & maintenance
+class MachineStateRow(Base):
+    """One interval of a machine's scheduled time: operating, idle, down (unplanned) or maintenance (planned).
+
+    The log only covers time the machine was meant to be working. A gap between intervals is
+    unscheduled (parked, off shift) and counts toward neither uptime nor downtime. An open interval
+    has ``ended_at`` null and is the machine's current state. Utilisation and availability are derived
+    from these rows, never stored, so the numbers can always be traced back to the intervals.
+    """
+    __tablename__ = "tc_machine_state"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    machine_id: Mapped[str] = mapped_column(String, index=True)
+    state: Mapped[str] = mapped_column(String, index=True)       # operating|idle|down|maintenance
+    started_at: Mapped[float] = mapped_column(Float, index=True)
+    ended_at: Mapped[float | None] = mapped_column(Float, index=True, nullable=True)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    source: Mapped[str] = mapped_column(String, default="SIMULATED")   # SIMULATED|MANUAL
+    maintenance_id: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
+    operator_id: Mapped[str | None] = mapped_column(String, nullable=True)
+
+
+class MaintenanceRow(Base):
+    """A maintenance work order on one machine: scheduled service, inspection or repair.
+
+    ``status`` moves scheduled -> in_progress -> completed (or cancelled). Starting a work order puts
+    the machine into ``maintenance`` (planned) or ``down`` (a repair) in the state log, and finishing it
+    closes that interval, so downtime is counted from the work actually done. ``hour_meter_h`` is the
+    service-meter reading at completion; the next service falls due ``service_interval_h`` after the
+    last completed service. ``history`` is an append-only list of what was done to the record and by whom.
+    """
+    __tablename__ = "tc_maintenance"
+    maintenance_id: Mapped[str] = mapped_column(String, primary_key=True)
+    machine_id: Mapped[str] = mapped_column(String, index=True)
+    kind: Mapped[str] = mapped_column(String, default="service")          # service|inspection|repair
+    title: Mapped[str] = mapped_column(String)
+    detail: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String, default="scheduled", index=True)  # scheduled|in_progress|completed|cancelled
+    scheduled_for: Mapped[float | None] = mapped_column(Float, nullable=True)
+    started_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+    completed_at: Mapped[float | None] = mapped_column(Float, index=True, nullable=True)
+    hour_meter_h: Mapped[float | None] = mapped_column(Float, nullable=True)
+    performed_by: Mapped[str] = mapped_column(String, default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    source: Mapped[str] = mapped_column(String, default="MANUAL")        # SIMULATED|MANUAL
+    created_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[float] = mapped_column(Float, default=_now)
+    history: Mapped[list] = mapped_column(JSON, default=list)

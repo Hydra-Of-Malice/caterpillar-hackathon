@@ -16,7 +16,7 @@ import { StaleDataNote, TcError, TcLoading } from '../../components/States';
 import { PRESENCE_NOTE, POLL, STALE } from '../../constants';
 import { ageS } from '../../time';
 import type { AdminOverview, Camera, PersonRow, TcIncident } from '../../types';
-import { CamerasPanel, MachinesPanel } from './Machines';
+import { CamerasPanel, FleetPanel } from './Machines';
 import { ForesightSummary } from './Foresight';
 import { IncidentsPanel } from './Incidents';
 import { PeoplePanel } from './People';
@@ -24,7 +24,7 @@ import { TicketsPanel } from './Tickets';
 
 type Tab = 'site' | 'tickets' | 'people' | 'incidents';
 const TABS: Array<{ value: Tab; label: string }> = [
-  { value: 'site', label: 'Machines & cameras' },
+  { value: 'site', label: 'Fleet & cameras' },
   { value: 'tickets', label: 'Tickets' },
   { value: 'people', label: 'People' },
   { value: 'incidents', label: 'Critical incidents' },
@@ -155,13 +155,7 @@ export default function AdminHome() {
       {/* ------------------------------------------------ panels */}
       {tab === 'site' && (
         <div className="space-y-8">
-          {overview.loading && !o ? (
-            <TcLoading label="Loading machines" />
-          ) : overview.error && !o ? (
-            <TcError error={overview.error} what="Machines" onRetry={overview.reload} />
-          ) : (
-            <MachinesPanel machines={machines} now={now} />
-          )}
+          <FleetPanel />
           {cameras.loading && !cameras.data && !o?.cameras ? (
             <TcLoading label="Loading cameras" />
           ) : cameras.error && cameraList.length === 0 ? (

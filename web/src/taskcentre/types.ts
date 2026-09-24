@@ -453,8 +453,17 @@ export interface TrainingVideo {
   order_index?: number;
 }
 
+/** Where a scenario's effect lands, so the panel can say which device to point at. */
+export interface ScenarioAppearance {
+  role: Role | string;
+  /** The screen to look at, or "Nowhere" when the correct outcome is that nothing appears. */
+  where: string;
+  what: string;
+}
+
 export interface SimScenario {
   name: string;
+  appears_for?: ScenarioAppearance[];
   title?: string;
   /** What the scenario demonstrates, from GET /sim/scenarios. */
   description?: string;
@@ -982,4 +991,209 @@ export interface FlagRespondResult {
   responded_at_gmt?: string | null;
   notified_user_ids?: string[];
   notified_users?: Array<{ user_id: string; name?: string; role?: Role }>;
+}
+
+// ---------------------------------------------------------------- fleet (GET /tc/admin/fleet, /machines/:id)
+export type MachineState = 'operating' | 'idle' | 'down' | 'maintenance' | 'available' | 'no_data';
+export type MaintenanceKind = 'service' | 'inspection' | 'repair';
+export type MaintenanceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+export type ServiceStatus = 'overdue' | 'due_soon' | 'ok' | 'unknown';
+
+export interface MachineCurrent {
+  state: MachineState;
+  since_ts: number | null;
+  since_ts_gmt?: string | null;
+  age_s: number | null;
+  reason: string;
+  source: string | null;
+  maintenance_id: string | null;
+}
+
+export interface FleetStats {
+  hours: { operating: number; idle: number; down: number; maintenance: number };
+  scheduled_h: number;
+  uptime_h: number;
+  downtime_h: number;
+  planned_downtime_h: number;
+  unplanned_downtime_h: number;
+  availability_pct: number | null;
+  utilisation_pct: number | null;
+  idle_pct: number | null;
+  downtime_pct: number | null;
+  breakdowns: number;
+  mtbf_h: number | null;
+  mttr_h: number | null;
+  engine_h_per_day: number;
+}
+
+export interface MaintenanceBrief {
+  maintenance_id: string;
+  kind: MaintenanceKind;
+  title: string;
+  status: MaintenanceStatus;
+  hour_meter_h: number | null;
+  scheduled_for: number | null;
+  scheduled_for_gmt?: string | null;
+  completed_at: number | null;
+  completed_at_gmt?: string | null;
+}
+
+export interface ServiceInfo {
+  interval_h: number;
+  hour_meter_h: number | null;
+  engine_h_per_day: number;
+  last_service: MaintenanceBrief | null;
+  last_maintained: MaintenanceBrief | null;
+  next_scheduled: MaintenanceBrief | null;
+  due_at_h: number | null;
+  remaining_h: number | null;
+  est_due_ts: number | null;
+  est_due_ts_gmt?: string | null;
+  status: ServiceStatus;
+}
+
+export interface FleetMachine {
+  machine_id: string;
+  registered: boolean;
+  model: string | null;
+  machine_type: string | null;
+  site_id: string | null;
+  simulated: boolean;
+  current: MachineCurrent;
+  stats: FleetStats;
+  service: ServiceInfo;
+  work_orders: { open: number; in_progress: number; total: number };
+  open_tickets: number;
+  open_incidents: number;
+  operators: Array<{ user_id: string; name: string; username: string; role: string }>;
+  has_history: boolean;
+}
+
+export interface FleetWindow {
+  days: number;
+  start_ts: number;
+  start_ts_gmt?: string;
+  end_ts: number;
+  end_ts_gmt?: string;
+}
+
+export interface FleetResponse {
+  machines: FleetMachine[];
+  totals: {
+    machines: number;
+    now: Record<string, number>;
+    scheduled_h: number;
+    uptime_h: number;
+    downtime_h: number;
+    planned_downtime_h: number;
+    unplanned_downtime_h: number;
+    availability_pct: number | null;
+    utilisation_pct: number | null;
+    breakdowns: number;
+    service: Record<ServiceStatus, number>;
+    open_work_orders: number;
+  };
+  window: FleetWindow;
+  config: { service_interval_h: number; due_soon_h: number; max_window_days: number };
+  method: string;
+  disclaimer: string;
+  now_ts: number;
+  now_ts_gmt?: string;
+}
+
+export interface StateInterval {
+  id: number;
+  state: 'operating' | 'idle' | 'down' | 'maintenance';
+  start_ts: number;
+  start_ts_gmt?: string;
+  end_ts: number;
+  end_ts_gmt?: string;
+  open: boolean;
+  clipped: boolean;
+  duration_h: number;
+  reason: string;
+  source: string;
+  maintenance_id: string | null;
+  operator_id: string | null;
+  operator_name: string | null;
+}
+
+export interface MaintenanceHistoryEntry {
+  ts: number;
+  ts_gmt?: string;
+  action: string;
+  by: string | null;
+  by_name: string | null;
+  note?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface MaintenanceRecord {
+  maintenance_id: string;
+  machine_id: string;
+  kind: MaintenanceKind;
+  title: string;
+  detail: string;
+  status: MaintenanceStatus;
+  open: boolean;
+  hour_meter_h: number | null;
+  performed_by: string;
+  notes: string;
+  source: string;
+  created_by: string | null;
+  created_by_name: string | null;
+  duration_h: number | null;
+  downtime_h: number | null;
+  overdue: boolean;
+  history: MaintenanceHistoryEntry[];
+  scheduled_for: number | null;
+  scheduled_for_gmt?: string | null;
+  started_at: number | null;
+  started_at_gmt?: string | null;
+  completed_at: number | null;
+  completed_at_gmt?: string | null;
+  created_at: number;
+  created_at_gmt?: string | null;
+}
+
+export interface MachineDetail extends FleetMachine {
+  lifetime: FleetStats;
+  timeline: StateInterval[];
+  maintenance: MaintenanceRecord[];
+  incidents: Array<{ incident_id: string; kind: string; severity: string; detail: string; source: string; dispatch_status: string; acknowledged: boolean; ts: number; ts_gmt?: string }>;
+  tickets: Array<{ ticket_id: string; kind: string; severity: string; status: string; title: string; source: string; created_at: number; created_at_gmt?: string }>;
+  tasks: Array<{ task_id: string; title: string; status: string; priority: string; operator_id: string; operator_name: string | null; start_ts: number; start_ts_gmt?: string; finished_at: number | null; finished_at_gmt?: string | null }>;
+  cameras: Camera[];
+  window: FleetWindow;
+  method: string;
+  disclaimer: string;
+  now_ts: number;
+}
+
+export interface MaintenanceCreate {
+  kind: MaintenanceKind;
+  title: string;
+  detail?: string;
+  scheduled_for?: number | null;
+  start_now?: boolean;
+  completed_at?: number | null;
+  hour_meter_h?: number | null;
+  performed_by?: string;
+  notes?: string;
+}
+
+export interface MaintenancePatch {
+  title?: string;
+  detail?: string;
+  scheduled_for?: number | null;
+  performed_by?: string;
+  notes?: string;
+  hour_meter_h?: number | null;
+}
+
+export interface MaintenanceActionBody {
+  hour_meter_h?: number | null;
+  performed_by?: string;
+  notes?: string;
+  reason?: string;
 }

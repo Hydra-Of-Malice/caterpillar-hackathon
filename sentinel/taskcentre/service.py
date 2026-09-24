@@ -26,6 +26,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "nearest_operator": {"max_age_s": 600, "max_distance_m": 2000},
     "idle": {"threshold_s": 900, "cooldown_s": 600},
     "incident_dedupe_s": 300,
+    "fleet": {"service_interval_h": 500, "due_soon_h": 50, "window_days": 7, "max_window_days": 90},
 }
 
 

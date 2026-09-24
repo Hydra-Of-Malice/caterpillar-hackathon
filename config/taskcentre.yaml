@@ -158,3 +158,15 @@ foresight:
     window_s: 21600         # look back 6 h
     min_events: 2           # 2 sensor events in the window -> moderate
     high_events: 4          # 4 or more (or any fault code) -> elevated
+
+# ---------------------------------------------------------------- fleet management
+# Machine utilisation, downtime and maintenance (`sentinel/taskcentre/fleet.py`). The state log the
+# figures come from is SIMULATED in the demo; the arithmetic is the same on a real telematics feed.
+fleet:
+  # Hours on the service meter between planned services. [PROPOSED] 500 h is a common mid-size
+  # excavator PM interval; the machine's own maintenance manual is the authority. A machine can
+  # override it with `service_interval_h` in its `meta`.
+  service_interval_h: 500
+  due_soon_h: 50          # a service within this many meter-hours reads "due soon"
+  window_days: 7          # default reporting window for utilisation and downtime
+  max_window_days: 90

@@ -35,6 +35,7 @@ OPTIONAL_ROUTERS = (
     # review flags and the simulated AI brain. Additive; the copilot routes are unchanged.
     "sentinel.taskcentre.routes_auth",
     "sentinel.taskcentre.routes_admin",
+    "sentinel.taskcentre.routes_fleet",
     "sentinel.taskcentre.routes_supervisor",
     "sentinel.taskcentre.routes_operator",
     "sentinel.taskcentre.routes_chat",
@@ -73,6 +74,12 @@ def create_app(db: Database | None = None, *, copilot: Copilot | None = None, se
                     log.info("demo seed: %s", seed_demo(s))
             except Exception:
                 log.exception("demo seed failed; continuing without fixtures")
+            try:
+                from sentinel.taskcentre.fleet import seed_fleet_history
+                with app.state.db.session() as s:
+                    log.info("fleet history (SIMULATED): %s", seed_fleet_history(s))
+            except Exception:
+                log.exception("fleet history seed failed; the fleet views will show no history")
             warm = getattr(sys.modules.get("sentinel.practice.api"), "warm_cohort_cache", None)
             if warm is not None:
                 warm()          # the Training Effectiveness page's default cohort, precomputed off-thread

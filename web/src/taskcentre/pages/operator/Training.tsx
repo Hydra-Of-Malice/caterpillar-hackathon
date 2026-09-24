@@ -26,6 +26,39 @@ const DEMO_LABEL = 'DEMO placeholder — not official Caterpillar material';
 /** Report progress at most every 10 percentage points, so a playing clip does not flood the API. */
 const REPORT_STEP = 10;
 
+/** Illustrated thumbnails in `public/training/<video_id>.svg`, drawn for this prototype. */
+const THUMBNAILS = new Set([
+  'vid-walkaround',
+  'vid-exclusion',
+  'vid-swing',
+  'vid-bench',
+  'vid-hydraulics',
+  'vid-radio',
+  'vid-fatigue',
+]);
+
+function thumbnailFor(videoId: string): string | null {
+  return THUMBNAILS.has(videoId) ? `${import.meta.env.BASE_URL}training/${videoId}.svg` : null;
+}
+
+/** The thumbnail where the player would be, with the honest "no clip" note laid over it. */
+function Thumbnail({ src, title }: { src: string; title: string }) {
+  return (
+    <figure className="relative aspect-video w-full overflow-hidden border border-outline bg-black">
+      <img src={src} alt={`Illustrated thumbnail: ${title}`} className="h-full w-full object-cover" loading="lazy" />
+      <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 text-white/70">
+          <Icon name="play_arrow" size={36} />
+        </span>
+      </span>
+      <figcaption className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-black/70 px-3 py-1.5 text-body-sm text-white">
+        <Icon name="movie" size={18} />
+        No video file yet: thumbnail only, nothing to watch or record.
+      </figcaption>
+    </figure>
+  );
+}
+
 // ---------------------------------------------------------------- merging catalogue and record
 interface Row {
   video_id: string;
@@ -123,6 +156,7 @@ function VideoCard({
   const { status, percent } = effective(row.record, local);
   const lastSent = useRef(-1);
   const assigned = Boolean(row.record?.assigned_by);
+  const thumbnail = thumbnailFor(row.video_id);
 
   const report = (pct: number, completed: boolean) => {
     if (!recording) return;
@@ -144,6 +178,7 @@ function VideoCard({
           controls
           preload="none"
           src={row.url}
+          poster={thumbnail ?? undefined}
           aria-label={`${row.title} — demo clip`}
           onPlay={(e) => report(played(e.currentTarget) ?? 0, false)}
           onTimeUpdate={(e) => {
@@ -155,6 +190,8 @@ function VideoCard({
         >
           <track kind="captions" />
         </video>
+      ) : thumbnail ? (
+        <Thumbnail src={thumbnail} title={row.title} />
       ) : (
         <NotAvailable
           icon="movie"

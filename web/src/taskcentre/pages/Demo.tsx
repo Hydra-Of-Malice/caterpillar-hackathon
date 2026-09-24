@@ -15,7 +15,7 @@ import { SimulatedChip } from '../components/Badges';
 import { LocalTime } from '../components/LocalTime';
 import { TcEmpty, TcError, TcLoading } from '../components/States';
 import { nowTs } from '../time';
-import type { SimScenario, SimScenarioResult } from '../types';
+import type { ScenarioAppearance, SimScenario, SimScenarioResult } from '../types';
 
 /** What each contract scenario is meant to show. Used when the API sends no description. */
 const INFO: Record<string, { title: string; demonstrates: string }> = {
@@ -46,6 +46,45 @@ interface RunEntry {
 }
 
 /** Ids worth surfacing from a scenario result, with where to look at them. */
+const ROLE_TONE: Record<string, string> = {
+  operator: 'bg-cat text-black',
+  supervisor: 'bg-notice text-white',
+  admin: 'bg-escalation text-white',
+};
+
+/**
+ * Which screen to point at when this scenario runs.
+ *
+ * The demo is three devices on a table, and knowing a flag "went to the supervisor" is no use if
+ * you are still looking for the tab it went to. A row that reads **Nowhere** is not a gap: for the
+ * suppression scenarios, nothing appearing *is* the result, and the panel has to be able to show a
+ * non-event or it cannot show restraint.
+ */
+function WhereItLands({ items }: { items?: ScenarioAppearance[] }) {
+  if (!items?.length) return null;
+  return (
+    <div className="mt-3 border-t border-outline pt-3">
+      <h3 className="font-body text-label-md uppercase tracking-wide text-on-surface-muted">Where to watch</h3>
+      <ul className="mt-1.5 space-y-1.5">
+        {items.map((a, i) => {
+          const nowhere = a.where.toLowerCase() === 'nowhere';
+          return (
+            <li key={`${a.role}-${i}`} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-body-sm">
+              <span className={cx('shrink-0 px-1.5 py-0.5 font-display text-label-sm uppercase', ROLE_TONE[a.role] ?? 'bg-surface-container-high text-on-surface-variant')}>
+                {a.role}
+              </span>
+              <span className={cx('font-semibold', nowhere ? 'text-on-surface-muted' : 'text-on-surface')}>
+                {a.where}
+              </span>
+              <span className="text-on-surface-muted">{a.what}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 function created(r: SimScenarioResult): Array<{ label: string; value: string; to?: string }> {
   const out: Array<{ label: string; value: string; to?: string }> = [];
   const push = (label: string, value: unknown, to?: string) => {
@@ -120,6 +159,7 @@ export default function TcDemo() {
                 </div>
                 <p className="mt-2 text-body-md text-on-surface-variant">{body ?? 'The API did not describe this scenario.'}</p>
                 {s.expects && <p className="mt-1 text-body-sm text-on-surface-muted">Expected: {s.expects}</p>}
+                <WhereItLands items={s.appears_for} />
                 <Button className="mt-4" variant="primary" icon="play_arrow" disabled={busy !== null} onClick={() => void run(s.name)}>
                   {busy === s.name ? 'Running…' : 'Trigger'}
                 </Button>

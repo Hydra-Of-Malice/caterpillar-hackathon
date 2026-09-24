@@ -24,8 +24,14 @@ import type {
   FlagRespondResult,
   FlagResponseKind,
   ForesightActResult,
+  FleetResponse,
   ForesightResponse,
   GeoFix,
+  MachineDetail,
+  MaintenanceActionBody,
+  MaintenanceCreate,
+  MaintenancePatch,
+  MaintenanceRecord,
   LoginResponse,
   Notification,
   OpFlag,
@@ -322,6 +328,23 @@ export const adminApi = {
    */
   foresightAct: (riskId: string, action: string, comment?: string): Promise<ForesightActResult> =>
     request<ForesightActResult>('POST', `/admin/foresight/${enc(riskId)}/act`, comment && comment.trim() ? { action, comment: comment.trim() } : { action }),
+
+  /** Every machine: current state, availability / utilisation / downtime over `days`, service due. */
+  fleet: (days?: number): Promise<FleetResponse> => request<FleetResponse>('GET', `/admin/fleet${qs({ days })}`),
+
+  /** One machine in full: state timeline, work orders, incidents, flags, tasks, cameras. */
+  machine: (machineId: string, days?: number): Promise<MachineDetail> =>
+    request<MachineDetail>('GET', `/admin/machines/${enc(machineId)}${qs({ days })}`),
+
+  createMaintenance: (machineId: string, body: MaintenanceCreate): Promise<MaintenanceRecord> =>
+    request<MaintenanceRecord>('POST', `/admin/machines/${enc(machineId)}/maintenance`, body),
+
+  editMaintenance: (maintenanceId: string, body: MaintenancePatch): Promise<MaintenanceRecord> =>
+    request<MaintenanceRecord>('PATCH', `/admin/maintenance/${enc(maintenanceId)}`, body),
+
+  /** start | complete | cancel. The API answers 409 when the record's status does not allow it. */
+  maintenanceAction: (maintenanceId: string, action: 'start' | 'complete' | 'cancel', body: MaintenanceActionBody = {}): Promise<MaintenanceRecord> =>
+    request<MaintenanceRecord>('POST', `/admin/maintenance/${enc(maintenanceId)}/${action}`, body),
 };
 
 // ---------------------------------------------------------------- supervisor

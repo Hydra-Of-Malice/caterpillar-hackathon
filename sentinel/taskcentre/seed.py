@@ -1,7 +1,7 @@
 """Idempotent Task Centre demo seed: ``python -m sentinel.taskcentre.seed``.
 
 Creates the site and its geofence, the five demo accounts, the machines and cameras the Task Centre
-shows, DEMO training placeholders, and a handful of location reports (one deliberately stale and far
+shows, DEMO training placeholders, 30 days of SIMULATED machine state and maintenance history, and a handful of location reports (one deliberately stale and far
 away, so the nearest-operator logic has an honest negative case).
 
 It creates **no tasks**: the operator's "no tasks assigned yet" empty state must be real on first run.
@@ -21,6 +21,7 @@ from sentinel.store.db import Database
 from sentinel.store.models import MachineRow
 from sentinel.store.taskcentre_models import (CameraRow, GeofenceRow, SiteRow, TrainingVideoRow, UserRow)
 from sentinel.taskcentre.auth import hash_password
+from sentinel.taskcentre.fleet import seed_fleet_history
 from sentinel.taskcentre.geo import classify
 from sentinel.taskcentre.service import latest_location, record_location
 
@@ -165,12 +166,13 @@ def seed_task_centre(s: Session, *, now: float | None = None) -> dict[str, Any]:
     hardware = _seed_machines_and_cameras(s, now)
     videos = _seed_training(s)
     locations = _seed_locations(s, now)
+    fleet_history = seed_fleet_history(s, now=now)
     return {"site_id": SITE_ID, "geofence": {"geofence_id": GEOFENCE_ID, "center_lat": CENTER_LAT,
                                              "center_lon": CENTER_LON, "radius_m": RADIUS_M,
                                              "max_accuracy_m": MAX_ACCURACY_M},
             "created": {"site_rows": site["created"], "users": users, "machines": hardware["machines"],
                         "cameras": hardware["cameras"], "training_videos": videos,
-                        "location_reports": locations},
+                        "location_reports": locations, "fleet_history": fleet_history["created"]},
             "tasks": 0, "note": "No tasks seeded: the operator empty state must be genuine.",
             "credentials": {username: password for _, username, password, _, _, _, _ in USERS}}
 

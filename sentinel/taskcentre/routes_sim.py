@@ -127,53 +127,89 @@ def post_fatigue(ind: FatigueIndication, s: Session = Depends(get_session),
 
 
 # ---------------------------------------------------------------- scenario catalogue
-SCENARIOS: tuple[dict[str, str], ...] = (
+#: Where each scenario's effect lands. The demo runs on three devices at once, so the panel has to
+#: say which screen to point at — and, for the two suppression scenarios, that the correct outcome is
+#: **nothing appearing anywhere**. A demo that cannot show a non-event cannot show restraint.
+SCENARIOS: tuple[dict[str, Any], ...] = (
     {"id": "critical_incident",
      "title": "Critical machine incident, operator dispatched",
      "description": "A machine reports a critical condition. Operators are placed at known distances "
                     "and the nearest one with a recent position is alarmed.",
      "demonstrates": "Nearest-eligible-operator dispatch: the genuinely closest operator is alarmed, "
                      "their supervisor and the admins are notified, and the incident records why each "
-                     "candidate was or was not chosen."},
+                     "candidate was or was not chosen.",
+     "appears_for": [
+         {"role": "operator", "where": "Any screen", "what": "Red critical alarm banner, with sound, until acknowledged"},
+         {"role": "supervisor", "where": "My crew", "what": "Critical notification naming who was dispatched"},
+         {"role": "admin", "where": "Site overview -> Incidents", "what": "The incident, with every candidate and why each ranked where it did"},
+     ]},
     {"id": "critical_incident_no_operator",
      "title": "Critical incident with nobody eligible",
      "description": "The same critical condition, but on a machine far outside the worksite, so no "
                     "operator has a recent position within range.",
      "demonstrates": "The system says 'No eligible nearby operator identified' and alerts the "
-                     "supervisors and admins instead of inventing a name."},
+                     "supervisors and admins instead of inventing a name.",
+     "appears_for": [
+         {"role": "operator", "where": "Nowhere", "what": "No operator is alarmed - that is the point"},
+         {"role": "supervisor", "where": "My crew", "what": "'CRITICAL (no operator dispatched)' - assign somebody manually"},
+         {"role": "admin", "where": "Site overview -> Incidents", "what": "Dispatch status 'no_eligible_operator'"},
+     ]},
     {"id": "waiting_for_truck",
      "title": "Idle time with a reason - suppressed",
      "description": "A camera reports a long pause, with the context that the haul truck has not "
                     "arrived.",
      "demonstrates": "An explained pause is logged with a suppression reason and raises no ticket. "
-                     "Waiting for a truck is the job, not idling."},
+                     "Waiting for a truck is the job, not idling.",
+     "appears_for": [
+         {"role": "supervisor", "where": "Nowhere", "what": "No flag is raised. The suppression reason is in this panel's result below"},
+         {"role": "operator", "where": "Nowhere", "what": "Nobody is disturbed about a truck that did not arrive"},
+     ]},
     {"id": "true_idle",
      "title": "Unexplained idle time - flagged for review",
      "description": "A camera reports a long pause with no context explaining it.",
      "demonstrates": "An ai_idle ticket for the supervisor with the camera id, a clip placeholder, "
                      "the observation timeline and plain-language wording. A productivity flag, "
-                     "never a safety alert."},
+                     "never a safety alert.",
+     "appears_for": [
+         {"role": "supervisor", "where": "My crew -> Flags for review", "what": "Prompt at the top with Alert / Review / Decline, and a chime"},
+         {"role": "operator", "where": "Nowhere", "what": "Not told by a camera - they hear it from their supervisor, if at all"},
+     ]},
     {"id": "false_idle",
      "title": "Short pause - not flagged",
      "description": "A camera reports a few minutes of stillness with no context.",
      "demonstrates": "Ordinary short pauses stay below the threshold and never reach a supervisor, "
-                     "so the flags that do arrive are worth reading."},
+                     "so the flags that do arrive are worth reading.",
+     "appears_for": [
+         {"role": "supervisor", "where": "Nowhere", "what": "Below the threshold. The result below says by how much"},
+     ]},
     {"id": "fatigue",
      "title": "Fatigue indication (SIMULATED)",
      "description": "A simulated alertness source raises an indication for an operator.",
      "demonstrates": "A break prompt for the operator and a ticket for the supervisor, both worded as "
-                     "an indication and labelled SIMULATED - never a diagnosis."},
+                     "an indication and labelled SIMULATED - never a diagnosis.",
+     "appears_for": [
+         {"role": "operator", "where": "Today -> Alerts", "what": "A break prompt, worded as an indication and never as a diagnosis"},
+         {"role": "supervisor", "where": "My crew -> Flags for review", "what": "A fatigue flag, plus the work-schedule risk estimate on their operator"},
+     ]},
     {"id": "outside_geofence_punch",
      "title": "Start-work punch outside the geofence",
      "description": "An operator punches in from well outside the site boundary with a good GPS fix.",
      "demonstrates": "The punch is recorded with the server timestamp and the distance, and a ticket "
                      "goes to their supervisor. Location is an indication of presence, never proof - "
-                     "a poor fix would read 'unverified', never 'outside'."},
+                     "a poor fix would read 'unverified', never 'outside'.",
+     "appears_for": [
+         {"role": "operator", "where": "Today", "what": "'Start work recorded - outside fence', marked sent for review"},
+         {"role": "supervisor", "where": "My crew -> Flags for review", "what": "A geofence flag with the distance and the fix accuracy"},
+     ]},
     {"id": "task_overrun",
      "title": "Task running past its expected finish",
      "description": "A demo task is staged with an expected finish time already in the past.",
      "demonstrates": "An overrun ticket for the supervisor with the planned and actual times, so the "
-                     "conversation starts from facts rather than an accusation."},
+                     "conversation starts from facts rather than an accusation.",
+     "appears_for": [
+         {"role": "supervisor", "where": "My crew", "what": "Red 'overdue' segment on that operator's bar, and an overrun flag"},
+         {"role": "operator", "where": "Today", "what": "The task timer shows it past its expected finish"},
+     ]},
 )
 
 _BY_ID = {sc["id"]: sc for sc in SCENARIOS}

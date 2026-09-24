@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fleet-preview",
+      "runtimeExecutable": "D:\\research\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "sentinel.cloud.api.main:app", "--host", "127.0.0.1", "--port", "8101"],
+      "port": 8101,
+      "env": {
+        "SENTINEL_CLOUD_DB": "sqlite:///C:/Users/mradi/AppData/Local/Temp/claude/D--research/d11bac65-e36f-482e-9fbe-00ed54282f45/scratchpad/cloud_preview.db",
+        "SENTINEL_WEB_DIST": "C:\\Users\\mradi\\AppData\\Local\\Temp\\claude\\D--research\\d11bac65-e36f-482e-9fbe-00ed54282f45\\scratchpad\\web-dist"
+      }
+    }
+  ]
+}
