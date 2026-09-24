@@ -3,15 +3,15 @@
  *
  * Profile and last known position, the tasks assigned for today (genuinely empty until the
  * supervisor assigns one — no placeholder work is ever shown), each task's checkpoints, progress
- * and expected finish in GMT, the recent progress events, the start/finish work punches, the flags
+ * and expected finish, the recent progress events, the start/finish work punches, the flags
  * raised about them, and the two-way chat for this pair with optimistic sending and rollback.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { chat, sup } from '../../api';
-import { GeofenceBadge, GmtTime, PriorityChip, TcError, TicketCard } from '../../components';
+import { GeofenceBadge, LocalTime, PriorityChip, TcError, TicketCard } from '../../components';
 import { POLL, PRESENCE_NOTE } from '../../constants';
-import { fmtDelta, isSameGmtDay, nowTs } from '../../time';
+import { fmtDelta, isSameDay, nowTs } from '../../time';
 import type { ChatMessage, Punch, TaskProgress, TcTask } from '../../types';
 import { Button, PageTitle } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
@@ -68,7 +68,7 @@ export default function OperatorDetail() {
   const punches: Punch[] = d?.punches ?? [];
 
   const today = useMemo(
-    () => tasks.filter((t) => isSameGmtDay(t.start_ts, now) || (t.status !== 'completed' && t.status !== 'cancelled')).sort((a, b) => a.start_ts - b.start_ts),
+    () => tasks.filter((t) => isSameDay(t.start_ts, now) || (t.status !== 'completed' && t.status !== 'cancelled')).sort((a, b) => a.start_ts - b.start_ts),
     [tasks, now],
   );
   const earlier = useMemo(() => tasks.filter((t) => !today.includes(t)).sort((a, b) => b.start_ts - a.start_ts), [tasks, today]);
@@ -101,7 +101,7 @@ export default function OperatorDetail() {
           <PageTitle
             kicker="Operator"
             title={operator?.name ?? id}
-            sub="Their work for today, what they have reported, and your chat with them. Every operational time is GMT."
+            sub="Their work for today, what they have reported, and your chat with them. Every operational time is shown in your own timezone and stored in UTC."
             right={
               <Button variant="primary" icon="assignment_add" onClick={() => setTaskOpen(true)}>
                 Assign task
@@ -127,7 +127,7 @@ export default function OperatorDetail() {
           <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[1fr_400px]">
             <div className="space-y-8">
               {/* ------------------------------------------------ tasks for today */}
-              <Card title="Tasks for today" sub={`GMT day · ${today.length} task${today.length === 1 ? '' : 's'}`}>
+              <Card title="Tasks for today" sub={`Today · ${today.length} task${today.length === 1 ? '' : 's'}`}>
                 {gate(taskRes, 'These tasks', 'Loading tasks') ??
                   (today.length === 0 ? (
                     <EmptyState icon="assignment" title="No tasks assigned for today">
@@ -175,7 +175,7 @@ export default function OperatorDetail() {
                       <li key={ev.id ?? `${ev.task_id}-${ev.ts}-${i}`} className="py-2.5">
                         <div className="flex flex-wrap items-baseline gap-2">
                           <span className="font-display text-label-sm uppercase text-on-surface-muted">{PROGRESS_LABEL[ev.kind] ?? ev.kind}</span>
-                          <GmtTime ts={ev.ts} gmt={ev.ts_gmt} mode="smart" className="text-body-sm text-on-surface-muted" />
+                          <LocalTime ts={ev.ts} gmt={ev.ts_gmt} mode="smart" className="text-body-sm text-on-surface-muted" />
                           {ev.task_title && <span className="text-body-sm text-on-surface-variant">· {ev.task_title}</span>}
                         </div>
                         {ev.text && <p className="mt-0.5 whitespace-pre-line text-body-md text-on-surface">{ev.text}</p>}
@@ -199,7 +199,7 @@ export default function OperatorDetail() {
                           <span className="flex flex-wrap items-center gap-2">
                             <Icon name={p.kind === 'finish_work' ? 'logout' : 'login'} size={20} className="text-on-surface-muted" />
                             <span className="text-body-md text-on-surface">{PUNCH_LABEL[p.kind] ?? p.kind}</span>
-                            <GmtTime ts={p.ts} gmt={p.ts_gmt} mode="smart" className="text-body-sm text-on-surface-muted" />
+                            <LocalTime ts={p.ts} gmt={p.ts_gmt} mode="smart" className="text-body-sm text-on-surface-muted" />
                           </span>
                           <span className="flex flex-wrap items-center gap-2">
                             <GeofenceBadge status={p.geofence_status} distanceM={p.distance_m} accuracyM={p.accuracy_m} />
@@ -272,18 +272,18 @@ function TaskBlock({ task, now }: { task: TcTask; now: number }) {
       {task.instructions && <p className="mt-3 whitespace-pre-line text-body-md text-on-surface-variant">{task.instructions}</p>}
 
       <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
-        <Fact label="Start (GMT)">
-          <GmtTime ts={task.start_ts} gmt={task.start_gmt} mode="datetime" />
+        <Fact label="Start">
+          <LocalTime ts={task.start_ts} gmt={task.start_gmt} mode="datetime" />
         </Fact>
-        <Fact label="Expected finish (GMT)">
-          <GmtTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} mode="datetime" />
+        <Fact label="Expected finish">
+          <LocalTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} mode="datetime" />
           {task.status === 'ongoing' && <span className="block text-body-sm text-on-surface-muted">{fmtDelta(task.expected_finish_ts, now)}</span>}
         </Fact>
-        <Fact label="Started (GMT)">
-          <GmtTime ts={task.started_at} gmt={task.started_at_gmt} mode="datetime" missing="Not started" />
+        <Fact label="Started">
+          <LocalTime ts={task.started_at} gmt={task.started_at_gmt} mode="datetime" missing="Not started" />
         </Fact>
-        <Fact label="Finished (GMT)">
-          <GmtTime ts={task.finished_at} gmt={task.finished_at_gmt} mode="datetime" missing="Not finished" />
+        <Fact label="Finished">
+          <LocalTime ts={task.finished_at} gmt={task.finished_at_gmt} mode="datetime" missing="Not finished" />
         </Fact>
       </dl>
 
@@ -437,7 +437,7 @@ function MessageBubble({
         <p className="whitespace-pre-line text-body-md text-on-surface">{m.text}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
           <span>{fromOperator ? (m.from_name ?? 'Operator') : 'You'}</span>
-          <GmtTime ts={m.ts} gmt={m.ts_gmt} mode="smart" />
+          <LocalTime ts={m.ts} gmt={m.ts_gmt} mode="smart" />
           {m.system && <Chip tone="neutral">System</Chip>}
           {out.pending && <span>Sending…</span>}
           {out.failed && <span className="text-danger-text">Not sent</span>}

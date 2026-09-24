@@ -18,7 +18,7 @@ import { ALARM_MUTE_KEY, POLL, SIMULATED_NOTE } from '../constants';
 import { useAuth } from '../auth';
 import { fmtMetres } from '../time';
 import type { Notification } from '../types';
-import { GmtTime } from './GmtTime';
+import { LocalTime } from './LocalTime';
 import { SupervisorAlert } from './SupervisorAlert';
 
 const ALARM_HEIGHT_VAR = '--tc-alarm-h';
@@ -145,7 +145,7 @@ export function AlarmBanner() {
               Simulated
             </span>
             <span className="text-body-sm opacity-90">
-              <GmtTime ts={active.ts} gmt={active.ts_gmt} mode="smart" />
+              <LocalTime ts={active.ts} gmt={active.ts_gmt} mode="smart" />
             </span>
             {remaining > 0 && <span className="text-body-sm opacity-90">· {remaining} more waiting</span>}
           </div>

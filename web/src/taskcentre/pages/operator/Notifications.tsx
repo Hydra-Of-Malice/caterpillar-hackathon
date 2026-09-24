@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { opApi, errorText } from '../../api';
 import { POLL, SIMULATED_NOTE } from '../../constants';
-import { GmtTime, SimulatedChip, TcEmpty, TcError, TcLoading } from '../../components';
+import { LocalTime, SimulatedChip, TcEmpty, TcError, TcLoading } from '../../components';
 import { Button, Icon, cx } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import type { Notification } from '../../types';
@@ -85,13 +85,13 @@ export function NotificationsPanel() {
                 {n.body && <p className="mt-1 text-body-lg text-on-surface-variant">{n.body}</p>}
                 {n.kind === 'fatigue' && <p className="mt-2 text-body-md text-on-surface-muted">{SIMULATED_NOTE} Take a break if you need one.</p>}
                 <div className="mt-2 font-display text-label-sm uppercase text-on-surface-muted">
-                  <GmtTime ts={n.ts} gmt={n.ts_gmt} mode="smart" />
+                  <LocalTime ts={n.ts} gmt={n.ts_gmt} mode="smart" />
                 </div>
               </div>
             </div>
             {n.acknowledged_at ? (
               <p className="mt-3 flex items-center gap-2 font-display text-label-md uppercase text-success-text">
-                <Icon name="check_circle" size={20} /> Acknowledged <GmtTime ts={n.acknowledged_at} />
+                <Icon name="check_circle" size={20} /> Acknowledged <LocalTime ts={n.acknowledged_at} />
               </p>
             ) : (
               <Button

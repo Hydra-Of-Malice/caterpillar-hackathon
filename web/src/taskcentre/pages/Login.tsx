@@ -12,7 +12,7 @@ import { errorText } from '../api';
 import { useAuth } from '../auth';
 import { DEMO_CREDENTIALS, PRESENCE_NOTE, PRODUCT_SHORT, ROLE_HOME, ROLE_ICON, ROLE_LABEL } from '../constants';
 import { GeofenceBadge } from '../components/Badges';
-import { GmtTime } from '../components/GmtTime';
+import { LocalTime } from '../components/LocalTime';
 import type { Role } from '../types';
 
 const ROLES: Role[] = ['admin', 'supervisor', 'operator'];
@@ -109,7 +109,7 @@ export default function TcLogin() {
 
         {loginInfo && (
           <p className="mt-4 flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
-            Last sign-in recorded <GmtTime ts={loginInfo.ts} gmt={loginInfo.ts_gmt} mode="datetime" />
+            Last sign-in recorded <LocalTime ts={loginInfo.ts} gmt={loginInfo.ts_gmt} mode="datetime" />
             <GeofenceBadge status={loginInfo.geofence_status} distanceM={loginInfo.distance_m} accuracyM={loginInfo.accuracy_m} />
           </p>
         )}

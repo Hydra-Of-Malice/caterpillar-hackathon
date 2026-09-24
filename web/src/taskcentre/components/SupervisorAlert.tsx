@@ -20,7 +20,7 @@ import { useDangerTone } from '../../lib/audio';
 import { errorText, opApi } from '../api';
 import { ALARM_MUTE_KEY } from '../constants';
 import type { Notification } from '../types';
-import { GmtTime } from './GmtTime';
+import { LocalTime } from './LocalTime';
 
 /** Matches `ALERT_SECONDS` in `sentinel/taskcentre/routes_supervisor.py`. */
 const DEFAULT_SECONDS = 30;
@@ -81,7 +81,7 @@ export function SupervisorAlert({ alert, onAcknowledged }: { alert: Notification
           <div className="min-w-0 flex-1">
             <p className="font-display text-label-lg uppercase tracking-wider">Message from your supervisor</p>
             <p className="text-body-sm">
-              <GmtTime ts={alert.ts} gmt={alert.ts_gmt} mode="smart" />
+              <LocalTime ts={alert.ts} gmt={alert.ts_gmt} mode="smart" />
             </p>
           </div>
         </div>

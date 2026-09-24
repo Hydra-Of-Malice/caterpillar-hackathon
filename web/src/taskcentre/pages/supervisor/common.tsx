@@ -1,11 +1,11 @@
 /**
  * Pieces shared by the supervisor screens: the four task buckets, checkpoint readouts, the
  * location line and the load/error gate. Everything else comes from the shared Task Centre
- * components (`../../components`) and GMT helpers (`../../time`).
+ * components (`../../components`) and time helpers (`../../time`).
  */
 import type { ReactNode } from 'react';
 import { personName } from '../../api';
-import { GeofenceBadge, GmtTime, StaleBadge, TcError, TcLoading } from '../../components';
+import { GeofenceBadge, LocalTime, StaleBadge, TcError, TcLoading } from '../../components';
 import { STALE } from '../../constants';
 import { fmtMetres } from '../../time';
 import type { Checkpoint, LocationReport, SupOperatorRow, TaskCounts, TcTask } from '../../types';
@@ -26,10 +26,10 @@ export const BUCKET: Record<Bucket, { label: string; color: string; hint: string
   completed: { label: 'Completed', color: '#197527', hint: 'Finished by the operator', tone: 'green' },
   ongoing: { label: 'Ongoing', color: '#0066FF', hint: 'Started, not finished', tone: 'blue' },
   pending: { label: 'Pending', color: '#909090', hint: 'Assigned, not started', tone: 'neutral' },
-  overdue: { label: 'Overdue', color: '#C52320', hint: 'Past its expected finish (GMT)', tone: 'red' },
+  overdue: { label: 'Overdue', color: '#C52320', hint: 'Past its expected finish', tone: 'red' },
 };
 
-/** Past the expected finish. Prefers the server's flag; otherwise compares against the GMT clock. */
+/** Past the expected finish. Prefers the server's flag; otherwise compares against the clock. */
 export function isOverdue(t: TcTask, now: number): boolean {
   if (typeof t.overdue === 'boolean') return t.overdue;
   if (t.status === 'cancelled') return false;
@@ -122,7 +122,7 @@ export function TaskStatusChip({ task, now }: { task: TcTask; now: number }) {
 
 // ---------------------------------------------------------------- location
 /**
- * Last known position of an operator: geofence status, the GMT time of the fix and an explicit
+ * Last known position of an operator: geofence status, the time of the fix and an explicit
  * stale badge. Presence, never proof.
  */
 export function LocationLine({
@@ -137,7 +137,7 @@ export function LocationLine({
   fallbackStatus?: string | null;
   stale?: boolean;
   /**
-   * Drop the exact GMT fix, the accuracy and the distance, keeping the geofence status and how old
+   * Drop the exact time of the fix, the accuracy and the distance, keeping the geofence status and how old
    * the fix is. For a row in a table: the status and the age are what decide whether to trust it,
    * and the numbers behind them are one click away on the operator's own page.
    */
@@ -156,9 +156,9 @@ export function LocationLine({
       <GeofenceBadge status={location.geofence_status ?? fallbackStatus} distanceM={location.distance_m} accuracyM={location.accuracy_m} />
       <div className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
         {compact ? (
-          <GmtTime ts={location.ts} gmt={location.ts_gmt} mode="time" />
+          <LocalTime ts={location.ts} gmt={location.ts_gmt} mode="time" />
         ) : (
-          <GmtTime ts={location.ts} gmt={location.ts_gmt} mode="smart" />
+          <LocalTime ts={location.ts} gmt={location.ts_gmt} mode="smart" />
         )}
         <StaleBadge ts={location.ts} now={now} thresholdS={STALE.location_s} label="position" showFresh={false} />
         {stale === true && location.stale !== true && <Chip tone="orange" icon="history">Stale</Chip>}
@@ -237,7 +237,7 @@ export function CheckpointList({ list }: { list?: Checkpoint[] }) {
                 <span>{c.kind === 'counted' ? `${d} / ${t}` : complete ? 'Done' : 'Not done'}</span>
                 {c.updated_at ? (
                   <span>
-                    updated <GmtTime ts={c.updated_at} gmt={c.updated_at_gmt} mode="smart" />
+                    updated <LocalTime ts={c.updated_at} gmt={c.updated_at_gmt} mode="smart" />
                   </span>
                 ) : null}
               </div>

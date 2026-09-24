@@ -18,7 +18,7 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GmtTime, PriorityChip } from '../../components';
+import { LocalTime, PriorityChip } from '../../components';
 import type { SupOperatorRow, TaskProgress, TcTask } from '../../types';
 import { Button, Icon } from '../../../components/ui';
 import { BUCKET, BUCKETS, CheckpointProgress, Chip, LocationLine, TaskStatusChip, cx, exclusiveBucket, operatorName, type Bucket } from './common';
@@ -337,7 +337,7 @@ function TaskUpdate({ tasks, now, who }: { tasks: TcTask[]; now: number; who: st
                       <span className="block text-body-sm text-on-surface-muted">
                         {t.location || 'No location given'}
                         {t.machine_id ? ` · ${t.machine_id}` : ''} · finish by{' '}
-                        <GmtTime ts={t.expected_finish_ts} gmt={t.expected_finish_gmt} mode="smart" />
+                        <LocalTime ts={t.expected_finish_ts} gmt={t.expected_finish_gmt} mode="smart" />
                       </span>
                     </span>
                     <CheckpointProgress list={t.checkpoints} />
@@ -363,7 +363,7 @@ function TaskUpdate({ tasks, now, who }: { tasks: TcTask[]; now: number; who: st
               <li key={n.id ?? `${n.task_id}-${n.ts}-${i}`}>
                 <p className="text-body-sm text-on-surface">{n.text}</p>
                 <p className="text-body-sm text-on-surface-muted">
-                  {n.task_title} · <GmtTime ts={n.ts} gmt={n.ts_gmt} mode="smart" />
+                  {n.task_title} · <LocalTime ts={n.ts} gmt={n.ts_gmt} mode="smart" />
                 </p>
               </li>
             ))}

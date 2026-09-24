@@ -859,7 +859,7 @@ export interface SupTeamEfficiency {
  */
 export type Likelihood = 'low' | 'moderate' | 'elevated' | 'high';
 
-/** One recorded fact a risk item was derived from, with the GMT time it was observed. */
+/** One recorded fact a risk item was derived from, with the time it was observed. */
 export interface ForesightBasis {
   fact: string;
   value?: string | number | boolean | null;

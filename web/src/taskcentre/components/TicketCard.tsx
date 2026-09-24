@@ -9,7 +9,7 @@ import { ticketSubject } from '../api';
 import { fmtMetres } from '../time';
 import type { DecisionBody, ReviewDecision, Ticket, TicketDecision } from '../types';
 import { SeverityChip, SimulatedChip, TicketStatusChip, kindLabel } from './Badges';
-import { GmtTime } from './GmtTime';
+import { LocalTime } from './LocalTime';
 
 // ---------------------------------------------------------------- evidence
 const HIDE_KEYS = new Set(['ticket_id', 'site_id']);
@@ -26,7 +26,7 @@ function evidenceLabel(k: string): string {
   return k.replace(/_/g, ' ').replace(/\bm\b/, '(m)').replace(/^\w/, (c) => c.toUpperCase());
 }
 
-/** Evidence map as a readable definition list, with timestamps rendered in GMT. */
+/** Evidence map as a readable definition list, timestamps in the reader's zone. */
 export function EvidenceList({ evidence, className }: { evidence?: Record<string, unknown> | null; className?: string }) {
   const entries = Object.entries(evidence ?? {}).filter(([k]) => !HIDE_KEYS.has(k));
   if (entries.length === 0) return <p className={cx('text-body-sm text-on-surface-muted', className)}>No structured evidence was attached to this ticket.</p>;
@@ -37,7 +37,7 @@ export function EvidenceList({ evidence, className }: { evidence?: Record<string
           <dt className="font-display text-label-sm uppercase text-on-surface-muted">{evidenceLabel(k)}</dt>
           <dd className="min-w-0 break-words text-on-surface-variant">
             {/^(ts|.*_ts|.*_at)$/.test(k) && typeof v === 'number' ? (
-              <GmtTime ts={v} mode="datetime" />
+              <LocalTime ts={v} mode="datetime" />
             ) : /distance_m$|_m$/.test(k) && typeof v === 'number' ? (
               fmtMetres(v)
             ) : (
@@ -76,7 +76,7 @@ export function DecisionHistory({ decisions, className }: { decisions?: ReviewDe
                 <span className="font-display uppercase">{d.decision.replace(/_/g, ' ')}</span>
                 <span className="text-on-surface-muted">
                   {' '}
-                  by {d.reviewer_name ?? d.reviewer_id} ({d.reviewer_role}) · <GmtTime ts={d.ts} gmt={d.ts_gmt} mode="datetime" />
+                  by {d.reviewer_name ?? d.reviewer_id} ({d.reviewer_role}) · <LocalTime ts={d.ts} gmt={d.ts_gmt} mode="datetime" />
                 </span>
               </div>
               {d.comment && <p className="mt-0.5 text-on-surface-variant">“{d.comment}”</p>}
@@ -130,7 +130,7 @@ export function TicketDecisionForm({
         </select>
       </label>
       <label className="block">
-        <span className="text-body-sm text-on-surface-variant">Comment (recorded with your name and the GMT time)</span>
+        <span className="text-body-sm text-on-surface-variant">Comment (recorded with your name and the time)</span>
         <textarea className="input mt-1 h-24 py-2" value={comment} onChange={(e) => setComment(e.target.value)} disabled={busy} placeholder="What did you check, and what did you conclude?" />
       </label>
       {withOperatorMessage && (
@@ -176,7 +176,7 @@ export function TicketCard({
         <SimulatedChip source={ticket.source} />
         <span className="font-display text-label-sm uppercase text-on-surface-muted">{kindLabel(ticket.kind)}</span>
         <span className="ml-auto text-body-sm text-on-surface-muted">
-          <GmtTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="smart" />
+          <LocalTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="smart" />
         </span>
       </div>
       <h3 className="mt-2 font-display text-headline-sm text-on-surface">{ticket.title}</h3>

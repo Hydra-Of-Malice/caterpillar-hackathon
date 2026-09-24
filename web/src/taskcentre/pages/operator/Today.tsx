@@ -2,17 +2,17 @@
  * `/tc/op` — what the operator has to do today, polled every `POLL.operator`.
  *
  * One column, big targets, no dashboards: the ongoing task first, then the rest, the Start Work
- * punch and the day's recorded times in GMT. `?view=messages` and `?view=alerts` open the chat and
+ * punch and the day's recorded your local time. `?view=messages` and `?view=alerts` open the chat and
  * the alert list on the same route.
  */
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { authApi, errorText, opApi, requestPosition } from '../../api';
-import { GEO_TIMEOUT_MS, POLL, PRESENCE_NOTE } from '../../constants';
-import { GeofenceBadge, GmtTime, TcEmpty, TcError, TcLoading } from '../../components';
+import { GEO_TIMEOUT_MS, POLL, PRESENCE_NOTE, TIME_NOTE } from '../../constants';
+import { GeofenceBadge, LocalTime, TcEmpty, TcError, TcLoading } from '../../components';
 import { Button, Icon, cx } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
-import { fmtGmtDate, nowTs } from '../../time';
+import { fmtDate, nowTs } from '../../time';
 import type { OpToday, Punch, TcTask } from '../../types';
 import { ChatPanel } from './Chat';
 import { FlagResponsePanel } from './FlagResponse';
@@ -59,7 +59,7 @@ function StartWork({ punch, onPunched }: { punch: Punch | null | undefined; onPu
           icon={inside ? 'where_to_vote' : 'not_listed_location'}
           title={
             <>
-              Start Work recorded <GmtTime ts={punch.ts} gmt={punch.ts_gmt} />
+              Start Work recorded <LocalTime ts={punch.ts} gmt={punch.ts_gmt} />
             </>
           }
         >
@@ -160,7 +160,7 @@ export default function Today() {
   return (
     <OpPage
       title={view === 'messages' ? 'Messages' : view === 'alerts' ? 'Alerts' : 'Today'}
-      sub={`${fmtGmtDate(today?.ts ?? nowTs())} · all times GMT`}
+      sub={`${fmtDate(today?.ts ?? nowTs())} · ${TIME_NOTE}`}
     >
       {!online && <OfflineNote />}
       <Tabs view={view} unread={unread} />
@@ -180,8 +180,8 @@ export default function Today() {
           <section className="panel space-y-4 p-4" aria-label="Your day">
             <StartWork punch={today.start_work} onPunched={r.reload} />
             <div className="grid grid-cols-2 gap-4 border-t border-outline pt-4">
-              <Stat label="Logged in (GMT)">{today.login ? <GmtTime ts={today.login.ts} gmt={today.login.ts_gmt} /> : '—'}</Stat>
-              <Stat label="Start Work (GMT)">{today.start_work ? <GmtTime ts={today.start_work.ts} gmt={today.start_work.ts_gmt} /> : 'Not yet'}</Stat>
+              <Stat label="Logged in (GMT)">{today.login ? <LocalTime ts={today.login.ts} gmt={today.login.ts_gmt} /> : '—'}</Stat>
+              <Stat label="Start Work (GMT)">{today.start_work ? <LocalTime ts={today.start_work.ts} gmt={today.start_work.ts_gmt} /> : 'Not yet'}</Stat>
               <div className="col-span-2">
                 <div className="font-display text-label-sm uppercase text-on-surface-muted">Worksite check</div>
                 <div className="mt-1 flex flex-wrap items-center gap-2">

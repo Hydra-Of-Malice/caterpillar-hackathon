@@ -3,14 +3,14 @@
  * from an operator's page — it is not a route of its own.
  *
  * The two datetime fields are typed in the browser's timezone, converted to UTC seconds, and echoed
- * back as the exact GMT value that will be stored. Checkpoints are built row by row: each row is a
+ * back as the exact UTC value that will be stored. Checkpoints are built row by row: each row is a
  * checkbox or a counted target (0/3) with a required toggle, and rows can be added, removed and
  * reordered.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { sup } from '../../api';
 import { TcError } from '../../components';
-import { fmtGmtDateTime } from '../../time';
+import { fmtDateTime } from '../../time';
 import type { Priority, SupOperatorRow, TaskCreate as TaskCreateBody, TcTask } from '../../types';
 import { Button, Modal, Toggle } from '../../../components/ui';
 import { Chip, Field, Icon, cx, operatorName } from './common';
@@ -262,7 +262,7 @@ export function TaskCreate({ open, onClose, operators, defaultOperatorId, onCrea
         <section className="border border-outline bg-surface-container-low p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="font-display text-headline-sm text-on-surface">Timing</h3>
-            <span className="text-body-sm text-on-surface-muted">You type in your own timezone ({browserOffsetLabel()}); the task is stored and compared in GMT.</span>
+            <span className="text-body-sm text-on-surface-muted">You type in your own timezone ({browserOffsetLabel()}); the task is stored and compared in UTC.</span>
           </div>
           <div className="mt-4 grid gap-5 md:grid-cols-2">
             <Field label="Start time" error={errors.start}>
@@ -375,7 +375,7 @@ export function TaskCreate({ open, onClose, operators, defaultOperatorId, onCrea
   );
 }
 
-/** The exact UTC seconds and GMT time that will be stored for a datetime input. */
+/** The exact UTC seconds that will be stored for a datetime input, with the local reading. */
 function StoredAs({ ts }: { ts: number | null }) {
   return (
     <span className="mt-1 block text-body-sm text-on-surface-muted tnum">
@@ -383,7 +383,7 @@ function StoredAs({ ts }: { ts: number | null }) {
         'Stored as —'
       ) : (
         <>
-          Stored as <span className="text-on-surface">{fmtGmtDateTime(ts)}</span> · {ts} s UTC
+          Stored as <span className="text-on-surface">{fmtDateTime(ts)}</span> · {ts} s UTC
         </>
       )}
     </span>

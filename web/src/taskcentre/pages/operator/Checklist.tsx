@@ -13,7 +13,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { errorText, opApi } from '../../api';
-import { GmtTime, TcError, TcLoading } from '../../components';
+import { LocalTime, TcError, TcLoading } from '../../components';
+import { TIME_NOTE } from '../../constants';
 import { Button, Chip, Icon, ProgressBar, cx } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import type {
@@ -324,7 +325,7 @@ export default function Checklist() {
   const header = (children: ReactNode) => (
     <OpPage
       title={CHECKLIST_TITLE}
-      sub={task ? `${task.title} · all times GMT` : 'Fill this before the task can start · all times GMT'}
+      sub={task ? `${task.title} · ${TIME_NOTE}` : `Fill this before the task can start · ${TIME_NOTE}`}
       back={{ to: `/tc/op/task/${id}`, label: 'Task' }}
     >
       {!online && <OfflineNote />}
@@ -377,7 +378,7 @@ export default function Checklist() {
           )}
           {eff?.signed_at && (
             <Chip icon="draw" tone="green">
-              Signed <GmtTime ts={eff.signed_at} gmt={eff.signed_at_gmt} />
+              Signed <LocalTime ts={eff.signed_at} gmt={eff.signed_at_gmt} />
               {eff.signed_by ? ` · ${eff.signed_by}` : ''}
             </Chip>
           )}
@@ -508,7 +509,7 @@ export default function Checklist() {
               : inFlight
                 ? 'Saving your last answer…'
                 : eff?.completed
-                  ? 'All items answered. Starting the task records the time in GMT.'
+                  ? 'All items answered. Starting the task records the time.'
                   : `${total - answered} item${total - answered === 1 ? '' : 's'} still to answer before this task can start.`}
           </p>
         </>

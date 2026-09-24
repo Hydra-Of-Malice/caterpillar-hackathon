@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bar as RBar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { personId, personName, sup } from '../../api';
-import { GmtTime } from '../../components';
+import { LocalTime } from '../../components';
 import { POLL } from '../../constants';
 import { nowTs } from '../../time';
 import type { SupEfficiency } from '../../types';
@@ -111,7 +111,7 @@ export function OperatorEfficiency({ operatorId, operatorName }: { operatorId: s
             {/* ------------------------------------------------ task outcomes */}
             <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
               <Stat label={OUTCOME.on_time.label} value={onTime} tone="green" sub={`of ${assigned} assigned`} />
-              <Stat label={OUTCOME.late.label} value={late} tone={late > 0 ? 'red' : 'neutral'} sub="Finished after the expected time (GMT)" />
+              <Stat label={OUTCOME.late.label} value={late} tone={late > 0 ? 'red' : 'neutral'} sub="Finished after the expected time" />
               <Stat label={OUTCOME.ongoing.label} value={ongoing} tone="blue" sub="Started, not finished" />
               <Stat label={OUTCOME.pending.label} value={pending} sub="Assigned, not started" />
             </div>
@@ -144,7 +144,7 @@ export function OperatorEfficiency({ operatorId, operatorName }: { operatorId: s
               </div>
               {rate !== null && <Bar className="mt-2" pct={rate} tone={rate >= 80 ? 'green' : 'blue'} />}
               <p className="mt-1.5 text-body-sm text-on-surface-muted">
-                Counted against the expected finish the supervisor set, in GMT. A task with no expected finish is not counted either way.
+                Counted against the expected finish the supervisor set. A task with no expected finish is not counted either way.
               </p>
             </div>
 
@@ -434,11 +434,11 @@ export default function TeamEfficiency() {
       <PageTitle
         kicker="Supervisor"
         title="Efficiency across the team"
-        sub="What the system recorded for each operator, ordered by name. Facts with their evidence — no score, no ranking. Every operational time is GMT."
+        sub="What the system recorded for each operator, ordered by name. Facts with their evidence — no score, no ranking. Every operational time is shown in your own timezone and stored in UTC."
         right={
           <>
             <span className="text-body-sm text-on-surface-muted">
-              Refreshes every {POLL.supervisor / 1000} s · now <GmtTime ts={nowTs()} />
+              Refreshes every {POLL.supervisor / 1000} s · now <LocalTime ts={nowTs()} />
             </span>
             <Segmented<DayOption> value={days} options={DAY_OPTIONS.map((d) => ({ value: d, label: `${d} days` }))} onChange={setDays} size="md" />
           </>

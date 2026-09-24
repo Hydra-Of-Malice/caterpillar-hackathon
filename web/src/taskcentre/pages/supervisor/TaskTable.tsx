@@ -1,12 +1,12 @@
 /**
  * The task list revealed by selecting a colour in the team chart or one of the four numbers above it.
  *
- * One row per task with the operator, the priority, the planned window in GMT, how far the
+ * One row per task with the operator, the priority, the planned window, how far the
  * checkpoints have got and the task's state — the facts a supervisor needs before starting a
  * conversation about a task, rather than after it.
  */
 import { Link } from 'react-router-dom';
-import { GmtTime, PriorityChip } from '../../components';
+import { LocalTime, PriorityChip } from '../../components';
 import type { TcTask } from '../../types';
 import { CheckpointProgress, TABLE, TableWrap, TaskStatusChip, cx } from './common';
 
@@ -28,8 +28,8 @@ export function TaskTable({
             <th className="min-w-[220px]">Task</th>
             <th>Operator</th>
             <th>Priority</th>
-            <th>Start (GMT)</th>
-            <th>Expected finish (GMT)</th>
+            <th>Start</th>
+            <th>Expected finish</th>
             <th className="min-w-[160px]">Checkpoints</th>
             <th>Status</th>
           </tr>
@@ -53,10 +53,10 @@ export function TaskTable({
                 <PriorityChip priority={t.priority} />
               </td>
               <td className="whitespace-nowrap">
-                <GmtTime ts={t.start_ts} gmt={t.start_gmt} mode="smart" />
+                <LocalTime ts={t.start_ts} gmt={t.start_gmt} mode="smart" />
               </td>
               <td className="whitespace-nowrap">
-                <GmtTime ts={t.expected_finish_ts} gmt={t.expected_finish_gmt} mode="smart" />
+                <LocalTime ts={t.expected_finish_ts} gmt={t.expected_finish_gmt} mode="smart" />
               </td>
               <td>
                 <CheckpointProgress list={t.checkpoints} />

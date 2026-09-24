@@ -7,6 +7,7 @@ import { Card } from '../../components/ops/layout';
 import { Icon } from '../../components/ui';
 import { useAuth } from '../auth';
 import { DEMO_CREDENTIALS, PRODUCT_NAME, PRODUCT_TAGLINE, ROLE_HOME, ROLE_LABEL, loginPath } from '../constants';
+import { ZONE } from '../time';
 import type { Role } from '../types';
 
 const ENTRIES: Array<{ role: Role; icon: string; line: string; does: string[] }> = [
@@ -66,7 +67,7 @@ export default function TcLanding() {
           {PRODUCT_TAGLINE} One place to assign the day’s work, see who is on site, review what the detectors flag, and get a critical machine alarm to the nearest person who can act on it.
         </p>
         <div className="mt-5 flex flex-wrap gap-2 text-body-sm text-on-surface-muted">
-          {['All times GMT', 'Permissions enforced in the API', 'Simulated detectors, labelled', 'No machine control'].map((t) => (
+          {[`Times in your zone (${ZONE}), stored in UTC`, 'Permissions enforced in the API', 'Simulated detectors, labelled', 'No machine control'].map((t) => (
             <span key={t} className="inline-flex items-center gap-1 border border-outline-variant px-2 py-1">
               <Icon name="check" size={16} /> {t}
             </span>
@@ -161,7 +162,7 @@ export default function TcLanding() {
             <li className="flex items-start gap-2">
               <Icon name="schedule" size={20} className="mt-0.5 shrink-0 text-on-surface-muted" />
               <span>
-                <strong>Every operational time is GMT</strong>, stamped by the server. The browser clock is never used for a stored value.
+                <strong>Every operational time is stored in UTC</strong>, stamped by the server, and shown to you in your own timezone. The browser clock is never used for a stored value.
               </span>
             </li>
           </ul>

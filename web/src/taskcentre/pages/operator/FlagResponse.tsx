@@ -10,7 +10,7 @@
  */
 import { useState } from 'react';
 import { errorText, opApi } from '../../api';
-import { GmtTime, SeverityChip, SimulatedChip, TcEmpty, TcError, TcLoading, kindLabel } from '../../components';
+import { LocalTime, SeverityChip, SimulatedChip, TcEmpty, TcError, TcLoading, kindLabel } from '../../components';
 import { Button, Icon, cx } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import { POLL } from '../../constants';
@@ -84,7 +84,7 @@ function FlagCard({ flag, onAnswered }: { flag: OpFlag; onAnswered: () => void }
           <Icon name="schedule" size={22} className="text-on-surface-muted" />
           <dt className="sr-only">Recorded</dt>
           <dd>
-            Recorded <GmtTime ts={flag.created_at} gmt={flag.created_at_gmt} mode="datetime" missing="time not recorded" />
+            Recorded <LocalTime ts={flag.created_at} gmt={flag.created_at_gmt} mode="datetime" missing="time not recorded" />
           </dd>
         </div>
         {flag.machine_id && (
@@ -111,7 +111,7 @@ function FlagCard({ flag, onAnswered }: { flag: OpFlag; onAnswered: () => void }
           {flag.responded_at || flag.responded_at_gmt ? (
             <>
               {' '}
-              Recorded <GmtTime ts={flag.responded_at} gmt={flag.responded_at_gmt} mode="datetime" />.
+              Recorded <LocalTime ts={flag.responded_at} gmt={flag.responded_at_gmt} mode="datetime" />.
             </>
           ) : null}
           {flag.response_comment ? <span className="mt-1 block">You wrote: “{flag.response_comment}”</span> : null}
@@ -121,7 +121,7 @@ function FlagCard({ flag, onAnswered }: { flag: OpFlag; onAnswered: () => void }
           <h4 className="font-display text-label-lg uppercase text-on-surface-muted">Was this right?</h4>
           <p className="mt-1 text-body-md text-on-surface-variant">
             Your answer is <span className="font-semibold">added to the record</span> beside the detection — it does not remove it. Either
-            answer is sent to your supervisor together with the evidence above, under your name and the server's GMT time. Saying no is
+            answer is sent to your supervisor together with the evidence above, under your name and the server's time in UTC. Saying no is
             not a complaint: it is your account of what happened, and the supervisor reads both.
           </p>
 

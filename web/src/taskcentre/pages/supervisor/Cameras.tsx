@@ -6,7 +6,7 @@
  */
 import { Link } from 'react-router-dom';
 import { sup } from '../../api';
-import { GmtTime, NotAvailable, SimulatedChip, StaleBadge } from '../../components';
+import { LocalTime, NotAvailable, SimulatedChip, StaleBadge } from '../../components';
 import { POLL, PROTOTYPE_NOTE, STALE } from '../../constants';
 import type { Camera } from '../../types';
 import { PageTitle } from '../../../components/ui';
@@ -43,7 +43,7 @@ export default function Cameras() {
 
       <PageTitle
         title="Cameras"
-        sub="Cameras on the machines you supervise. No live video is streamed or recorded here — each tile says exactly what it is showing. Times are GMT."
+        sub="Cameras on the machines you supervise. No live video is streamed or recorded here — each tile says exactly what it is showing. Times are shown in your own timezone."
       />
 
       <Card title={cameras.length ? `${cameras.length} camera${cameras.length === 1 ? '' : 's'}` : 'Cameras'}>
@@ -96,7 +96,7 @@ function CameraTile({ cam, now }: { cam: Camera; now: number }) {
         </p>
         <div className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-muted">
           <span>Last frame:</span>
-          <GmtTime ts={cam.last_frame_ts} gmt={cam.last_frame_gmt} mode="datetime" missing="never" />
+          <LocalTime ts={cam.last_frame_ts} gmt={cam.last_frame_gmt} mode="datetime" missing="never" />
           <StaleBadge ts={cam.last_frame_ts ?? null} now={now} thresholdS={STALE.camera_s} label="frame" />
         </div>
       </div>

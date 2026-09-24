@@ -12,7 +12,7 @@ import { Button, Icon, cx } from '../../components/ui';
 import { useResource } from '../../lib/hooks';
 import { errorText, simApi } from '../api';
 import { SimulatedChip } from '../components/Badges';
-import { GmtTime } from '../components/GmtTime';
+import { LocalTime } from '../components/LocalTime';
 import { TcEmpty, TcError, TcLoading } from '../components/States';
 import { nowTs } from '../time';
 import type { SimScenario, SimScenarioResult } from '../types';
@@ -144,7 +144,7 @@ export default function TcDemo() {
                     <span className="font-display text-label-md uppercase">{INFO[r.name]?.title ?? r.name}</span>
                     <SimulatedChip />
                     <span className="ml-auto text-body-sm text-on-surface-muted">
-                      <GmtTime ts={r.ts} mode="datetime" />
+                      <LocalTime ts={r.ts} mode="datetime" />
                     </span>
                   </div>
                   {r.error ? (

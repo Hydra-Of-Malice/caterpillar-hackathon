@@ -9,10 +9,10 @@ import { useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { errorText, opApi } from '../../api';
 import { POLL } from '../../constants';
-import { GmtTime, TcError, TcLoading } from '../../components';
+import { LocalTime, TcError, TcLoading } from '../../components';
 import { Button, Chip, Icon, ProgressBar, cx } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
-import { fmtGmt } from '../../time';
+import { fmtTime } from '../../time';
 import type { Checkpoint, OpToday, ProgressKind, TcTask } from '../../types';
 import { ChatPanel } from './Chat';
 import { TaskTimer, useTaskClock } from './TaskTimer';
@@ -289,11 +289,11 @@ export default function TaskDetail() {
         <div className="grid grid-cols-2 gap-3">
           <Stat label="Where">{task.location || '—'}</Stat>
           <Stat label="Machine">{task.machine_id ?? '—'}</Stat>
-          <Stat label="Finish by (GMT)">
-            <GmtTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} />
+          <Stat label="Finish by">
+            <LocalTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} />
           </Stat>
-          <Stat label="Started (GMT)">
-            {task.started_at ? <GmtTime ts={task.started_at} gmt={task.started_at_gmt} /> : 'Not started'}
+          <Stat label="Started">
+            {task.started_at ? <LocalTime ts={task.started_at} gmt={task.started_at_gmt} /> : 'Not started'}
           </Stat>
           <div className="col-span-2">
             <div className="font-display text-label-sm uppercase text-on-surface-muted">Pre-start check</div>
@@ -340,7 +340,7 @@ export default function TaskDetail() {
             <Icon name={checklistChip(task.checklist).icon} size={22} />
             <span>
               {cl.completed
-                ? 'The pre-start check is complete. Starting the task records the time in GMT.'
+                ? 'The pre-start check is complete. Starting the task records the time.'
                 : cl.total > 0
                   ? `The pre-start inspection comes first — ${cl.answered} of ${cl.total} items answered. Start task opens it.`
                   : 'The pre-start inspection comes first. Start task opens it.'}
@@ -406,7 +406,7 @@ export default function TaskDetail() {
               .map((entry, i) => (
                 <li key={entry.id ?? `${entry.ts}-${i}`} className="text-body-md text-on-surface-variant">
                   <span className="font-display text-label-sm uppercase text-on-surface-muted">
-                    <GmtTime ts={entry.ts} gmt={entry.ts_gmt} /> · {entry.kind}
+                    <LocalTime ts={entry.ts} gmt={entry.ts_gmt} /> · {entry.kind}
                   </span>
                   <span className="block">{entry.text}</span>
                 </li>
@@ -451,13 +451,13 @@ export default function TaskDetail() {
           icon="task_alt"
           title={
             <>
-              Task finished <GmtTime ts={finished.finished_at ?? now} gmt={finished.finished_at_gmt} />
+              Task finished <LocalTime ts={finished.finished_at ?? now} gmt={finished.finished_at_gmt} />
             </>
           }
         >
           {overran ? (
             <>
-              This finished after {fmtGmt(task.expected_finish_ts)}, so an overrun was sent to your supervisor for review. You
+              This finished after {fmtTime(task.expected_finish_ts)}, so an overrun was sent to your supervisor for review. You
               will see what they decide here and in your alerts.
             </>
           ) : (

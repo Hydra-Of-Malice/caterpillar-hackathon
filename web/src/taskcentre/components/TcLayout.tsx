@@ -11,7 +11,7 @@ import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { Icon, cx } from '../../components/ui';
 import { useLightTheme } from '../../lib/theme';
 import { TcAuthProvider, useAuth } from '../auth';
-import { PRESENCE_NOTE, PRODUCT_SHORT, PROTOTYPE_NOTE, ROLE_HOME, ROLE_LABEL } from '../constants';
+import { PRESENCE_NOTE, PRODUCT_SHORT, PROTOTYPE_NOTE, ROLE_HOME, ROLE_LABEL, TIME_NOTE } from '../constants';
 import type { Role } from '../types';
 import { AlarmBanner } from './AlarmBanner';
 
@@ -116,7 +116,7 @@ function TcFooter() {
     <footer className="border-t border-outline px-4 py-4 text-footnote text-on-surface-muted sm:px-6">
       <div className="mx-auto max-w-[1360px] space-y-1">
         <p>{PROTOTYPE_NOTE}</p>
-        <p>{PRESENCE_NOTE} All operational times are GMT, recorded by the server clock.</p>
+        <p>{PRESENCE_NOTE} {TIME_NOTE}</p>
       </div>
     </footer>
   );

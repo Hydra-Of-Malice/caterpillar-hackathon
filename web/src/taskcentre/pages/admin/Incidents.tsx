@@ -7,7 +7,7 @@ import { Card } from '../../../components/ops/layout';
 import { Chip, Icon, cx } from '../../../components/ui';
 import { personName } from '../../api';
 import { RoleBadge, SeverityChip, SimulatedChip, kindLabel } from '../../components/Badges';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { TcEmpty } from '../../components/States';
 import { fmtAge, fmtMetres } from '../../time';
 import type { PersonRow, Role, TcIncident } from '../../types';
@@ -90,7 +90,7 @@ export function IncidentsPanel({ incidents, people, now }: { incidents: TcIncide
                     {inc.acknowledged_at ? 'Acknowledged' : 'Awaiting acknowledgement'}
                   </Chip>
                   <span className="ml-auto text-body-sm text-on-surface-muted">
-                    <GmtTime ts={inc.ts} gmt={inc.ts_gmt} mode="datetime" />
+                    <LocalTime ts={inc.ts} gmt={inc.ts_gmt} mode="datetime" />
                   </span>
                 </div>
                 <h3 className="mt-1 font-display text-headline-sm">
@@ -124,7 +124,7 @@ export function IncidentsPanel({ incidents, people, now }: { incidents: TcIncide
                       {inc.acknowledged_at ? (
                         <>
                           <Icon name="check_circle" size={16} className="align-[-3px]" /> {inc.acknowledged_by_name ?? nameOf(people, inc.acknowledged_by)} ·{' '}
-                          <GmtTime ts={inc.acknowledged_at} gmt={inc.acknowledged_at_gmt} mode="smart" />
+                          <LocalTime ts={inc.acknowledged_at} gmt={inc.acknowledged_at_gmt} mode="smart" />
                         </>
                       ) : (
                         <>

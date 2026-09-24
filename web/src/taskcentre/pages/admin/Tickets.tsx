@@ -9,7 +9,7 @@ import { Button, Drawer, Icon, cx, toast } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import { adminApi, errorText, personName, ticketSubject } from '../../api';
 import { SeverityChip, SimulatedChip, TicketStatusChip, kindLabel } from '../../components/Badges';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { TcEmpty, TcError, TcLoading } from '../../components/States';
 import { DecisionHistory, EvidenceList, TicketCard, TicketDecisionForm } from '../../components/TicketCard';
 import { POLL } from '../../constants';
@@ -145,7 +145,7 @@ export function TicketsPanel({ people, machines, now }: { people: PersonRow[]; m
               </div>
               <h2 className={cx('mt-2 font-display text-headline-sm')}>{active.title}</h2>
               <p className="text-body-sm text-on-surface-muted">
-                Raised <GmtTime ts={active.created_at} gmt={active.created_at_gmt} mode="datetime" /> · {active.ticket_id}
+                Raised <LocalTime ts={active.created_at} gmt={active.created_at_gmt} mode="datetime" /> · {active.ticket_id}
               </p>
             </div>
           ) : null
@@ -171,7 +171,7 @@ export function TicketsPanel({ people, machines, now }: { people: PersonRow[]; m
             </section>
             <section>
               <h3 className="font-display text-headline-sm">Admin decision</h3>
-              <p className="mt-1 text-body-sm text-on-surface-muted">Recorded with your name, your role and the server's GMT time. It never overwrites the original event.</p>
+              <p className="mt-1 text-body-sm text-on-surface-muted">Recorded with your name, your role and the server's time in UTC. It never overwrites the original event.</p>
               <TicketDecisionForm className="mt-3" onSubmit={decide} busy={busy} />
             </section>
           </div>

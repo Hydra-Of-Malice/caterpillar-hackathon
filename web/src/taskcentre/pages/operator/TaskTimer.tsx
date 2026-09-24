@@ -13,7 +13,7 @@
  * Self-contained on purpose: Today and the task detail each render it with a single line.
  */
 import { useEffect, useState, type ReactNode } from 'react';
-import { GmtHint, GmtTime } from '../../components';
+import { ZoneHint, LocalTime } from '../../components';
 import { Icon, ProgressBar, cx } from '../../../components/ui';
 import { isTs } from '../../time';
 import type { TcTask } from '../../types';
@@ -217,7 +217,7 @@ interface Look {
 }
 
 function look(t: Timing, task: TimerTask): Look {
-  const expected = <GmtTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} />;
+  const expected = <LocalTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} />;
 
   switch (t.phase) {
     case 'running':
@@ -264,7 +264,7 @@ function look(t: Timing, task: TimerTask): Look {
         iconClass: 'text-on-surface-muted',
         value: (
           <>
-            <GmtTime ts={t.plannedStart} gmt={task.start_gmt} missing="—" /> <span className="text-on-surface-muted">to</span> {expected}
+            <LocalTime ts={t.plannedStart} gmt={task.start_gmt} missing="—" /> <span className="text-on-surface-muted">to</span> {expected}
           </>
         ),
         valueClass: 'font-display text-on-surface',
@@ -284,7 +284,7 @@ function look(t: Timing, task: TimerTask): Look {
         label: t.elapsedS === null ? 'No start time recorded' : 'Actual duration',
         detail: (
           <>
-            Finished <GmtTime ts={t.finishedAt} gmt={task.finished_at_gmt} />
+            Finished <LocalTime ts={t.finishedAt} gmt={task.finished_at_gmt} />
             {t.onTime === null ? null : late ? <> · {coarseDur(t.overS ?? 0)} late</> : <> · on time</>}
           </>
         ),
@@ -372,7 +372,7 @@ export function TaskTimer({
           <Icon name="timer" size={22} />
           Timer
         </h2>
-        <GmtHint />
+        <ZoneHint />
       </div>
 
       <div className="flex items-start gap-3" role="timer" aria-label={d.aria}>
@@ -387,11 +387,11 @@ export function TaskTimer({
       {d.bar && t.pct !== null && <ProgressBar pct={t.pct} tone={d.bar} />}
 
       <div className="grid grid-cols-2 gap-3 border-t border-outline pt-3">
-        <Stat label="Started (GMT)">
-          {t.startedAt !== null ? <GmtTime ts={t.startedAt} gmt={task.started_at_gmt} /> : <span className="text-on-surface-muted">Not started</span>}
+        <Stat label="Started">
+          {t.startedAt !== null ? <LocalTime ts={t.startedAt} gmt={task.started_at_gmt} /> : <span className="text-on-surface-muted">Not started</span>}
         </Stat>
-        <Stat label="Expected finish (GMT)">
-          <GmtTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} missing="Not set" />
+        <Stat label="Expected finish">
+          <LocalTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} missing="Not set" />
         </Stat>
         {t.phase === 'running' && (
           <Stat label="Time remaining">{t.remainingS === null ? <span className="text-on-surface-muted">—</span> : coarseDur(t.remainingS)}</Stat>
@@ -399,8 +399,8 @@ export function TaskTimer({
         {t.phase === 'overrun' && <Stat label="Over by">{coarseDur(t.overS ?? 0)}</Stat>}
         {t.phase === 'finished' && (
           <>
-            <Stat label="Finished (GMT)">
-              <GmtTime ts={t.finishedAt} gmt={task.finished_at_gmt} missing="Not recorded" />
+            <Stat label="Finished">
+              <LocalTime ts={t.finishedAt} gmt={task.finished_at_gmt} missing="Not recorded" />
             </Stat>
             <Stat label="Actual duration">
               {t.elapsedS === null ? <span className="text-on-surface-muted">No start time recorded</span> : coarseDur(t.elapsedS)}
@@ -412,7 +412,7 @@ export function TaskTimer({
 
       {t.phase === 'overrun' && (
         <Note tone="warn" icon="running_with_errors" title={`${coarseDur(t.overS ?? 0)} past the expected finish`} role="alert">
-          This task is still open after <GmtTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} />. Send your supervisor the reason using
+          This task is still open after <LocalTime ts={t.plannedFinish} gmt={task.expected_finish_gmt} />. Send your supervisor the reason using
           “Explain a delay” below — they see it on the task straight away.
         </Note>
       )}

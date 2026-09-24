@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { chatApi, errorText } from '../../api';
 import { POLL } from '../../constants';
-import { GmtTime, TcEmpty, TcError, TcLoading } from '../../components';
+import { LocalTime, TcEmpty, TcError, TcLoading } from '../../components';
 import { Button, Icon, cx } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import type { ChatMessage, ChatThread } from '../../types';
@@ -103,7 +103,7 @@ function Thread({ supervisorId, meId, taskId }: { supervisorId: string; meId: st
             )}
             <p className="whitespace-pre-wrap break-words">{m.text}</p>
             <div className="mt-1 font-display text-label-sm uppercase text-on-surface-muted">
-              {m.from_user_id === meId ? 'Sent' : 'Received'} <GmtTime ts={m.ts} gmt={m.ts_gmt} />
+              {m.from_user_id === meId ? 'Sent' : 'Received'} <LocalTime ts={m.ts} gmt={m.ts_gmt} />
             </div>
           </Bubble>
         ))}
@@ -172,7 +172,7 @@ export function ChatPanel({
       <h2 className="mb-3 flex flex-wrap items-baseline gap-x-2 font-display text-headline-sm uppercase text-on-surface">
         <Icon name="forum" size={24} className="text-on-surface-muted" />
         {supervisorName ?? 'Your supervisor'}
-        <span className="font-body text-label-sm normal-case text-on-surface-muted">times in GMT</span>
+        <span className="font-body text-label-sm normal-case text-on-surface-muted">your local time</span>
       </h2>
       <Thread supervisorId={supervisorId} meId={meId} taskId={taskId} />
     </section>

@@ -5,7 +5,7 @@
 import { Card, TABLE, TableWrap } from '../../../components/ops/layout';
 import { Icon, cx } from '../../../components/ui';
 import { STALE } from '../../constants';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { NotAvailable, TcEmpty } from '../../components/States';
 import { StaleBadge } from '../../components/Badges';
 import type { Camera, MachineStatus } from '../../types';
@@ -32,7 +32,7 @@ export function MachinesPanel({ machines, now }: { machines: MachineStatus[]; no
                 <th>Unit</th>
                 <th>Status</th>
                 <th>Operator</th>
-                <th>Last reading (GMT)</th>
+                <th>Last reading</th>
                 <th>Freshness</th>
                 <th>Open flags</th>
               </tr>
@@ -53,7 +53,7 @@ export function MachinesPanel({ machines, now }: { machines: MachineStatus[]; no
                   </td>
                   <td className="text-body-md">{m.operator_name ?? m.operator_id ?? <span className="text-on-surface-muted">—</span>}</td>
                   <td>
-                    <GmtTime ts={m.last_seen_ts} gmt={m.last_seen_gmt} mode="smart" />
+                    <LocalTime ts={m.last_seen_ts} gmt={m.last_seen_gmt} mode="smart" />
                   </td>
                   <td>
                     <StaleBadge ts={m.last_seen_ts} thresholdS={STALE.machine_s} now={now} label="machine reading" />
@@ -109,7 +109,7 @@ export function CamerasPanel({ cameras, now }: { cameras: Camera[]; now: number 
                 <span className="font-display text-label-md uppercase">{c.label}</span>
                 {c.machine_id && <span className="text-body-sm text-on-surface-muted">{c.machine_id}</span>}
                 <span className="text-body-sm text-on-surface-muted">
-                  Last frame <GmtTime ts={c.last_frame_ts} gmt={c.last_frame_gmt} mode="smart" />
+                  Last frame <LocalTime ts={c.last_frame_ts} gmt={c.last_frame_gmt} mode="smart" />
                 </span>
                 <StaleBadge ts={c.last_frame_ts} thresholdS={STALE.camera_s} now={now} label="frame" />
               </figcaption>

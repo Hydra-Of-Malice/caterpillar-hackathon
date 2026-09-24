@@ -13,7 +13,7 @@
  */
 import { useEffect, useState } from 'react';
 import { errorText, opApi } from '../../api';
-import { GmtTime } from '../../components';
+import { LocalTime } from '../../components';
 import { Button, Icon, cx } from '../../../components/ui';
 import { nowTs } from '../../time';
 import type { OpWaiting, WaitingReason } from '../../types';
@@ -202,7 +202,7 @@ export function WaitingControl({
               {since ? (
                 <>
                   {' · since '}
-                  <GmtTime ts={since} gmt={waiting?.since_gmt ?? undefined} />
+                  <LocalTime ts={since} gmt={waiting?.since_gmt ?? undefined} />
                 </>
               ) : null}
             </div>

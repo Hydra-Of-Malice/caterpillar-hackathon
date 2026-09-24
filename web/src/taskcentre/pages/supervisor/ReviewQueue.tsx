@@ -12,7 +12,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sup, ticketSubject } from '../../api';
-import { GmtTime, NotAvailable, SimulatedChip, TcError, TicketCard, kindLabel } from '../../components';
+import { LocalTime, NotAvailable, SimulatedChip, TcError, TicketCard, kindLabel } from '../../components';
 import { POLL } from '../../constants';
 import { fmtMetres, nowTs } from '../../time';
 import type { DecisionBody, SupOperatorRow, Ticket, TicketDecision } from '../../types';
@@ -58,7 +58,7 @@ export default function ReviewQueue() {
 
       <PageTitle
         title="Review queue"
-        sub="Flags raised by the simulated detectors, by the geofence rules or by a task overrun. A flag is a prompt to look, never a verdict. Times are GMT."
+        sub="Flags raised by the simulated detectors, by the geofence rules or by a task overrun. A flag is a prompt to look, never a verdict. Times are shown in your own timezone."
         right={
           <Segmented
             value={statusFilter}
@@ -168,7 +168,7 @@ function TicketFooter({
           <span>no operator named</span>
         )}
         <span>· raised</span>
-        <GmtTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="datetime" />
+        <LocalTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="datetime" />
         {ticket.task_id && <span>· task {ticket.task_id}</span>}
       </div>
 
@@ -176,7 +176,7 @@ function TicketFooter({
 
       {decidedNow ? (
         <div className="border border-success bg-success/10 px-3 py-2 text-body-sm text-success-text">
-          Recorded: <strong>{decidedNow.decision.replace(/_/g, ' ')}</strong> at <GmtTime ts={decidedNow.ts} mode="datetime" />.
+          Recorded: <strong>{decidedNow.decision.replace(/_/g, ' ')}</strong> at <LocalTime ts={decidedNow.ts} mode="datetime" />.
           {decidedNow.comment ? ` “${decidedNow.comment}”` : ''} The flag keeps its place in the history with this decision attached — nothing is deleted.
         </div>
       ) : (
@@ -255,7 +255,7 @@ function EvidenceExtras({ ticket, now }: { ticket: Ticket; now: number }) {
 
       {timeline && timeline.length > 0 && (
         <section className="md:col-span-2">
-          <h4 className="font-display text-label-sm uppercase text-on-surface-muted">Observation timeline (GMT)</h4>
+          <h4 className="font-display text-label-sm uppercase text-on-surface-muted">Observation timeline</h4>
           <ol className="mt-2 space-y-1.5 border-l-2 border-outline pl-4">
             {timeline.map((item, i) => (
               <TimelineItem key={i} item={item} />
@@ -280,16 +280,16 @@ function EvidenceExtras({ ticket, now }: { ticket: Ticket; now: number }) {
 
       {(timings.length > 0 || overrun !== null) && (
         <section>
-          <h4 className="font-display text-label-sm uppercase text-on-surface-muted">Planned vs actual (GMT)</h4>
+          <h4 className="font-display text-label-sm uppercase text-on-surface-muted">Planned vs actual</h4>
           <ul className="mt-2 space-y-0.5">
             {timings.map(([label, v]) => (
               <li key={label} className="text-body-md text-on-surface-variant">
-                {label}: <GmtTime ts={v} mode="datetime" />
+                {label}: <LocalTime ts={v} mode="datetime" />
               </li>
             ))}
             {overrun !== null && <li className="text-body-md text-warning-text tnum">Overran by {Math.round(overrun / 60)} min</li>}
             <li className="text-body-sm text-on-surface-muted">
-              Now: <GmtTime ts={now} mode="datetime" />
+              Now: <LocalTime ts={now} mode="datetime" />
             </li>
           </ul>
         </section>
@@ -305,7 +305,7 @@ function TimelineItem({ item }: { item: unknown }) {
   const text = str(o.text) ?? str(o.label) ?? str(o.state) ?? str(o.kind) ?? JSON.stringify(o);
   return (
     <li className="text-body-md text-on-surface-variant">
-      {ts !== null && <GmtTime ts={ts} mode="smart" className="mr-2 text-on-surface" />}
+      {ts !== null && <LocalTime ts={ts} mode="smart" className="mr-2 text-on-surface" />}
       {text}
     </li>
   );
@@ -398,7 +398,7 @@ function DecisionPanel({ ticket, subjectName, onDecided }: { ticket: Ticket; sub
               disabled={busy}
               placeholder={chosen.value === 'dismissed' ? 'Why this was not a real problem.' : 'What you checked, and what happens next.'}
             />
-            <span className="mt-1 block text-body-sm text-on-surface-muted">Recorded with your name and the GMT time.</span>
+            <span className="mt-1 block text-body-sm text-on-surface-muted">Recorded with your name and the time.</span>
           </label>
 
           <Checkbox checked={sendMessage} onChange={setSendMessage} label={`Send a constructive message to ${subjectName}`} />

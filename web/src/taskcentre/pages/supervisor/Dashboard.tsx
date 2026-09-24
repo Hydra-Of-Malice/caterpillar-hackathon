@@ -17,7 +17,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sup } from '../../api';
-import { GmtTime } from '../../components';
+import { LocalTime } from '../../components';
 import { POLL, PRESENCE_NOTE } from '../../constants';
 import { nowTs } from '../../time';
 import type { SupOperatorRow } from '../../types';
@@ -71,10 +71,10 @@ export default function Dashboard() {
     <div className="space-y-6">
       <PageTitle
         title="My team"
-        sub="Your operators, the work assigned to them today, and anything waiting for your review. Every operational time on this screen is GMT."
+        sub="Your operators, the work assigned to them today, and anything waiting for your review. Every operational time is shown in your own timezone and stored in UTC."
         right={
           <span className="text-body-sm text-on-surface-muted">
-            Refreshes every {POLL.supervisor / 1000} s · now <GmtTime ts={nowTs()} />
+            Refreshes every {POLL.supervisor / 1000} s · now <LocalTime ts={nowTs()} />
           </span>
         }
       />

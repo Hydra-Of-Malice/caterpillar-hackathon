@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { errorText, sup, ticketSubject } from '../../api';
-import { GmtTime, SimulatedChip, kindLabel } from '../../components';
+import { LocalTime, SimulatedChip, kindLabel } from '../../components';
 import type { Severity, Ticket } from '../../types';
 import { Button, Icon, toast } from '../../../components/ui';
 import { useWarningChime } from '../../../lib/audio';
@@ -112,7 +112,7 @@ function NewFlagPrompt({ ticket, who, onDone }: { ticket: Ticket; who?: string; 
           <p className="mt-0.5 text-body-md font-semibold text-on-surface">{ticket.title}</p>
           <p className="text-body-sm text-on-surface-muted">
             {kindLabel(ticket.kind)}
-            {who ? ` · ${who}` : ''} · <GmtTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="smart" />
+            {who ? ` · ${who}` : ''} · <LocalTime ts={ticket.created_at} gmt={ticket.created_at_gmt} mode="smart" />
           </p>
           {ticket.detail && <p className="mt-1.5 text-body-sm text-on-surface-variant">{ticket.detail}</p>}
         </div>
@@ -258,7 +258,7 @@ export function FlagsPanel({
                         {subjectOf(t, nameOf) ? ` · ${subjectOf(t, nameOf)}` : ''}
                       </span>
                       <span className="mt-0.5 block text-body-sm text-on-surface-muted">
-                        <GmtTime ts={t.created_at} gmt={t.created_at_gmt} mode="smart" />
+                        <LocalTime ts={t.created_at} gmt={t.created_at_gmt} mode="smart" />
                       </span>
                     </span>
                     <Icon name="chevron_right" size={18} className="mt-1 shrink-0 text-on-surface-muted" />

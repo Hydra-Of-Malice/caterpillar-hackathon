@@ -3,7 +3,7 @@
  * (`/tc/sup/operator/:id`).
  *
  * Overall completion, a per-category breakdown, and every training item with the status the API
- * reports: not started, in progress with its percent, or completed with the GMT date it finished.
+ * reports: not started, in progress with its percent, or completed with the date it finished.
  * A not-started item can be assigned from here.
  *
  * The modules are DEMO content written for this prototype. Every item carries that label and the
@@ -12,7 +12,7 @@
  */
 import { useState } from 'react';
 import { sup } from '../../api';
-import { GmtTime, TcError } from '../../components';
+import { LocalTime, TcError } from '../../components';
 import { POLL } from '../../constants';
 import type { TrainingItem, TrainingStatus } from '../../types';
 import { Button } from '../../../components/ui';
@@ -86,11 +86,11 @@ export default function TrainingProfile({ operatorId, operatorName }: { operator
   return (
     <Card
       title="Training profile"
-      sub={`What ${operatorName} has watched, and what is still open. Dates are GMT.`}
+      sub={`What ${operatorName} has watched, and what is still open. Dates are shown in your own timezone.`}
       right={
         summary.last_activity_ts ? (
           <span className="text-body-sm text-on-surface-muted">
-            Last activity <GmtTime ts={summary.last_activity_ts} gmt={summary.last_activity_ts_gmt} mode="smart" />
+            Last activity <LocalTime ts={summary.last_activity_ts} gmt={summary.last_activity_ts_gmt} mode="smart" />
           </span>
         ) : undefined
       }
@@ -214,7 +214,7 @@ function TrainingRow({ item, busy, justAssigned, onAssign }: { item: TrainingIte
         <div className="shrink-0 text-right">
           {item.status === 'completed' ? (
             <span className="text-body-sm text-on-surface-variant">
-              Completed <GmtTime ts={item.completed_at} gmt={item.completed_at_gmt} mode="datetime" missing="date not recorded" />
+              Completed <LocalTime ts={item.completed_at} gmt={item.completed_at_gmt} mode="datetime" missing="date not recorded" />
             </span>
           ) : item.status === 'in_progress' ? (
             <div className="min-w-[160px]">
@@ -222,7 +222,7 @@ function TrainingRow({ item, busy, justAssigned, onAssign }: { item: TrainingIte
               <Bar className="mt-1.5" pct={pct} tone="blue" />
               {item.started_at ? (
                 <span className="mt-1 block text-body-sm text-on-surface-muted">
-                  Started <GmtTime ts={item.started_at} gmt={item.started_at_gmt} mode="datetime" />
+                  Started <LocalTime ts={item.started_at} gmt={item.started_at_gmt} mode="datetime" />
                 </span>
               ) : null}
             </div>
@@ -244,7 +244,7 @@ function TrainingRow({ item, busy, justAssigned, onAssign }: { item: TrainingIte
           {item.assigned_at ? (
             <>
               {' · '}
-              <GmtTime ts={item.assigned_at} gmt={item.assigned_at_gmt} mode="datetime" />
+              <LocalTime ts={item.assigned_at} gmt={item.assigned_at_gmt} mode="datetime" />
             </>
           ) : null}
         </p>

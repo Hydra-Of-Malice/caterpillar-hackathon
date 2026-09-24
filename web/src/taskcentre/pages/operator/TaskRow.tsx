@@ -16,7 +16,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Chip, Icon, ProgressBar, cx } from '../../../components/ui';
-import { GmtTime } from '../../components';
+import { LocalTime } from '../../components';
 import type { TcTask } from '../../types';
 import { TOUCH } from './common';
 import { STATUS_LABEL, checklistChip, statusChip, taskProgress } from './model';
@@ -121,7 +121,7 @@ export function TaskRow({
               <Icon name="schedule" size={20} className="shrink-0 text-on-surface-muted" />
               <dt className="sr-only">Finish by</dt>
               <dd>
-                Finish by <GmtTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} />
+                Finish by <LocalTime ts={task.expected_finish_ts} gmt={task.expected_finish_gmt} />
               </dd>
             </div>
           </dl>

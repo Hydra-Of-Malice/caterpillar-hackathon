@@ -11,7 +11,7 @@ import { Card, InlineTabs, Stat } from '../../../components/ops/layout';
 import { Button, PageTitle } from '../../../components/ui';
 import { useNow, useResource } from '../../../lib/hooks';
 import { adminApi } from '../../api';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { StaleDataNote, TcError, TcLoading } from '../../components/States';
 import { PRESENCE_NOTE, POLL, STALE } from '../../constants';
 import { ageS } from '../../time';
@@ -83,7 +83,7 @@ export default function AdminHome() {
         right={
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-body-sm text-on-surface-muted">
-              Server time <GmtTime ts={o?.now_ts ?? o?.ts} gmt={o?.now_ts_gmt ?? o?.ts_gmt} mode="datetime" missing="unknown" />
+              Server time <LocalTime ts={o?.now_ts ?? o?.ts} gmt={o?.now_ts_gmt ?? o?.ts_gmt} mode="datetime" missing="unknown" />
             </span>
             <Button
               size="sm"

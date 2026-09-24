@@ -6,7 +6,7 @@ import { Card, Caveat, TABLE, TableWrap } from '../../../components/ops/layout';
 import { cx } from '../../../components/ui';
 import { personName } from '../../api';
 import { GeofenceBadge, RoleBadge, StaleBadge } from '../../components/Badges';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { TcEmpty } from '../../components/States';
 import { PRESENCE_NOTE, STALE } from '../../constants';
 import { fmtMetres } from '../../time';
@@ -45,7 +45,7 @@ export function PeoplePanel({ people, now }: { people: PersonRow[]; now: number 
                   <th>Role</th>
                   <th>Machine</th>
                   <th>Geofence</th>
-                  <th>Last fix (GMT)</th>
+                  <th>Last fix</th>
                   <th>Age</th>
                   <th>Fix accuracy</th>
                 </tr>
@@ -70,7 +70,7 @@ export function PeoplePanel({ people, now }: { people: PersonRow[]; now: number 
                         <GeofenceBadge status={r.geofence} distanceM={r.distance} accuracyM={r.accuracy} />
                       </td>
                       <td>
-                        <GmtTime ts={r.ts} gmt={r.gmt} mode="smart" />
+                        <LocalTime ts={r.ts} gmt={r.gmt} mode="smart" />
                       </td>
                       <td>
                         <StaleBadge ts={r.ts} thresholdS={STALE.location_s} now={now} label="position" />

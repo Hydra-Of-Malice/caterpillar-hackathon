@@ -2,6 +2,7 @@
  * Task Centre constants: product naming, poll intervals, staleness thresholds and storage keys.
  * Everything tunable for the demo lives here so there is exactly one place to change it.
  */
+import { ZONE } from './time';
 import type { Role } from './types';
 
 // ---------------------------------------------------------------- product
@@ -14,6 +15,15 @@ export const PRESENCE_NOTE = 'Location indicates presence, not proof.';
 export const PROTOTYPE_NOTE =
   'Prototype on simulated detectors and fictional people, machines and sites. It does not control machinery and does not replace site safety procedures.';
 export const SIMULATED_NOTE = 'Produced by a simulated detector, not a validated sensor.';
+
+/**
+ * How this product talks about time, in one sentence, wherever a screen explains itself.
+ *
+ * Both halves matter. Local time is what somebody can act on without doing arithmetic; UTC is the
+ * stored record, and saying so is what stops a screenshot of one person's screen being read as
+ * another person's clock.
+ */
+export const TIME_NOTE = `Times are shown in your own timezone (${ZONE}) and recorded by the server in UTC.`;
 
 // ---------------------------------------------------------------- polling (ms)
 /** Contract: operator 5 s, chat 5 s, supervisor/admin 10 s. No WebSocket in the Task Centre. */

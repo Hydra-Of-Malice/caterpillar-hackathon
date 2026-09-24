@@ -12,14 +12,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { sup } from '../../api';
 import { TcError } from '../../components';
-import { fmtGmtDateTime } from '../../time';
+import { fmtDateTime } from '../../time';
 import type { Priority, SupOperatorRow, TcTask } from '../../types';
 import { Button, Modal } from '../../../components/ui';
 import { Chip, Field, Icon, TaskStatusChip, cx, operatorName } from './common';
 
 const PRIORITIES: Priority[] = ['low', 'normal', 'high', 'urgent'];
 
-/** `<input type="datetime-local">` speaks local time; the API and every label speak GMT. */
+/** `<input type="datetime-local">` and this screen both speak the reader's zone; the API stores UTC. */
 function toLocalInput(ts: number): string {
   const d = new Date(ts * 1000);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -105,7 +105,7 @@ function Picker({ tasks, now, onPick }: { tasks: TcTask[]; now: number; onPick: 
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body-md text-on-surface">{t.title}</span>
                   <span className="block text-body-sm text-on-surface-muted">
-                    Expected finish {fmtGmtDateTime(t.expected_finish_ts)} GMT
+                    Expected finish {fmtDateTime(t.expected_finish_ts)}
                     {frozen ? ' · completed, frozen' : ''}
                   </span>
                 </span>
@@ -201,10 +201,10 @@ function EditForm({ task, now, onBack, onDone }: { task: TcTask; now: number; on
         <Field label="Machine">
           <input className="input" value={machine} onChange={(e) => setMachine(e.target.value)} />
         </Field>
-        <Field label="Start (your local time)" hint={Number.isFinite(startTs) ? `${fmtGmtDateTime(startTs)} GMT` : undefined}>
+        <Field label="Start" hint={Number.isFinite(startTs) ? fmtDateTime(startTs) : undefined}>
           <input type="datetime-local" className="input" value={startInput} onChange={(e) => setStartInput(e.target.value)} />
         </Field>
-        <Field label="Expected finish (your local time)" hint={Number.isFinite(finishTs) ? `${fmtGmtDateTime(finishTs)} GMT` : undefined}>
+        <Field label="Expected finish" hint={Number.isFinite(finishTs) ? fmtDateTime(finishTs) : undefined}>
           <input type="datetime-local" className="input" value={finishInput} onChange={(e) => setFinishInput(e.target.value)} />
         </Field>
       </div>

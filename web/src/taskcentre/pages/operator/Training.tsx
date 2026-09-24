@@ -14,7 +14,7 @@
  */
 import { useRef, useState } from 'react';
 import { TcApiError, errorText, opApi } from '../../api';
-import { GmtTime, NotAvailable, TcEmpty, TcError, TcLoading } from '../../components';
+import { LocalTime, NotAvailable, TcEmpty, TcError, TcLoading } from '../../components';
 import { Chip, Icon, ProgressBar, cx } from '../../../components/ui';
 import { fmtDur, titleCase } from '../../../lib/format';
 import { useResource } from '../../../lib/hooks';
@@ -188,14 +188,14 @@ function VideoCard({
           <div className="flex flex-wrap gap-x-2">
             <dt>Completed</dt>
             <dd>
-              <GmtTime ts={row.record.completed_at} gmt={row.record.completed_at_gmt} mode="datetime" />
+              <LocalTime ts={row.record.completed_at} gmt={row.record.completed_at_gmt} mode="datetime" />
             </dd>
           </div>
         ) : row.record?.started_at || row.record?.started_at_gmt ? (
           <div className="flex flex-wrap gap-x-2">
             <dt>Started</dt>
             <dd>
-              <GmtTime ts={row.record.started_at} gmt={row.record.started_at_gmt} mode="datetime" />
+              <LocalTime ts={row.record.started_at} gmt={row.record.started_at_gmt} mode="datetime" />
             </dd>
           </div>
         ) : null}
@@ -203,7 +203,7 @@ function VideoCard({
           <div className="flex flex-wrap gap-x-2">
             <dt>Assigned</dt>
             <dd>
-              <GmtTime ts={row.record?.assigned_at} gmt={row.record?.assigned_at_gmt} mode="datetime" />
+              <LocalTime ts={row.record?.assigned_at} gmt={row.record?.assigned_at_gmt} mode="datetime" />
             </dd>
           </div>
         )}
@@ -319,7 +319,7 @@ export default function Training() {
             {summary?.minutes_completed != null && <Chip icon="timelapse">{fmtDur(summary.minutes_completed)} watched</Chip>}
             {(summary?.last_activity_ts || summary?.last_activity_ts_gmt) && (
               <Chip icon="history">
-                Last activity <GmtTime ts={summary.last_activity_ts} gmt={summary.last_activity_ts_gmt} mode="datetime" />
+                Last activity <LocalTime ts={summary.last_activity_ts} gmt={summary.last_activity_ts_gmt} mode="datetime" />
               </Chip>
             )}
           </div>

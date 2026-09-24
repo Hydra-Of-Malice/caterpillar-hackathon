@@ -5,7 +5,7 @@
  * a proximity detection, an overrunning task) and spell out what those conditions could lead to.
  * It is *not* a trained predictive model and nothing here forecasts the future: there is no
  * learned model, no probability estimated from history, and no automatic action. Every item shows
- * the facts it was built from with their GMT times, so a reader can disagree with it on the spot.
+ * the facts it was built from with their times, so a reader can disagree with it on the spot.
  *
  * **What it does.** Each item offers suggestions a person can take — notify the supervisor, open a
  * ticket. Pressing one calls the API and the screen then reports what the API said it did. Nothing
@@ -20,9 +20,9 @@ import { Button, Chip, Icon, PageTitle, cx } from '../../../components/ui';
 import { useResource } from '../../../lib/hooks';
 import { adminApi, errorText } from '../../api';
 import { SimulatedChip, kindLabel } from '../../components/Badges';
-import { GmtTime } from '../../components/GmtTime';
+import { LocalTime } from '../../components/LocalTime';
 import { StaleDataNote, TcEmpty, TcError, TcLoading } from '../../components/States';
-import { POLL } from '../../constants';
+import { POLL, TIME_NOTE } from '../../constants';
 import type { ForesightActResult, ForesightAction, ForesightBasis, ForesightItem, ForesightResponse, Likelihood } from '../../types';
 
 // ---------------------------------------------------------------- likelihood
@@ -82,7 +82,7 @@ function basisValue(v: ForesightBasis['value']): string {
   return String(v);
 }
 
-/** The recorded facts behind one item, each with the GMT time it was observed. */
+/** The recorded facts behind one item, each with the time it was observed. */
 function BasisList({ basis }: { basis: ForesightBasis[] }) {
   if (basis.length === 0) {
     return <p className="text-body-sm text-on-surface-muted">The API sent no facts for this item. Nothing is shown in their place.</p>;
@@ -94,7 +94,7 @@ function BasisList({ basis }: { basis: ForesightBasis[] }) {
           <span className="text-on-surface-variant">{b.fact}</span>
           <span className="font-semibold tnum text-on-surface">{basisValue(b.value)}</span>
           <span className="text-on-surface-muted">
-            observed <GmtTime ts={b.observed_at} gmt={b.observed_at_gmt} mode="datetime" missing="time not recorded" />
+            observed <LocalTime ts={b.observed_at} gmt={b.observed_at_gmt} mode="datetime" missing="time not recorded" />
           </span>
         </li>
       ))}
@@ -188,7 +188,7 @@ function ForesightCard({ item, onActed }: { item: ForesightItem; onActed: () => 
       )}
 
       <section className="mt-4" aria-label={`Facts behind ${item.title}`}>
-        <h4 className="font-display text-label-md uppercase text-on-surface-muted">Built from these recorded facts (GMT)</h4>
+        <h4 className="font-display text-label-md uppercase text-on-surface-muted">Built from these recorded facts</h4>
         <div className="mt-2">
           <BasisList basis={item.basis ?? []} />
         </div>
@@ -198,7 +198,7 @@ function ForesightCard({ item, onActed }: { item: ForesightItem; onActed: () => 
         <section className="mt-5 border-t border-outline pt-4" aria-label={`Suggestions for ${item.title}`}>
           <h4 className="font-display text-label-md uppercase text-on-surface-muted">Suggested next steps — for a person to decide</h4>
           <p className="mt-1 text-body-sm text-on-surface-muted">
-            Pressing one of these routes it to the person named. It does not change anything on a machine, and it is recorded with your name and the server's GMT time.
+            Pressing one of these routes it to the person named. It does not change anything on a machine, and it is recorded with your name and the server's time in UTC.
           </p>
 
           <label htmlFor={commentId} className="mt-3 block text-body-sm text-on-surface-variant">
@@ -403,7 +403,7 @@ export default function Foresight() {
         right={
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-body-sm text-on-surface-muted">
-              Worked out <GmtTime ts={res?.generated_at} gmt={res?.generated_at_gmt} mode="datetime" missing="time not reported" />
+              Worked out <LocalTime ts={res?.generated_at} gmt={res?.generated_at_gmt} mode="datetime" missing="time not reported" />
             </span>
             <Button size="sm" variant="secondary" icon="refresh" onClick={r.reload}>
               Refresh
@@ -439,7 +439,7 @@ export default function Foresight() {
           )}
 
           <p className="text-body-sm text-on-surface-muted">
-            Site {res?.site_id ?? 'not reported'} · every time on this page is GMT, recorded by the server clock.
+            Site {res?.site_id ?? 'not reported'} · {TIME_NOTE}
           </p>
         </>
       )}
